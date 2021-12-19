@@ -2,7 +2,6 @@ const core = require('@actions/core')
 const { Client, LogLevel } = require('@notionhq/client')
 const { Octokit } = require('octokit')
 const YAML = require('yaml')
-const { markdownToBlocks } = require('@tryfabric/martian')
 
 try {
   const NOTION_TOKEN = core.getInput('notion_token')
@@ -31,8 +30,8 @@ try {
         per_page: 100
       })
     core.info(`Found ${repos.length} github repositories, now getting service data ...`)
-    const repoData = []        
-    for (const repo of repos) {      
+    const repoData = []
+    for (const repo of repos) {
       try {
         const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
           owner: repo.full_name.split('/')[0],
@@ -120,18 +119,18 @@ try {
     }
   }
 
-  const updateNotionRow = async (repo, pageId) => {    
+  const updateNotionRow = async (repo, pageId) => {
     try {
       await notion.pages.update({
         page_id: pageId,
         properties: createProperties(repo)
       })
-    } catch(ex) {
-      core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`);
+    } catch (ex) {
+      core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
     }
   }
 
-  const createNotionRow = async (repo) => {    
+  const createNotionRow = async (repo) => {
     try {
       await notion.pages.create({
         parent: {
@@ -139,13 +138,13 @@ try {
         },
         properties: createProperties(repo)
       })
-    } catch(ex) {      
-      core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`);
+    } catch (ex) {
+      core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`)
     }
   }
 
   const updateNotion = async (repositories) => {
-    for (const repo of repositories) {      
+    for (const repo of repositories) {
       // Lets see if we can find the row
       const search = await notion.databases.query({
         database_id: database,
@@ -175,7 +174,7 @@ try {
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
     await updateNotion(repositories)
-    core.endGroup()    
+    core.endGroup()
   }
 
   refreshData()
