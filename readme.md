@@ -14,6 +14,7 @@ This action expects a Notion database with the following properties:
 
   - Name: text
   - Description: text
+  - Kind: select
   - URL: url
   - Segment: select
   - Team: select
@@ -49,6 +50,7 @@ jobs:
          notion_token: ${{ secrets.NOTION_TOKEN }}
          database: 2b26b4290cc84d95ad3e93c3255277a1    
          repository_type: all
+         catalog_file: catalog-info.yaml
 
 ```
 

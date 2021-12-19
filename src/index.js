@@ -41,15 +41,13 @@ try {
         })
         if (data) {
           const base64content = Buffer.from(data.content, 'base64')
-          const serviceDefintion = YAML.parse(base64content.toString('utf8'))
-          serviceDefintion._repo = repo
-          serviceDefintion.status = 'OK'
-          repoData.push(serviceDefintion)
+          const serviceDefinition = YAML.parse(base64content.toString('utf8'))
+          serviceDefinition._repo = repo
+          serviceDefinition.status = 'OK'
+          repoData.push(serviceDefinition)
         }
       } catch (ex) {
         repoData.push({
-          segment: 'Unknown',
-          team: 'Unknown',
           status: `${catalogFile} missing`,
           _repo: repo
         })
@@ -58,63 +56,75 @@ try {
     return repoData
   }
 
+  const createProperties = (repo) => {
+    return {
+      Name: {
+        title: [
+          {
+            text: {
+              content: repo._repo.name
+            }
+          }
+        ]
+      },
+      Description: {
+        rich_text: [
+          {
+            text: {
+              content: repo.metadata?.description || repo._repo.description || repo._repo.name
+            }
+          }
+        ]
+      },
+      Kind: {
+        select: {
+          name: repo.kind || 'Unknown'
+        }
+      },
+      URL: {
+        url: repo._repo.html_url
+      },
+      Segment: {
+        select: {
+          name: repo?.metadata?.annotations?.segment || 'Unknown'
+        }
+      },
+      Team: {
+        select: {
+          name: repo?.metadata?.annotations?.team || 'Unknown'
+        }
+      },
+      Visibility: {
+        select: {
+          name: repo._repo.visibility
+        }
+      },
+      Language: {
+        select: {
+          name: repo._repo.language || 'Unknown'
+        }
+      },
+      Status: {
+        select: {
+          name: repo.status
+        }
+      },
+      Tags: {
+        multi_select: repo.metadata?.tags ? repo.metadata.tags.flatMap(tag => { return { name: tag } }) : []
+      },
+      Updated: {
+        date: {
+          start: new Date().toISOString()
+        }
+      }
+    }
+  }
+
   const updateNotionRow = async (repo, pageId) => {    
     try {
       await notion.pages.update({
         page_id: pageId,
-        properties: {
-          Name: {
-            title: [
-              {
-                text: {
-                  content: repo._repo.name
-                }
-              }
-            ]
-          },
-          Description: {
-            rich_text: [
-              {
-                text: {
-                  content: repo._repo.description || repo._repo.name
-                }
-              }
-            ]
-          },
-          URL: {
-            url: repo._repo.html_url
-          },
-          Segment: {
-            select: {
-              name: repo.segment
-            }
-          },
-          Team: {
-            select: {
-              name: repo.team
-            }
-          },
-          Visibility: {
-            select: {
-              name: repo._repo.visibility
-            }
-          },
-          Language: {
-            select: {
-              name: repo._repo.language || 'Unknown'
-            }
-          },
-          Status: {
-            select: {
-              name: repo.status
-            }
-          },
-          Updated: {
-            date: {
-              start: new Date().toISOString()
-            }
-          }
-        }
+        properties: createProperties(repo)
       })
     } catch(ex) {
       core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`);
@@ -127,40 +137,7 @@ try {
         parent: {
           database_id: database
         },
-        properties: {
-          Name: {
-            title: [
-              {
-                text: {
-                  content: repo._repo.name
-                }
-              }
-            ]
-          },
-          URL: {
-            url: repo._repo.html_url
-          },
-          Segment: {
-            select: {
-              name: repo.segment
-            }
-          },
-          Team: {
-            select: {
-              name: repo.team
-            }
-          },
-          Status: {
-            select: {
-              name: repo.status
-            }
-          },
-          Updated: {
-            date: {
-              start: new Date().toISOString()
-            }
-          }
-        }
+        properties: createProperties(repo)
       })
     } catch(ex) {      
       core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`);
@@ -199,6 +176,7 @@ try {
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
     updateNotion(repositories)
     core.endGroup()
+    core.setFailed(error.message)
   }
 
   refreshData()
