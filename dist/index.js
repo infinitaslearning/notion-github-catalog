@@ -2128,10319 +2128,13347 @@ exports.logLevelSeverity = logLevelSeverity;
 
 /***/ }),
 
-/***/ 799:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.markdownToRichText = exports.markdownToBlocks = void 0;
-const unified_1 = __importDefault(__nccwpck_require__(8893));
-const remark_parse_1 = __importDefault(__nccwpck_require__(6882));
-const internal_1 = __nccwpck_require__(4014);
-const remark_gfm_1 = __importDefault(__nccwpck_require__(4496));
-/**
- * Parses Markdown content into Notion Blocks.
- * - Supports all heading types (heading depths 4, 5, 6 are treated as 3 for Notion)
- * - Supports numbered lists, bulleted lists, to-do lists
- * - Supports italics, bold, strikethrough, inline code, hyperlinks
- *
- * Per Notion limitations, these markdown attributes are not supported:
- * - Tables (removed)
- * - HTML tags (removed)
- * - Thematic breaks (removed)
- * - Code blocks (treated as paragraph)
- * - Block quotes (treated as paragraph)
- *
- * Supports GitHub-flavoured Markdown.
- *
- * @param body any Markdown or GFM content
- */
-function markdownToBlocks(body, allowUnsupportedObjectType = false) {
-    const root = (0, unified_1.default)().use(remark_parse_1.default).use(remark_gfm_1.default).parse(body);
-    return (0, internal_1.parseBlocks)(root, allowUnsupportedObjectType);
-}
-exports.markdownToBlocks = markdownToBlocks;
-/**
- * Parses inline Markdown content into Notion RichText objects.
- * Only supports plain text, italics, bold, strikethrough, inline code, and hyperlinks.
- *
- * @param text any inline Markdown or GFM content
- */
-function markdownToRichText(text) {
-    const root = (0, unified_1.default)().use(remark_parse_1.default).use(remark_gfm_1.default).parse(text);
-    return (0, internal_1.parseRichText)(root);
-}
-exports.markdownToRichText = markdownToRichText;
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 3844:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.tableCell = exports.tableRow = exports.table = exports.toDo = exports.numberedListItem = exports.bulletedListItem = exports.headingThree = exports.headingTwo = exports.headingOne = exports.table_of_contents = exports.image = exports.blockquote = exports.code = exports.paragraph = void 0;
-function paragraph(text) {
-    return {
-        object: 'block',
-        type: 'paragraph',
-        paragraph: {
-            text: text,
-        },
-    };
-}
-exports.paragraph = paragraph;
-function code(text) {
-    return {
-        object: 'block',
-        type: 'code',
-        code: {
-            text: text,
-            language: 'javascript',
-        },
-    };
-}
-exports.code = code;
-function blockquote(text) {
-    return {
-        object: 'block',
-        type: 'quote',
-        quote: {
-            text: text,
-        },
-    };
-}
-exports.blockquote = blockquote;
-function image(url) {
-    return {
-        object: 'block',
-        type: 'image',
-        image: {
-            type: 'external',
-            external: {
-                url: url,
-            },
-        },
-    };
-}
-exports.image = image;
-function table_of_contents() {
-    return {
-        object: 'block',
-        type: 'table_of_contents',
-        table_of_contents: {},
-    };
-}
-exports.table_of_contents = table_of_contents;
-function headingOne(text) {
-    return {
-        object: 'block',
-        type: 'heading_1',
-        heading_1: {
-            text: text,
-        },
-    };
-}
-exports.headingOne = headingOne;
-function headingTwo(text) {
-    return {
-        object: 'block',
-        type: 'heading_2',
-        heading_2: {
-            text: text,
-        },
-    };
-}
-exports.headingTwo = headingTwo;
-function headingThree(text) {
-    return {
-        object: 'block',
-        type: 'heading_3',
-        heading_3: {
-            text: text,
-        },
-    };
-}
-exports.headingThree = headingThree;
-function bulletedListItem(text, children = []) {
-    return {
-        object: 'block',
-        type: 'bulleted_list_item',
-        bulleted_list_item: {
-            text: text,
-            children: children.length ? children : undefined,
-        },
-    };
-}
-exports.bulletedListItem = bulletedListItem;
-function numberedListItem(text, children = []) {
-    return {
-        object: 'block',
-        type: 'numbered_list_item',
-        numbered_list_item: {
-            text: text,
-            children: children.length ? children : undefined,
-        },
-    };
-}
-exports.numberedListItem = numberedListItem;
-function toDo(checked, text, children = []) {
-    return {
-        object: 'block',
-        type: 'to_do',
-        to_do: {
-            text: text,
-            checked: checked,
-            children: children.length ? children : undefined,
-        },
-    };
-}
-exports.toDo = toDo;
-function table(children = []) {
-    return {
-        object: 'unsupported',
-        type: 'table',
-        table: {
-            children: children.length ? children : undefined,
-        },
-    };
-}
-exports.table = table;
-function tableRow(children = []) {
-    return {
-        object: 'unsupported',
-        type: 'table_row',
-        table_row: {
-            children: children.length ? children : undefined,
-        },
-    };
-}
-exports.tableRow = tableRow;
-function tableCell(children = []) {
-    return {
-        object: 'unsupported',
-        type: 'table_cell',
-        table_cell: {
-            children: children.length ? children : undefined,
-        },
-    };
-}
-exports.tableCell = tableCell;
-//# sourceMappingURL=blocks.js.map
-
-/***/ }),
-
-/***/ 3544:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.richText = void 0;
-function richText(content, options = {}) {
-    var _a;
-    const annotations = (_a = options.annotations) !== null && _a !== void 0 ? _a : {};
-    return {
-        type: 'text',
-        annotations: {
-            bold: false,
-            strikethrough: false,
-            underline: false,
-            italic: false,
-            code: false,
-            color: 'default',
-            ...annotations,
-        },
-        text: {
-            content: content,
-            link: options.url
-                ? {
-                    type: 'url',
-                    url: options.url,
-                }
-                : undefined,
-        },
-    };
-}
-exports.richText = richText;
-//# sourceMappingURL=common.js.map
-
-/***/ }),
-
-/***/ 3207:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(3844), exports);
-__exportStar(__nccwpck_require__(3544), exports);
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 4014:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseRichText = exports.parseBlocks = void 0;
-const notion = __importStar(__nccwpck_require__(3207));
-const url_1 = __nccwpck_require__(7310);
-function ensureLength(text, copy) {
-    const chunks = text.match(/[^]{1,2000}/g) || [];
-    return chunks.flatMap((item) => notion.richText(item, copy));
-}
-function parseInline(element, options) {
-    var _a;
-    const copy = {
-        annotations: {
-            ...((_a = options === null || options === void 0 ? void 0 : options.annotations) !== null && _a !== void 0 ? _a : {}),
-        },
-        url: options === null || options === void 0 ? void 0 : options.url,
-    };
-    switch (element.type) {
-        case 'text':
-            return ensureLength(element.value, copy);
-        case 'delete':
-            copy.annotations.strikethrough = true;
-            return element.children.flatMap(child => parseInline(child, copy));
-        case 'emphasis':
-            copy.annotations.italic = true;
-            return element.children.flatMap(child => parseInline(child, copy));
-        case 'strong':
-            copy.annotations.bold = true;
-            return element.children.flatMap(child => parseInline(child, copy));
-        case 'link':
-            copy.url = element.url;
-            return element.children.flatMap(child => parseInline(child, copy));
-        case 'inlineCode':
-            copy.annotations.code = true;
-            return [notion.richText(element.value, copy)];
-        default:
-            return [];
-    }
-}
-function parseParagraph(element) {
-    // If a paragraph containts an image element as its first element
-    // Lets assume it is an image, and parse it as only that (discard remaining content)
-    const isImage = element.children[0].type === 'image';
-    if (isImage) {
-        const image = element.children[0];
-        try {
-            new url_1.URL(image.url);
-            return notion.image(image.url);
-        }
-        catch (error) {
-            console.log(`${error.input} is not a valid url, I will process this as text for you to fix later`);
-        }
-    }
-    // Paragraphs can also be legacy 'TOC' from some markdown
-    const mightBeToc = element.children.length > 2 &&
-        element.children[0].type === 'text' &&
-        element.children[0].value === '[[' &&
-        element.children[1].type === 'emphasis';
-    if (mightBeToc) {
-        const emphasisItem = element.children[1];
-        const emphasisTextItem = emphasisItem.children[0];
-        if (emphasisTextItem.value === 'TOC') {
-            return notion.table_of_contents();
-        }
-    }
-    const text = element.children.flatMap(child => parseInline(child));
-    return notion.paragraph(text);
-}
-function parseBlockquote(element) {
-    // Quotes can only contain RichText[], but come through as Block[]
-    // This code collects and flattens the common ones
-    const blocks = element.children.flatMap(child => parseNode(child));
-    const paragraphs = blocks.flatMap(child => child);
-    const richtext = paragraphs.flatMap(child => {
-        if (child.paragraph) {
-            return child.paragraph.text;
-        }
-        if (child.heading_1) {
-            return child.heading_1.text;
-        }
-        if (child.heading_2) {
-            return child.heading_2.text;
-        }
-        if (child.heading_3) {
-            return child.heading_3.text;
-        }
-        return [];
-    });
-    return notion.blockquote(richtext);
-}
-function parseHeading(element) {
-    const text = element.children.flatMap(child => parseInline(child));
-    switch (element.depth) {
-        case 1:
-            return notion.headingOne(text);
-        case 2:
-            return notion.headingTwo(text);
-        default:
-            return notion.headingThree(text);
-    }
-}
-function parseCode(element) {
-    const text = ensureLength(element.value);
-    return notion.code(text);
-}
-function parseList(element) {
-    return element.children.flatMap(item => {
-        const paragraph = item.children.shift();
-        if (paragraph === undefined || paragraph.type !== 'paragraph') {
-            return [];
-        }
-        const text = paragraph.children.flatMap(child => parseInline(child));
-        // Now process any of the children
-        const parsedChildren = item.children.flatMap(child => parseNode(child));
-        if (element.start !== null && element.start !== undefined) {
-            return [notion.numberedListItem(text, parsedChildren)];
-        }
-        else if (item.checked !== null && item.checked !== undefined) {
-            return [notion.toDo(item.checked, text, parsedChildren)];
-        }
-        else {
-            return [notion.bulletedListItem(text, parsedChildren)];
-        }
-    });
-}
-function parseTableCell(node) {
-    const text = node.children.flatMap(child => parseInline(child));
-    return [notion.tableCell(text)];
-}
-function parseTableRow(node) {
-    const tableCells = node.children.flatMap(child => parseTableCell(child));
-    return [notion.tableRow(tableCells)];
-}
-function parseTable(node) {
-    const tableRows = node.children.flatMap(child => parseTableRow(child));
-    return [notion.table(tableRows)];
-}
-function parseNode(node, unsupported = false) {
-    switch (node.type) {
-        case 'heading':
-            return [parseHeading(node)];
-        case 'paragraph':
-            return [parseParagraph(node)];
-        case 'code':
-            return [parseCode(node)];
-        case 'blockquote':
-            return [parseBlockquote(node)];
-        case 'list':
-            return parseList(node);
-        case 'table':
-            if (unsupported) {
-                return parseTable(node);
-            }
-            else {
-                return [];
-            }
-        default:
-            return [];
-    }
-}
-function parseBlocks(root, unsupported = false) {
-    return root.children.flatMap(item => parseNode(item, unsupported));
-}
-exports.parseBlocks = parseBlocks;
-function parseRichText(root) {
-    if (root.children[0].type !== 'paragraph') {
-        throw new Error(`Unsupported markdown element: ${JSON.stringify(root)}`);
-    }
-    const richTexts = [];
-    root.children.forEach(paragraph => {
-        if (paragraph.type === 'paragraph') {
-            paragraph.children.forEach(child => richTexts.push(...parseInline(child)));
-        }
-    });
-    return richTexts;
-}
-exports.parseRichText = parseRichText;
-//# sourceMappingURL=internal.js.map
-
-/***/ }),
-
-/***/ 7746:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = bail
-
-function bail(err) {
-  if (err) {
-    throw err
-  }
-}
-
-
-/***/ }),
-
-/***/ 783:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = ccount
-
-function ccount(source, character) {
-  var value = String(source)
-  var count = 0
-  var index
-
-  if (typeof character !== 'string') {
-    throw new Error('Expected character')
-  }
-
-  index = value.indexOf(character)
-
-  while (index !== -1) {
-    count++
-    index = value.indexOf(character, index + character.length)
-  }
-
-  return count
-}
-
-
-/***/ }),
-
-/***/ 1939:
-/***/ ((module) => {
-
-"use strict";
-
-
-var hasOwn = Object.prototype.hasOwnProperty;
-var toStr = Object.prototype.toString;
-var defineProperty = Object.defineProperty;
-var gOPD = Object.getOwnPropertyDescriptor;
-
-var isArray = function isArray(arr) {
-	if (typeof Array.isArray === 'function') {
-		return Array.isArray(arr);
-	}
-
-	return toStr.call(arr) === '[object Array]';
-};
-
-var isPlainObject = function isPlainObject(obj) {
-	if (!obj || toStr.call(obj) !== '[object Object]') {
-		return false;
-	}
-
-	var hasOwnConstructor = hasOwn.call(obj, 'constructor');
-	var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
-	// Not own constructor property must be Object
-	if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
-		return false;
-	}
-
-	// Own properties are enumerated firstly, so to speed up,
-	// if last one is own, then all properties are own.
-	var key;
-	for (key in obj) { /**/ }
-
-	return typeof key === 'undefined' || hasOwn.call(obj, key);
-};
-
-// If name is '__proto__', and Object.defineProperty is available, define __proto__ as an own property on target
-var setProperty = function setProperty(target, options) {
-	if (defineProperty && options.name === '__proto__') {
-		defineProperty(target, options.name, {
-			enumerable: true,
-			configurable: true,
-			value: options.newValue,
-			writable: true
-		});
-	} else {
-		target[options.name] = options.newValue;
-	}
-};
-
-// Return undefined instead of __proto__ if '__proto__' is not an own property
-var getProperty = function getProperty(obj, name) {
-	if (name === '__proto__') {
-		if (!hasOwn.call(obj, name)) {
-			return void 0;
-		} else if (gOPD) {
-			// In early versions of node, obj['__proto__'] is buggy when obj has
-			// __proto__ as an own property. Object.getOwnPropertyDescriptor() works.
-			return gOPD(obj, name).value;
-		}
-	}
-
-	return obj[name];
-};
-
-module.exports = function extend() {
-	var options, name, src, copy, copyIsArray, clone;
-	var target = arguments[0];
-	var i = 1;
-	var length = arguments.length;
-	var deep = false;
-
-	// Handle a deep copy situation
-	if (typeof target === 'boolean') {
-		deep = target;
-		target = arguments[1] || {};
-		// skip the boolean and the target
-		i = 2;
-	}
-	if (target == null || (typeof target !== 'object' && typeof target !== 'function')) {
-		target = {};
-	}
-
-	for (; i < length; ++i) {
-		options = arguments[i];
-		// Only deal with non-null/undefined values
-		if (options != null) {
-			// Extend the base object
-			for (name in options) {
-				src = getProperty(target, name);
-				copy = getProperty(options, name);
-
-				// Prevent never-ending loop
-				if (target !== copy) {
-					// Recurse if we're merging plain objects or arrays
-					if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
-						if (copyIsArray) {
-							copyIsArray = false;
-							clone = src && isArray(src) ? src : [];
-						} else {
-							clone = src && isPlainObject(src) ? src : {};
-						}
-
-						// Never move original objects, clone them
-						setProperty(target, { name: name, newValue: extend(deep, clone, copy) });
-
-					// Don't bring in undefined values
-					} else if (typeof copy !== 'undefined') {
-						setProperty(target, { name: name, newValue: copy });
-					}
-				}
-			}
-		}
-	}
-
-	// Return the modified object
-	return target;
-};
-
-
-/***/ }),
-
-/***/ 2096:
-/***/ ((module) => {
-
-/*!
- * Determine if an object is a Buffer
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-
-module.exports = function isBuffer (obj) {
-  return obj != null && obj.constructor != null &&
-    typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-
-/***/ }),
-
-/***/ 9411:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = value => {
-	if (Object.prototype.toString.call(value) !== '[object Object]') {
-		return false;
-	}
-
-	const prototype = Object.getPrototypeOf(value);
-	return prototype === null || prototype === Object.prototype;
-};
-
-
-/***/ }),
-
-/***/ 1864:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var repeat = __nccwpck_require__(8381)
-
-module.exports = markdownTable
-
-var trailingWhitespace = / +$/
-
-// Characters.
-var space = ' '
-var lineFeed = '\n'
-var dash = '-'
-var colon = ':'
-var verticalBar = '|'
-
-var x = 0
-var C = 67
-var L = 76
-var R = 82
-var c = 99
-var l = 108
-var r = 114
-
-// Create a table from a matrix of strings.
-function markdownTable(table, options) {
-  var settings = options || {}
-  var padding = settings.padding !== false
-  var start = settings.delimiterStart !== false
-  var end = settings.delimiterEnd !== false
-  var align = (settings.align || []).concat()
-  var alignDelimiters = settings.alignDelimiters !== false
-  var alignments = []
-  var stringLength = settings.stringLength || defaultStringLength
-  var rowIndex = -1
-  var rowLength = table.length
-  var cellMatrix = []
-  var sizeMatrix = []
-  var row = []
-  var sizes = []
-  var longestCellByColumn = []
-  var mostCellsPerRow = 0
-  var cells
-  var columnIndex
-  var columnLength
-  var largest
-  var size
-  var cell
-  var lines
-  var line
-  var before
-  var after
-  var code
-
-  // This is a superfluous loop if we don’t align delimiters, but otherwise we’d
-  // do superfluous work when aligning, so optimize for aligning.
-  while (++rowIndex < rowLength) {
-    cells = table[rowIndex]
-    columnIndex = -1
-    columnLength = cells.length
-    row = []
-    sizes = []
-
-    if (columnLength > mostCellsPerRow) {
-      mostCellsPerRow = columnLength
-    }
-
-    while (++columnIndex < columnLength) {
-      cell = serialize(cells[columnIndex])
-
-      if (alignDelimiters === true) {
-        size = stringLength(cell)
-        sizes[columnIndex] = size
-
-        largest = longestCellByColumn[columnIndex]
-
-        if (largest === undefined || size > largest) {
-          longestCellByColumn[columnIndex] = size
-        }
-      }
-
-      row.push(cell)
-    }
-
-    cellMatrix[rowIndex] = row
-    sizeMatrix[rowIndex] = sizes
-  }
-
-  // Figure out which alignments to use.
-  columnIndex = -1
-  columnLength = mostCellsPerRow
-
-  if (typeof align === 'object' && 'length' in align) {
-    while (++columnIndex < columnLength) {
-      alignments[columnIndex] = toAlignment(align[columnIndex])
-    }
-  } else {
-    code = toAlignment(align)
-
-    while (++columnIndex < columnLength) {
-      alignments[columnIndex] = code
-    }
-  }
-
-  // Inject the alignment row.
-  columnIndex = -1
-  columnLength = mostCellsPerRow
-  row = []
-  sizes = []
-
-  while (++columnIndex < columnLength) {
-    code = alignments[columnIndex]
-    before = ''
-    after = ''
-
-    if (code === l) {
-      before = colon
-    } else if (code === r) {
-      after = colon
-    } else if (code === c) {
-      before = colon
-      after = colon
-    }
-
-    // There *must* be at least one hyphen-minus in each alignment cell.
-    size = alignDelimiters
-      ? Math.max(
-          1,
-          longestCellByColumn[columnIndex] - before.length - after.length
-        )
-      : 1
-
-    cell = before + repeat(dash, size) + after
-
-    if (alignDelimiters === true) {
-      size = before.length + size + after.length
-
-      if (size > longestCellByColumn[columnIndex]) {
-        longestCellByColumn[columnIndex] = size
-      }
-
-      sizes[columnIndex] = size
-    }
-
-    row[columnIndex] = cell
-  }
-
-  // Inject the alignment row.
-  cellMatrix.splice(1, 0, row)
-  sizeMatrix.splice(1, 0, sizes)
-
-  rowIndex = -1
-  rowLength = cellMatrix.length
-  lines = []
-
-  while (++rowIndex < rowLength) {
-    row = cellMatrix[rowIndex]
-    sizes = sizeMatrix[rowIndex]
-    columnIndex = -1
-    columnLength = mostCellsPerRow
-    line = []
-
-    while (++columnIndex < columnLength) {
-      cell = row[columnIndex] || ''
-      before = ''
-      after = ''
-
-      if (alignDelimiters === true) {
-        size = longestCellByColumn[columnIndex] - (sizes[columnIndex] || 0)
-        code = alignments[columnIndex]
-
-        if (code === r) {
-          before = repeat(space, size)
-        } else if (code === c) {
-          if (size % 2 === 0) {
-            before = repeat(space, size / 2)
-            after = before
-          } else {
-            before = repeat(space, size / 2 + 0.5)
-            after = repeat(space, size / 2 - 0.5)
-          }
-        } else {
-          after = repeat(space, size)
-        }
-      }
-
-      if (start === true && columnIndex === 0) {
-        line.push(verticalBar)
-      }
-
-      if (
-        padding === true &&
-        // Don’t add the opening space if we’re not aligning and the cell is
-        // empty: there will be a closing space.
-        !(alignDelimiters === false && cell === '') &&
-        (start === true || columnIndex !== 0)
-      ) {
-        line.push(space)
-      }
-
-      if (alignDelimiters === true) {
-        line.push(before)
-      }
-
-      line.push(cell)
-
-      if (alignDelimiters === true) {
-        line.push(after)
-      }
-
-      if (padding === true) {
-        line.push(space)
-      }
-
-      if (end === true || columnIndex !== columnLength - 1) {
-        line.push(verticalBar)
-      }
-    }
-
-    line = line.join('')
-
-    if (end === false) {
-      line = line.replace(trailingWhitespace, '')
-    }
-
-    lines.push(line)
-  }
-
-  return lines.join(lineFeed)
-}
-
-function serialize(value) {
-  return value === null || value === undefined ? '' : String(value)
-}
-
-function defaultStringLength(value) {
-  return value.length
-}
-
-function toAlignment(value) {
-  var code = typeof value === 'string' ? value.charCodeAt(0) : x
-
-  return code === L || code === l
-    ? l
-    : code === R || code === r
-    ? r
-    : code === C || code === c
-    ? c
-    : x
-}
-
-
-/***/ }),
-
-/***/ 8382:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = findAndReplace
-
-var visit = __nccwpck_require__(1595)
-var convert = __nccwpck_require__(4791)
-var escape = __nccwpck_require__(2208)
-
-var splice = [].splice
-
-function findAndReplace(tree, find, replace, options) {
-  var settings
-  var schema
-
-  if (typeof find === 'string' || (find && typeof find.exec === 'function')) {
-    schema = [[find, replace]]
-  } else {
-    schema = find
-    options = replace
-  }
-
-  settings = options || {}
-
-  search(tree, settings, handlerFactory(toPairs(schema)))
-
-  return tree
-
-  function handlerFactory(pairs) {
-    var pair = pairs[0]
-
-    return handler
-
-    function handler(node, parent) {
-      var find = pair[0]
-      var replace = pair[1]
-      var nodes = []
-      var start = 0
-      var index = parent.children.indexOf(node)
-      var position
-      var match
-      var subhandler
-      var value
-
-      find.lastIndex = 0
-
-      match = find.exec(node.value)
-
-      while (match) {
-        position = match.index
-        value = replace.apply(
-          null,
-          [].concat(match, {index: match.index, input: match.input})
-        )
-
-        if (value !== false) {
-          if (start !== position) {
-            nodes.push({type: 'text', value: node.value.slice(start, position)})
-          }
-
-          if (typeof value === 'string' && value.length > 0) {
-            value = {type: 'text', value: value}
-          }
-
-          if (value) {
-            nodes = [].concat(nodes, value)
-          }
-
-          start = position + match[0].length
-        }
-
-        if (!find.global) {
-          break
-        }
-
-        match = find.exec(node.value)
-      }
-
-      if (position === undefined) {
-        nodes = [node]
-        index--
-      } else {
-        if (start < node.value.length) {
-          nodes.push({type: 'text', value: node.value.slice(start)})
-        }
-
-        nodes.unshift(index, 1)
-        splice.apply(parent.children, nodes)
-      }
-
-      if (pairs.length > 1) {
-        subhandler = handlerFactory(pairs.slice(1))
-        position = -1
-
-        while (++position < nodes.length) {
-          node = nodes[position]
-
-          if (node.type === 'text') {
-            subhandler(node, parent)
-          } else {
-            search(node, settings, subhandler)
-          }
-        }
-      }
-
-      return index + nodes.length + 1
-    }
-  }
-}
-
-function search(tree, settings, handler) {
-  var ignored = convert(settings.ignore || [])
-  var result = []
-
-  visit(tree, 'text', visitor)
-
-  return result
-
-  function visitor(node, parents) {
-    var index = -1
-    var parent
-    var grandparent
-
-    while (++index < parents.length) {
-      parent = parents[index]
-
-      if (
-        ignored(
-          parent,
-          grandparent ? grandparent.children.indexOf(parent) : undefined,
-          grandparent
-        )
-      ) {
-        return
-      }
-
-      grandparent = parent
-    }
-
-    return handler(node, grandparent)
-  }
-}
-
-function toPairs(schema) {
-  var result = []
-  var key
-  var index
-
-  if (typeof schema !== 'object') {
-    throw new Error('Expected array or object as schema')
-  }
-
-  if ('length' in schema) {
-    index = -1
-
-    while (++index < schema.length) {
-      result.push([
-        toExpression(schema[index][0]),
-        toFunction(schema[index][1])
-      ])
-    }
-  } else {
-    for (key in schema) {
-      result.push([toExpression(key), toFunction(schema[key])])
-    }
-  }
-
-  return result
-}
-
-function toExpression(find) {
-  return typeof find === 'string' ? new RegExp(escape(find), 'g') : find
-}
-
-function toFunction(replace) {
-  return typeof replace === 'function' ? replace : returner
-
-  function returner() {
-    return replace
-  }
-}
-
-
-/***/ }),
-
-/***/ 2208:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = string => {
-	if (typeof string !== 'string') {
-		throw new TypeError('Expected a string');
-	}
-
-	// Escape characters with special meaning either inside or outside character sets.
-	// Use a simple backslash escape when it’s always valid, and a \unnnn escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
-	return string
-		.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
-		.replace(/-/g, '\\x2d');
-};
-
-
-/***/ }),
-
-/***/ 6680:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = fromMarkdown
-
-// These three are compiled away in the `dist/`
-
-var toString = __nccwpck_require__(9821)
-var assign = __nccwpck_require__(9045)
-var own = __nccwpck_require__(4396)
-var normalizeIdentifier = __nccwpck_require__(3909)
-var safeFromInt = __nccwpck_require__(2191)
-var parser = __nccwpck_require__(4359)
-var preprocessor = __nccwpck_require__(7831)
-var postprocess = __nccwpck_require__(3592)
-var decode = __nccwpck_require__(4898)
-var stringifyPosition = __nccwpck_require__(3085)
-
-function fromMarkdown(value, encoding, options) {
-  if (typeof encoding !== 'string') {
-    options = encoding
-    encoding = undefined
-  }
-
-  return compiler(options)(
-    postprocess(
-      parser(options).document().write(preprocessor()(value, encoding, true))
-    )
-  )
-}
-
-// Note this compiler only understand complete buffering, not streaming.
-function compiler(options) {
-  var settings = options || {}
-  var config = configure(
-    {
-      transforms: [],
-      canContainEols: [
-        'emphasis',
-        'fragment',
-        'heading',
-        'paragraph',
-        'strong'
-      ],
-
-      enter: {
-        autolink: opener(link),
-        autolinkProtocol: onenterdata,
-        autolinkEmail: onenterdata,
-        atxHeading: opener(heading),
-        blockQuote: opener(blockQuote),
-        characterEscape: onenterdata,
-        characterReference: onenterdata,
-        codeFenced: opener(codeFlow),
-        codeFencedFenceInfo: buffer,
-        codeFencedFenceMeta: buffer,
-        codeIndented: opener(codeFlow, buffer),
-        codeText: opener(codeText, buffer),
-        codeTextData: onenterdata,
-        data: onenterdata,
-        codeFlowValue: onenterdata,
-        definition: opener(definition),
-        definitionDestinationString: buffer,
-        definitionLabelString: buffer,
-        definitionTitleString: buffer,
-        emphasis: opener(emphasis),
-        hardBreakEscape: opener(hardBreak),
-        hardBreakTrailing: opener(hardBreak),
-        htmlFlow: opener(html, buffer),
-        htmlFlowData: onenterdata,
-        htmlText: opener(html, buffer),
-        htmlTextData: onenterdata,
-        image: opener(image),
-        label: buffer,
-        link: opener(link),
-        listItem: opener(listItem),
-        listItemValue: onenterlistitemvalue,
-        listOrdered: opener(list, onenterlistordered),
-        listUnordered: opener(list),
-        paragraph: opener(paragraph),
-        reference: onenterreference,
-        referenceString: buffer,
-        resourceDestinationString: buffer,
-        resourceTitleString: buffer,
-        setextHeading: opener(heading),
-        strong: opener(strong),
-        thematicBreak: opener(thematicBreak)
-      },
-
-      exit: {
-        atxHeading: closer(),
-        atxHeadingSequence: onexitatxheadingsequence,
-        autolink: closer(),
-        autolinkEmail: onexitautolinkemail,
-        autolinkProtocol: onexitautolinkprotocol,
-        blockQuote: closer(),
-        characterEscapeValue: onexitdata,
-        characterReferenceMarkerHexadecimal: onexitcharacterreferencemarker,
-        characterReferenceMarkerNumeric: onexitcharacterreferencemarker,
-        characterReferenceValue: onexitcharacterreferencevalue,
-        codeFenced: closer(onexitcodefenced),
-        codeFencedFence: onexitcodefencedfence,
-        codeFencedFenceInfo: onexitcodefencedfenceinfo,
-        codeFencedFenceMeta: onexitcodefencedfencemeta,
-        codeFlowValue: onexitdata,
-        codeIndented: closer(onexitcodeindented),
-        codeText: closer(onexitcodetext),
-        codeTextData: onexitdata,
-        data: onexitdata,
-        definition: closer(),
-        definitionDestinationString: onexitdefinitiondestinationstring,
-        definitionLabelString: onexitdefinitionlabelstring,
-        definitionTitleString: onexitdefinitiontitlestring,
-        emphasis: closer(),
-        hardBreakEscape: closer(onexithardbreak),
-        hardBreakTrailing: closer(onexithardbreak),
-        htmlFlow: closer(onexithtmlflow),
-        htmlFlowData: onexitdata,
-        htmlText: closer(onexithtmltext),
-        htmlTextData: onexitdata,
-        image: closer(onexitimage),
-        label: onexitlabel,
-        labelText: onexitlabeltext,
-        lineEnding: onexitlineending,
-        link: closer(onexitlink),
-        listItem: closer(),
-        listOrdered: closer(),
-        listUnordered: closer(),
-        paragraph: closer(),
-        referenceString: onexitreferencestring,
-        resourceDestinationString: onexitresourcedestinationstring,
-        resourceTitleString: onexitresourcetitlestring,
-        resource: onexitresource,
-        setextHeading: closer(onexitsetextheading),
-        setextHeadingLineSequence: onexitsetextheadinglinesequence,
-        setextHeadingText: onexitsetextheadingtext,
-        strong: closer(),
-        thematicBreak: closer()
-      }
-    },
-
-    settings.mdastExtensions || []
-  )
-
-  var data = {}
-
-  return compile
-
-  function compile(events) {
-    var tree = {type: 'root', children: []}
-    var stack = [tree]
-    var tokenStack = []
-    var listStack = []
-    var index = -1
-    var handler
-    var listStart
-
-    var context = {
-      stack: stack,
-      tokenStack: tokenStack,
-      config: config,
-      enter: enter,
-      exit: exit,
-      buffer: buffer,
-      resume: resume,
-      setData: setData,
-      getData: getData
-    }
-
-    while (++index < events.length) {
-      // We preprocess lists to add `listItem` tokens, and to infer whether
-      // items the list itself are spread out.
-      if (
-        events[index][1].type === 'listOrdered' ||
-        events[index][1].type === 'listUnordered'
-      ) {
-        if (events[index][0] === 'enter') {
-          listStack.push(index)
-        } else {
-          listStart = listStack.pop(index)
-          index = prepareList(events, listStart, index)
-        }
-      }
-    }
-
-    index = -1
-
-    while (++index < events.length) {
-      handler = config[events[index][0]]
-
-      if (own.call(handler, events[index][1].type)) {
-        handler[events[index][1].type].call(
-          assign({sliceSerialize: events[index][2].sliceSerialize}, context),
-          events[index][1]
-        )
-      }
-    }
-
-    if (tokenStack.length) {
-      throw new Error(
-        'Cannot close document, a token (`' +
-          tokenStack[tokenStack.length - 1].type +
-          '`, ' +
-          stringifyPosition({
-            start: tokenStack[tokenStack.length - 1].start,
-            end: tokenStack[tokenStack.length - 1].end
-          }) +
-          ') is still open'
-      )
-    }
-
-    // Figure out `root` position.
-    tree.position = {
-      start: point(
-        events.length ? events[0][1].start : {line: 1, column: 1, offset: 0}
-      ),
-
-      end: point(
-        events.length
-          ? events[events.length - 2][1].end
-          : {line: 1, column: 1, offset: 0}
-      )
-    }
-
-    index = -1
-    while (++index < config.transforms.length) {
-      tree = config.transforms[index](tree) || tree
-    }
-
-    return tree
-  }
-
-  function prepareList(events, start, length) {
-    var index = start - 1
-    var containerBalance = -1
-    var listSpread = false
-    var listItem
-    var tailIndex
-    var lineIndex
-    var tailEvent
-    var event
-    var firstBlankLineIndex
-    var atMarker
-
-    while (++index <= length) {
-      event = events[index]
-
-      if (
-        event[1].type === 'listUnordered' ||
-        event[1].type === 'listOrdered' ||
-        event[1].type === 'blockQuote'
-      ) {
-        if (event[0] === 'enter') {
-          containerBalance++
-        } else {
-          containerBalance--
-        }
-
-        atMarker = undefined
-      } else if (event[1].type === 'lineEndingBlank') {
-        if (event[0] === 'enter') {
-          if (
-            listItem &&
-            !atMarker &&
-            !containerBalance &&
-            !firstBlankLineIndex
-          ) {
-            firstBlankLineIndex = index
-          }
-
-          atMarker = undefined
-        }
-      } else if (
-        event[1].type === 'linePrefix' ||
-        event[1].type === 'listItemValue' ||
-        event[1].type === 'listItemMarker' ||
-        event[1].type === 'listItemPrefix' ||
-        event[1].type === 'listItemPrefixWhitespace'
-      ) {
-        // Empty.
-      } else {
-        atMarker = undefined
-      }
-
-      if (
-        (!containerBalance &&
-          event[0] === 'enter' &&
-          event[1].type === 'listItemPrefix') ||
-        (containerBalance === -1 &&
-          event[0] === 'exit' &&
-          (event[1].type === 'listUnordered' ||
-            event[1].type === 'listOrdered'))
-      ) {
-        if (listItem) {
-          tailIndex = index
-          lineIndex = undefined
-
-          while (tailIndex--) {
-            tailEvent = events[tailIndex]
-
-            if (
-              tailEvent[1].type === 'lineEnding' ||
-              tailEvent[1].type === 'lineEndingBlank'
-            ) {
-              if (tailEvent[0] === 'exit') continue
-
-              if (lineIndex) {
-                events[lineIndex][1].type = 'lineEndingBlank'
-                listSpread = true
-              }
-
-              tailEvent[1].type = 'lineEnding'
-              lineIndex = tailIndex
-            } else if (
-              tailEvent[1].type === 'linePrefix' ||
-              tailEvent[1].type === 'blockQuotePrefix' ||
-              tailEvent[1].type === 'blockQuotePrefixWhitespace' ||
-              tailEvent[1].type === 'blockQuoteMarker' ||
-              tailEvent[1].type === 'listItemIndent'
-            ) {
-              // Empty
-            } else {
-              break
-            }
-          }
-
-          if (
-            firstBlankLineIndex &&
-            (!lineIndex || firstBlankLineIndex < lineIndex)
-          ) {
-            listItem._spread = true
-          }
-
-          // Fix position.
-          listItem.end = point(
-            lineIndex ? events[lineIndex][1].start : event[1].end
-          )
-
-          events.splice(lineIndex || index, 0, ['exit', listItem, event[2]])
-          index++
-          length++
-        }
-
-        // Create a new list item.
-        if (event[1].type === 'listItemPrefix') {
-          listItem = {
-            type: 'listItem',
-            _spread: false,
-            start: point(event[1].start)
-          }
-
-          events.splice(index, 0, ['enter', listItem, event[2]])
-          index++
-          length++
-          firstBlankLineIndex = undefined
-          atMarker = true
-        }
-      }
-    }
-
-    events[start][1]._spread = listSpread
-    return length
-  }
-
-  function setData(key, value) {
-    data[key] = value
-  }
-
-  function getData(key) {
-    return data[key]
-  }
-
-  function point(d) {
-    return {line: d.line, column: d.column, offset: d.offset}
-  }
-
-  function opener(create, and) {
-    return open
-
-    function open(token) {
-      enter.call(this, create(token), token)
-      if (and) and.call(this, token)
-    }
-  }
-
-  function buffer() {
-    this.stack.push({type: 'fragment', children: []})
-  }
-
-  function enter(node, token) {
-    this.stack[this.stack.length - 1].children.push(node)
-    this.stack.push(node)
-    this.tokenStack.push(token)
-    node.position = {start: point(token.start)}
-    return node
-  }
-
-  function closer(and) {
-    return close
-
-    function close(token) {
-      if (and) and.call(this, token)
-      exit.call(this, token)
-    }
-  }
-
-  function exit(token) {
-    var node = this.stack.pop()
-    var open = this.tokenStack.pop()
-
-    if (!open) {
-      throw new Error(
-        'Cannot close `' +
-          token.type +
-          '` (' +
-          stringifyPosition({start: token.start, end: token.end}) +
-          '): it’s not open'
-      )
-    } else if (open.type !== token.type) {
-      throw new Error(
-        'Cannot close `' +
-          token.type +
-          '` (' +
-          stringifyPosition({start: token.start, end: token.end}) +
-          '): a different token (`' +
-          open.type +
-          '`, ' +
-          stringifyPosition({start: open.start, end: open.end}) +
-          ') is open'
-      )
-    }
-
-    node.position.end = point(token.end)
-    return node
-  }
-
-  function resume() {
-    return toString(this.stack.pop())
-  }
-
-  //
-  // Handlers.
-  //
-
-  function onenterlistordered() {
-    setData('expectingFirstListItemValue', true)
-  }
-
-  function onenterlistitemvalue(token) {
-    if (getData('expectingFirstListItemValue')) {
-      this.stack[this.stack.length - 2].start = parseInt(
-        this.sliceSerialize(token),
-        10
-      )
-
-      setData('expectingFirstListItemValue')
-    }
-  }
-
-  function onexitcodefencedfenceinfo() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].lang = data
-  }
-
-  function onexitcodefencedfencemeta() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].meta = data
-  }
-
-  function onexitcodefencedfence() {
-    // Exit if this is the closing fence.
-    if (getData('flowCodeInside')) return
-    this.buffer()
-    setData('flowCodeInside', true)
-  }
-
-  function onexitcodefenced() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].value = data.replace(
-      /^(\r?\n|\r)|(\r?\n|\r)$/g,
-      ''
-    )
-
-    setData('flowCodeInside')
-  }
-
-  function onexitcodeindented() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].value = data
-  }
-
-  function onexitdefinitionlabelstring(token) {
-    // Discard label, use the source content instead.
-    var label = this.resume()
-    this.stack[this.stack.length - 1].label = label
-    this.stack[this.stack.length - 1].identifier = normalizeIdentifier(
-      this.sliceSerialize(token)
-    ).toLowerCase()
-  }
-
-  function onexitdefinitiontitlestring() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].title = data
-  }
-
-  function onexitdefinitiondestinationstring() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].url = data
-  }
-
-  function onexitatxheadingsequence(token) {
-    if (!this.stack[this.stack.length - 1].depth) {
-      this.stack[this.stack.length - 1].depth = this.sliceSerialize(
-        token
-      ).length
-    }
-  }
-
-  function onexitsetextheadingtext() {
-    setData('setextHeadingSlurpLineEnding', true)
-  }
-
-  function onexitsetextheadinglinesequence(token) {
-    this.stack[this.stack.length - 1].depth =
-      this.sliceSerialize(token).charCodeAt(0) === 61 ? 1 : 2
-  }
-
-  function onexitsetextheading() {
-    setData('setextHeadingSlurpLineEnding')
-  }
-
-  function onenterdata(token) {
-    var siblings = this.stack[this.stack.length - 1].children
-    var tail = siblings[siblings.length - 1]
-
-    if (!tail || tail.type !== 'text') {
-      // Add a new text node.
-      tail = text()
-      tail.position = {start: point(token.start)}
-      this.stack[this.stack.length - 1].children.push(tail)
-    }
-
-    this.stack.push(tail)
-  }
-
-  function onexitdata(token) {
-    var tail = this.stack.pop()
-    tail.value += this.sliceSerialize(token)
-    tail.position.end = point(token.end)
-  }
-
-  function onexitlineending(token) {
-    var context = this.stack[this.stack.length - 1]
-
-    // If we’re at a hard break, include the line ending in there.
-    if (getData('atHardBreak')) {
-      context.children[context.children.length - 1].position.end = point(
-        token.end
-      )
-
-      setData('atHardBreak')
-      return
-    }
-
-    if (
-      !getData('setextHeadingSlurpLineEnding') &&
-      config.canContainEols.indexOf(context.type) > -1
-    ) {
-      onenterdata.call(this, token)
-      onexitdata.call(this, token)
-    }
-  }
-
-  function onexithardbreak() {
-    setData('atHardBreak', true)
-  }
-
-  function onexithtmlflow() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].value = data
-  }
-
-  function onexithtmltext() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].value = data
-  }
-
-  function onexitcodetext() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].value = data
-  }
-
-  function onexitlink() {
-    var context = this.stack[this.stack.length - 1]
-
-    // To do: clean.
-    if (getData('inReference')) {
-      context.type += 'Reference'
-      context.referenceType = getData('referenceType') || 'shortcut'
-      delete context.url
-      delete context.title
-    } else {
-      delete context.identifier
-      delete context.label
-      delete context.referenceType
-    }
-
-    setData('referenceType')
-  }
-
-  function onexitimage() {
-    var context = this.stack[this.stack.length - 1]
-
-    // To do: clean.
-    if (getData('inReference')) {
-      context.type += 'Reference'
-      context.referenceType = getData('referenceType') || 'shortcut'
-      delete context.url
-      delete context.title
-    } else {
-      delete context.identifier
-      delete context.label
-      delete context.referenceType
-    }
-
-    setData('referenceType')
-  }
-
-  function onexitlabeltext(token) {
-    this.stack[this.stack.length - 2].identifier = normalizeIdentifier(
-      this.sliceSerialize(token)
-    ).toLowerCase()
-  }
-
-  function onexitlabel() {
-    var fragment = this.stack[this.stack.length - 1]
-    var value = this.resume()
-
-    this.stack[this.stack.length - 1].label = value
-
-    // Assume a reference.
-    setData('inReference', true)
-
-    if (this.stack[this.stack.length - 1].type === 'link') {
-      this.stack[this.stack.length - 1].children = fragment.children
-    } else {
-      this.stack[this.stack.length - 1].alt = value
-    }
-  }
-
-  function onexitresourcedestinationstring() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].url = data
-  }
-
-  function onexitresourcetitlestring() {
-    var data = this.resume()
-    this.stack[this.stack.length - 1].title = data
-  }
-
-  function onexitresource() {
-    setData('inReference')
-  }
-
-  function onenterreference() {
-    setData('referenceType', 'collapsed')
-  }
-
-  function onexitreferencestring(token) {
-    var label = this.resume()
-    this.stack[this.stack.length - 1].label = label
-    this.stack[this.stack.length - 1].identifier = normalizeIdentifier(
-      this.sliceSerialize(token)
-    ).toLowerCase()
-    setData('referenceType', 'full')
-  }
-
-  function onexitcharacterreferencemarker(token) {
-    setData('characterReferenceType', token.type)
-  }
-
-  function onexitcharacterreferencevalue(token) {
-    var data = this.sliceSerialize(token)
-    var type = getData('characterReferenceType')
-    var value
-    var tail
-
-    if (type) {
-      value = safeFromInt(
-        data,
-        type === 'characterReferenceMarkerNumeric' ? 10 : 16
-      )
-
-      setData('characterReferenceType')
-    } else {
-      value = decode(data)
-    }
-
-    tail = this.stack.pop()
-    tail.value += value
-    tail.position.end = point(token.end)
-  }
-
-  function onexitautolinkprotocol(token) {
-    onexitdata.call(this, token)
-    this.stack[this.stack.length - 1].url = this.sliceSerialize(token)
-  }
-
-  function onexitautolinkemail(token) {
-    onexitdata.call(this, token)
-    this.stack[this.stack.length - 1].url =
-      'mailto:' + this.sliceSerialize(token)
-  }
-
-  //
-  // Creaters.
-  //
-
-  function blockQuote() {
-    return {type: 'blockquote', children: []}
-  }
-
-  function codeFlow() {
-    return {type: 'code', lang: null, meta: null, value: ''}
-  }
-
-  function codeText() {
-    return {type: 'inlineCode', value: ''}
-  }
-
-  function definition() {
-    return {
-      type: 'definition',
-      identifier: '',
-      label: null,
-      title: null,
-      url: ''
-    }
-  }
-
-  function emphasis() {
-    return {type: 'emphasis', children: []}
-  }
-
-  function heading() {
-    return {type: 'heading', depth: undefined, children: []}
-  }
-
-  function hardBreak() {
-    return {type: 'break'}
-  }
-
-  function html() {
-    return {type: 'html', value: ''}
-  }
-
-  function image() {
-    return {type: 'image', title: null, url: '', alt: null}
-  }
-
-  function link() {
-    return {type: 'link', title: null, url: '', children: []}
-  }
-
-  function list(token) {
-    return {
-      type: 'list',
-      ordered: token.type === 'listOrdered',
-      start: null,
-      spread: token._spread,
-      children: []
-    }
-  }
-
-  function listItem(token) {
-    return {
-      type: 'listItem',
-      spread: token._spread,
-      checked: null,
-      children: []
-    }
-  }
-
-  function paragraph() {
-    return {type: 'paragraph', children: []}
-  }
-
-  function strong() {
-    return {type: 'strong', children: []}
-  }
-
-  function text() {
-    return {type: 'text', value: ''}
-  }
-
-  function thematicBreak() {
-    return {type: 'thematicBreak'}
-  }
-}
-
-function configure(config, extensions) {
-  var index = -1
-
-  while (++index < extensions.length) {
-    extension(config, extensions[index])
-  }
-
-  return config
-}
-
-function extension(config, extension) {
-  var key
-  var left
-
-  for (key in extension) {
-    left = own.call(config, key) ? config[key] : (config[key] = {})
-
-    if (key === 'canContainEols' || key === 'transforms') {
-      config[key] = [].concat(left, extension[key])
-    } else {
-      Object.assign(left, extension[key])
-    }
-  }
-}
-
-
-/***/ }),
-
-/***/ 6611:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = __nccwpck_require__(6680)
-
-
-/***/ }),
-
-/***/ 6994:
+/***/ 4373:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-var ccount = __nccwpck_require__(783)
-var findAndReplace = __nccwpck_require__(8382)
-var unicodePunctuation = __nccwpck_require__(4409)
-var unicodeWhitespace = __nccwpck_require__(3284)
+"use strict";
 
-exports.transforms = [transformGfmAutolinkLiterals]
-exports.enter = {
-  literalAutolink: enterLiteralAutolink,
-  literalAutolinkEmail: enterLiteralAutolinkValue,
-  literalAutolinkHttp: enterLiteralAutolinkValue,
-  literalAutolinkWww: enterLiteralAutolinkValue
-}
-exports.exit = {
-  literalAutolink: exitLiteralAutolink,
-  literalAutolinkEmail: exitLiteralAutolinkEmail,
-  literalAutolinkHttp: exitLiteralAutolinkHttp,
-  literalAutolinkWww: exitLiteralAutolinkWww
-}
 
-function enterLiteralAutolink(token) {
-  this.enter({type: 'link', title: null, url: '', children: []}, token)
-}
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-function enterLiteralAutolinkValue(token) {
-  this.config.enter.autolinkProtocol.call(this, token)
-}
+var core = __nccwpck_require__(5251);
+var authApp = __nccwpck_require__(5173);
+var oauthApp = __nccwpck_require__(4860);
+var authUnauthenticated = __nccwpck_require__(9400);
+var webhooks$1 = __nccwpck_require__(1647);
+var pluginPaginateRest = __nccwpck_require__(6647);
 
-function exitLiteralAutolinkHttp(token) {
-  this.config.exit.autolinkProtocol.call(this, token)
-}
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
 
-function exitLiteralAutolinkWww(token) {
-  this.config.exit.data.call(this, token)
-  this.stack[this.stack.length - 1].url = 'http://' + this.sliceSerialize(token)
-}
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
 
-function exitLiteralAutolinkEmail(token) {
-  this.config.exit.autolinkEmail.call(this, token)
-}
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
 
-function exitLiteralAutolink(token) {
-  this.exit(token)
-}
-
-function transformGfmAutolinkLiterals(tree) {
-  findAndReplace(
-    tree,
-    [
-      [/(https?:\/\/|www(?=\.))([-.\w]+)([^ \t\r\n]*)/i, findUrl],
-      [/([-.\w+]+)@([-\w]+(?:\.[-\w]+)+)/, findEmail]
-    ],
-    {ignore: ['link', 'linkReference']}
-  )
-}
-
-function findUrl($0, protocol, domain, path, match) {
-  var prefix = ''
-  var parts
-  var result
-
-  // Not an expected previous character.
-  if (!previous(match)) {
-    return false
+    keys.push.apply(keys, symbols);
   }
 
-  // Treat `www` as part of the domain.
-  if (/^w/i.test(protocol)) {
-    domain = protocol + domain
-    protocol = ''
-    prefix = 'http://'
-  }
-
-  if (!isCorrectDomain(domain)) {
-    return false
-  }
-
-  parts = splitUrl(domain + path)
-
-  if (!parts[0]) return false
-
-  result = {
-    type: 'link',
-    title: null,
-    url: prefix + protocol + parts[0],
-    children: [{type: 'text', value: protocol + parts[0]}]
-  }
-
-  if (parts[1]) {
-    result = [result, {type: 'text', value: parts[1]}]
-  }
-
-  return result
+  return keys;
 }
 
-function findEmail($0, atext, label, match) {
-  // Not an expected previous character.
-  if (!previous(match, true) || /[_-]$/.test(label)) {
-    return false
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _asyncIterator(iterable) {
+  var method;
+
+  if (typeof Symbol !== "undefined") {
+    if (Symbol.asyncIterator) method = iterable[Symbol.asyncIterator];
+    if (method == null && Symbol.iterator) method = iterable[Symbol.iterator];
+  }
+
+  if (method == null) method = iterable["@@asyncIterator"];
+  if (method == null) method = iterable["@@iterator"];
+  if (method == null) throw new TypeError("Object is not async iterable");
+  return method.call(iterable);
+}
+
+function _AwaitValue(value) {
+  this.wrapped = value;
+}
+
+function _AsyncGenerator(gen) {
+  var front, back;
+
+  function send(key, arg) {
+    return new Promise(function (resolve, reject) {
+      var request = {
+        key: key,
+        arg: arg,
+        resolve: resolve,
+        reject: reject,
+        next: null
+      };
+
+      if (back) {
+        back = back.next = request;
+      } else {
+        front = back = request;
+        resume(key, arg);
+      }
+    });
+  }
+
+  function resume(key, arg) {
+    try {
+      var result = gen[key](arg);
+      var value = result.value;
+      var wrappedAwait = value instanceof _AwaitValue;
+      Promise.resolve(wrappedAwait ? value.wrapped : value).then(function (arg) {
+        if (wrappedAwait) {
+          resume(key === "return" ? "return" : "next", arg);
+          return;
+        }
+
+        settle(result.done ? "return" : "normal", arg);
+      }, function (err) {
+        resume("throw", err);
+      });
+    } catch (err) {
+      settle("throw", err);
+    }
+  }
+
+  function settle(type, value) {
+    switch (type) {
+      case "return":
+        front.resolve({
+          value: value,
+          done: true
+        });
+        break;
+
+      case "throw":
+        front.reject(value);
+        break;
+
+      default:
+        front.resolve({
+          value: value,
+          done: false
+        });
+        break;
+    }
+
+    front = front.next;
+
+    if (front) {
+      resume(front.key, front.arg);
+    } else {
+      back = null;
+    }
+  }
+
+  this._invoke = send;
+
+  if (typeof gen.return !== "function") {
+    this.return = undefined;
+  }
+}
+
+_AsyncGenerator.prototype[typeof Symbol === "function" && Symbol.asyncIterator || "@@asyncIterator"] = function () {
+  return this;
+};
+
+_AsyncGenerator.prototype.next = function (arg) {
+  return this._invoke("next", arg);
+};
+
+_AsyncGenerator.prototype.throw = function (arg) {
+  return this._invoke("throw", arg);
+};
+
+_AsyncGenerator.prototype.return = function (arg) {
+  return this._invoke("return", arg);
+};
+
+function _wrapAsyncGenerator(fn) {
+  return function () {
+    return new _AsyncGenerator(fn.apply(this, arguments));
+  };
+}
+
+function _awaitAsyncGenerator(value) {
+  return new _AwaitValue(value);
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+const VERSION = "12.0.5";
+
+function webhooks(appOctokit, options // Explict return type for better debugability and performance,
+// see https://github.com/octokit/app.js/pull/201
+) {
+  return new webhooks$1.Webhooks({
+    secret: options.secret,
+    transform: async event => {
+      if (!("installation" in event.payload) || typeof event.payload.installation !== "object") {
+        const octokit = new appOctokit.constructor({
+          authStrategy: authUnauthenticated.createUnauthenticatedAuth,
+          auth: {
+            reason: `"installation" key missing in webhook event payload`
+          }
+        });
+        return _objectSpread2(_objectSpread2({}, event), {}, {
+          octokit: octokit
+        });
+      }
+
+      const installationId = event.payload.installation.id;
+      const octokit = await appOctokit.auth({
+        type: "installation",
+        installationId,
+
+        factory(auth) {
+          return new auth.octokit.constructor(_objectSpread2(_objectSpread2({}, auth.octokitOptions), {}, {
+            authStrategy: authApp.createAppAuth
+          }, {
+            auth: _objectSpread2(_objectSpread2({}, auth), {}, {
+              installationId
+            })
+          }));
+        }
+
+      });
+      return _objectSpread2(_objectSpread2({}, event), {}, {
+        octokit: octokit
+      });
+    }
+  });
+}
+
+async function getInstallationOctokit(app, installationId) {
+  return app.octokit.auth({
+    type: "installation",
+    installationId: installationId,
+
+    factory(auth) {
+      const options = _objectSpread2(_objectSpread2({}, auth.octokitOptions), {}, {
+        authStrategy: authApp.createAppAuth
+      }, {
+        auth: _objectSpread2(_objectSpread2({}, auth), {}, {
+          installationId: installationId
+        })
+      });
+
+      return new auth.octokit.constructor(options);
+    }
+
+  });
+}
+
+function eachInstallationFactory(app) {
+  return Object.assign(eachInstallation.bind(null, app), {
+    iterator: eachInstallationIterator.bind(null, app)
+  });
+}
+async function eachInstallation(app, callback) {
+  const i = eachInstallationIterator(app)[Symbol.asyncIterator]();
+  let result = await i.next();
+
+  while (!result.done) {
+    await callback(result.value);
+    result = await i.next();
+  }
+}
+function eachInstallationIterator(app) {
+  return {
+    [Symbol.asyncIterator]() {
+      return _wrapAsyncGenerator(function* () {
+        const iterator = pluginPaginateRest.composePaginateRest.iterator(app.octokit, "GET /app/installations");
+        var _iteratorAbruptCompletion = false;
+        var _didIteratorError = false;
+
+        var _iteratorError;
+
+        try {
+          for (var _iterator = _asyncIterator(iterator), _step; _iteratorAbruptCompletion = !(_step = yield _awaitAsyncGenerator(_iterator.next())).done; _iteratorAbruptCompletion = false) {
+            const {
+              data: installations
+            } = _step.value;
+
+            for (const installation of installations) {
+              const installationOctokit = yield _awaitAsyncGenerator(getInstallationOctokit(app, installation.id));
+              yield {
+                octokit: installationOctokit,
+                installation
+              };
+            }
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (_iteratorAbruptCompletion && _iterator.return != null) {
+              yield _awaitAsyncGenerator(_iterator.return());
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      })();
+    }
+
+  };
+}
+
+function eachRepositoryFactory(app) {
+  return Object.assign(eachRepository.bind(null, app), {
+    iterator: eachRepositoryIterator.bind(null, app)
+  });
+}
+async function eachRepository(app, queryOrCallback, callback) {
+  const i = eachRepositoryIterator(app, callback ? queryOrCallback : undefined)[Symbol.asyncIterator]();
+  let result = await i.next();
+
+  while (!result.done) {
+    if (callback) {
+      await callback(result.value);
+    } else {
+      await queryOrCallback(result.value);
+    }
+
+    result = await i.next();
+  }
+}
+
+function singleInstallationIterator(app, installationId) {
+  return {
+    [Symbol.asyncIterator]() {
+      return _wrapAsyncGenerator(function* () {
+        yield {
+          octokit: yield _awaitAsyncGenerator(app.getInstallationOctokit(installationId))
+        };
+      })();
+    }
+
+  };
+}
+
+function eachRepositoryIterator(app, query) {
+  return {
+    [Symbol.asyncIterator]() {
+      return _wrapAsyncGenerator(function* () {
+        const iterator = query ? singleInstallationIterator(app, query.installationId) : app.eachInstallation.iterator();
+        var _iteratorAbruptCompletion = false;
+        var _didIteratorError = false;
+
+        var _iteratorError;
+
+        try {
+          for (var _iterator = _asyncIterator(iterator), _step; _iteratorAbruptCompletion = !(_step = yield _awaitAsyncGenerator(_iterator.next())).done; _iteratorAbruptCompletion = false) {
+            const {
+              octokit
+            } = _step.value;
+            const repositoriesIterator = pluginPaginateRest.composePaginateRest.iterator(octokit, "GET /installation/repositories");
+            var _iteratorAbruptCompletion2 = false;
+            var _didIteratorError2 = false;
+
+            var _iteratorError2;
+
+            try {
+              for (var _iterator2 = _asyncIterator(repositoriesIterator), _step2; _iteratorAbruptCompletion2 = !(_step2 = yield _awaitAsyncGenerator(_iterator2.next())).done; _iteratorAbruptCompletion2 = false) {
+                const {
+                  data: repositories
+                } = _step2.value;
+
+                for (const repository of repositories) {
+                  yield {
+                    octokit: octokit,
+                    repository
+                  };
+                }
+              }
+            } catch (err) {
+              _didIteratorError2 = true;
+              _iteratorError2 = err;
+            } finally {
+              try {
+                if (_iteratorAbruptCompletion2 && _iterator2.return != null) {
+                  yield _awaitAsyncGenerator(_iterator2.return());
+                }
+              } finally {
+                if (_didIteratorError2) {
+                  throw _iteratorError2;
+                }
+              }
+            }
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (_iteratorAbruptCompletion && _iterator.return != null) {
+              yield _awaitAsyncGenerator(_iterator.return());
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      })();
+    }
+
+  };
+}
+
+function onUnhandledRequestDefault(request, response) {
+  response.writeHead(404, {
+    "content-type": "application/json"
+  });
+  response.end(JSON.stringify({
+    error: `Unknown route: ${request.method} ${request.url}`
+  }));
+}
+
+function noop() {}
+
+function createNodeMiddleware(app, options = {}) {
+  const log = Object.assign({
+    debug: noop,
+    info: noop,
+    warn: console.warn.bind(console),
+    error: console.error.bind(console)
+  }, options.log);
+
+  const optionsWithDefaults = _objectSpread2(_objectSpread2({
+    onUnhandledRequest: onUnhandledRequestDefault,
+    pathPrefix: "/api/github"
+  }, options), {}, {
+    log
+  });
+
+  const webhooksMiddleware = webhooks$1.createNodeMiddleware(app.webhooks, {
+    path: optionsWithDefaults.pathPrefix + "/webhooks",
+    log,
+    onUnhandledRequest: optionsWithDefaults.onUnhandledRequest
+  });
+  const oauthMiddleware = oauthApp.createNodeMiddleware(app.oauth, {
+    pathPrefix: optionsWithDefaults.pathPrefix + "/oauth",
+    onUnhandledRequest: optionsWithDefaults.onUnhandledRequest
+  });
+  return middleware.bind(null, optionsWithDefaults, {
+    webhooksMiddleware,
+    oauthMiddleware
+  });
+}
+async function middleware(options, {
+  webhooksMiddleware,
+  oauthMiddleware
+}, request, response, next) {
+  const {
+    pathname
+  } = new URL(request.url, "http://localhost");
+
+  if (pathname === `${options.pathPrefix}/webhooks`) {
+    return webhooksMiddleware(request, response, next);
+  }
+
+  if (pathname.startsWith(`${options.pathPrefix}/oauth/`)) {
+    return oauthMiddleware(request, response, next);
+  }
+
+  const isExpressMiddleware = typeof next === "function";
+
+  if (isExpressMiddleware) {
+    // @ts-ignore `next` must be a function as we check two lines above
+    return next();
+  }
+
+  return options.onUnhandledRequest(request, response);
+}
+
+class App {
+  constructor(options) {
+    const Octokit = options.Octokit || core.Octokit;
+    const authOptions = Object.assign({
+      appId: options.appId,
+      privateKey: options.privateKey
+    }, options.oauth ? {
+      clientId: options.oauth.clientId,
+      clientSecret: options.oauth.clientSecret
+    } : {});
+    this.octokit = new Octokit({
+      authStrategy: authApp.createAppAuth,
+      auth: authOptions,
+      log: options.log
+    });
+    this.log = Object.assign({
+      debug: () => {},
+      info: () => {},
+      warn: console.warn.bind(console),
+      error: console.error.bind(console)
+    }, options.log); // set app.webhooks depending on whether "webhooks" option has been passed
+
+    if (options.webhooks) {
+      // @ts-expect-error TODO: figure this out
+      this.webhooks = webhooks(this.octokit, options.webhooks);
+    } else {
+      Object.defineProperty(this, "webhooks", {
+        get() {
+          throw new Error("[@octokit/app] webhooks option not set");
+        }
+
+      });
+    } // set app.oauth depending on whether "oauth" option has been passed
+
+
+    if (options.oauth) {
+      this.oauth = new oauthApp.OAuthApp(_objectSpread2(_objectSpread2({}, options.oauth), {}, {
+        clientType: "github-app",
+        Octokit
+      }));
+    } else {
+      Object.defineProperty(this, "oauth", {
+        get() {
+          throw new Error("[@octokit/app] oauth.clientId / oauth.clientSecret options are not set");
+        }
+
+      });
+    }
+
+    this.getInstallationOctokit = getInstallationOctokit.bind(null, this);
+    this.eachInstallation = eachInstallationFactory(this);
+    this.eachRepository = eachRepositoryFactory(this);
+  }
+
+  static defaults(defaults) {
+    const AppWithDefaults = class extends this {
+      constructor(...args) {
+        super(_objectSpread2(_objectSpread2({}, defaults), args[0]));
+      }
+
+    };
+    return AppWithDefaults;
+  }
+
+}
+App.VERSION = VERSION;
+
+exports.App = App;
+exports.createNodeMiddleware = createNodeMiddleware;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 5173:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var universalUserAgent = __nccwpck_require__(7259);
+var request = __nccwpck_require__(8069);
+var authOauthApp = __nccwpck_require__(3965);
+var deprecation = __nccwpck_require__(6962);
+var universalGithubAppJwt = __nccwpck_require__(3185);
+var LRU = _interopDefault(__nccwpck_require__(7899));
+var authOauthUser = __nccwpck_require__(7930);
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+async function getAppAuthentication({
+  appId,
+  privateKey,
+  timeDifference
+}) {
+  try {
+    const appAuthentication = await universalGithubAppJwt.githubAppJwt({
+      id: +appId,
+      privateKey,
+      now: timeDifference && Math.floor(Date.now() / 1000) + timeDifference
+    });
+    return {
+      type: "app",
+      token: appAuthentication.token,
+      appId: appAuthentication.appId,
+      expiresAt: new Date(appAuthentication.expiration * 1000).toISOString()
+    };
+  } catch (error) {
+    if (privateKey === "-----BEGIN RSA PRIVATE KEY-----") {
+      throw new Error("The 'privateKey` option contains only the first line '-----BEGIN RSA PRIVATE KEY-----'. If you are setting it using a `.env` file, make sure it is set on a single line with newlines replaced by '\n'");
+    } else {
+      throw error;
+    }
+  }
+}
+
+// https://github.com/isaacs/node-lru-cache#readme
+function getCache() {
+  return new LRU({
+    // cache max. 15000 tokens, that will use less than 10mb memory
+    max: 15000,
+    // Cache for 1 minute less than GitHub expiry
+    maxAge: 1000 * 60 * 59
+  });
+}
+async function get(cache, options) {
+  const cacheKey = optionsToCacheKey(options);
+  const result = await cache.get(cacheKey);
+
+  if (!result) {
+    return;
+  }
+
+  const [token, createdAt, expiresAt, repositorySelection, permissionsString, singleFileName] = result.split("|");
+  const permissions = options.permissions || permissionsString.split(/,/).reduce((permissions, string) => {
+    if (/!$/.test(string)) {
+      permissions[string.slice(0, -1)] = "write";
+    } else {
+      permissions[string] = "read";
+    }
+
+    return permissions;
+  }, {});
+  return {
+    token,
+    createdAt,
+    expiresAt,
+    permissions,
+    repositoryIds: options.repositoryIds,
+    repositoryNames: options.repositoryNames,
+    singleFileName,
+    repositorySelection: repositorySelection
+  };
+}
+async function set(cache, options, data) {
+  const key = optionsToCacheKey(options);
+  const permissionsString = options.permissions ? "" : Object.keys(data.permissions).map(name => `${name}${data.permissions[name] === "write" ? "!" : ""}`).join(",");
+  const value = [data.token, data.createdAt, data.expiresAt, data.repositorySelection, permissionsString, data.singleFileName].join("|");
+  await cache.set(key, value);
+}
+
+function optionsToCacheKey({
+  installationId,
+  permissions = {},
+  repositoryIds = [],
+  repositoryNames = []
+}) {
+  const permissionsString = Object.keys(permissions).sort().map(name => permissions[name] === "read" ? name : `${name}!`).join(",");
+  const repositoryIdsString = repositoryIds.sort().join(",");
+  const repositoryNamesString = repositoryNames.join(",");
+  return [installationId, repositoryIdsString, repositoryNamesString, permissionsString].filter(Boolean).join("|");
+}
+
+function toTokenAuthentication({
+  installationId,
+  token,
+  createdAt,
+  expiresAt,
+  repositorySelection,
+  permissions,
+  repositoryIds,
+  repositoryNames,
+  singleFileName
+}) {
+  return Object.assign({
+    type: "token",
+    tokenType: "installation",
+    token,
+    installationId,
+    permissions,
+    createdAt,
+    expiresAt,
+    repositorySelection
+  }, repositoryIds ? {
+    repositoryIds
+  } : null, repositoryNames ? {
+    repositoryNames
+  } : null, singleFileName ? {
+    singleFileName
+  } : null);
+}
+
+const _excluded = ["type", "factory", "oauthApp"];
+async function getInstallationAuthentication(state, options, customRequest) {
+  const installationId = Number(options.installationId || state.installationId);
+
+  if (!installationId) {
+    throw new Error("[@octokit/auth-app] installationId option is required for installation authentication.");
+  }
+
+  if (options.factory) {
+    const _state$options = _objectSpread2(_objectSpread2({}, state), options),
+          {
+      type,
+      factory,
+      oauthApp
+    } = _state$options,
+          factoryAuthOptions = _objectWithoutProperties(_state$options, _excluded); // @ts-expect-error if `options.factory` is set, the return type for `auth()` should be `Promise<ReturnType<options.factory>>`
+
+
+    return factory(factoryAuthOptions);
+  }
+
+  const optionsWithInstallationTokenFromState = Object.assign({
+    installationId
+  }, options);
+
+  if (!options.refresh) {
+    const result = await get(state.cache, optionsWithInstallationTokenFromState);
+
+    if (result) {
+      const {
+        token,
+        createdAt,
+        expiresAt,
+        permissions,
+        repositoryIds,
+        repositoryNames,
+        singleFileName,
+        repositorySelection
+      } = result;
+      return toTokenAuthentication({
+        installationId,
+        token,
+        createdAt,
+        expiresAt,
+        permissions,
+        repositorySelection,
+        repositoryIds,
+        repositoryNames,
+        singleFileName
+      });
+    }
+  }
+
+  const appAuthentication = await getAppAuthentication(state);
+  const request = customRequest || state.request;
+  const {
+    data: {
+      token,
+      expires_at: expiresAt,
+      repositories,
+      permissions: permissionsOptional,
+      repository_selection: repositorySelectionOptional,
+      single_file: singleFileName
+    }
+  } = await request("POST /app/installations/{installation_id}/access_tokens", {
+    installation_id: installationId,
+    repository_ids: options.repositoryIds,
+    repositories: options.repositoryNames,
+    permissions: options.permissions,
+    mediaType: {
+      previews: ["machine-man"]
+    },
+    headers: {
+      authorization: `bearer ${appAuthentication.token}`
+    }
+  });
+  /* istanbul ignore next - permissions are optional per OpenAPI spec, but we think that is incorrect */
+
+  const permissions = permissionsOptional || {};
+  /* istanbul ignore next - repositorySelection are optional per OpenAPI spec, but we think that is incorrect */
+
+  const repositorySelection = repositorySelectionOptional || "all";
+  const repositoryIds = repositories ? repositories.map(r => r.id) : void 0;
+  const repositoryNames = repositories ? repositories.map(repo => repo.name) : void 0;
+  const createdAt = new Date().toISOString();
+  await set(state.cache, optionsWithInstallationTokenFromState, {
+    token,
+    createdAt,
+    expiresAt,
+    repositorySelection,
+    permissions,
+    repositoryIds,
+    repositoryNames,
+    singleFileName
+  });
+  return toTokenAuthentication({
+    installationId,
+    token,
+    createdAt,
+    expiresAt,
+    repositorySelection,
+    permissions,
+    repositoryIds,
+    repositoryNames,
+    singleFileName
+  });
+}
+
+async function auth(state, authOptions) {
+  switch (authOptions.type) {
+    case "app":
+      return getAppAuthentication(state);
+    // @ts-expect-error "oauth" is not supperted in types
+
+    case "oauth":
+      state.log.warn( // @ts-expect-error `log.warn()` expects string
+      new deprecation.Deprecation(`[@octokit/auth-app] {type: "oauth"} is deprecated. Use {type: "oauth-app"} instead`));
+
+    case "oauth-app":
+      return state.oauthApp({
+        type: "oauth-app"
+      });
+
+    case "installation":
+      return getInstallationAuthentication(state, _objectSpread2(_objectSpread2({}, authOptions), {}, {
+        type: "installation"
+      }));
+
+    case "oauth-user":
+      // @ts-expect-error TODO: infer correct auth options type based on type. authOptions should be typed as "WebFlowAuthOptions | OAuthAppDeviceFlowAuthOptions | GitHubAppDeviceFlowAuthOptions"
+      return state.oauthApp(authOptions);
+
+    default:
+      // @ts-expect-error type is "never" at this point
+      throw new Error(`Invalid auth type: ${authOptions.type}`);
+  }
+}
+
+const PATHS = ["/app", "/app/hook/config", "/app/hook/deliveries", "/app/hook/deliveries/{delivery_id}", "/app/hook/deliveries/{delivery_id}/attempts", "/app/installations", "/app/installations/{installation_id}", "/app/installations/{installation_id}/access_tokens", "/app/installations/{installation_id}/suspended", "/marketplace_listing/accounts/{account_id}", "/marketplace_listing/plan", "/marketplace_listing/plans", "/marketplace_listing/plans/{plan_id}/accounts", "/marketplace_listing/stubbed/accounts/{account_id}", "/marketplace_listing/stubbed/plan", "/marketplace_listing/stubbed/plans", "/marketplace_listing/stubbed/plans/{plan_id}/accounts", "/orgs/{org}/installation", "/repos/{owner}/{repo}/installation", "/users/{username}/installation"]; // CREDIT: Simon Grondin (https://github.com/SGrondin)
+// https://github.com/octokit/plugin-throttling.js/blob/45c5d7f13b8af448a9dbca468d9c9150a73b3948/lib/route-matcher.js
+
+function routeMatcher(paths) {
+  // EXAMPLE. For the following paths:
+
+  /* [
+      "/orgs/{org}/invitations",
+      "/repos/{owner}/{repo}/collaborators/{username}"
+  ] */
+  const regexes = paths.map(p => p.split("/").map(c => c.startsWith("{") ? "(?:.+?)" : c).join("/")); // 'regexes' would contain:
+
+  /* [
+      '/orgs/(?:.+?)/invitations',
+      '/repos/(?:.+?)/(?:.+?)/collaborators/(?:.+?)'
+  ] */
+
+  const regex = `^(?:${regexes.map(r => `(?:${r})`).join("|")})[^/]*$`; // 'regex' would contain:
+
+  /*
+    ^(?:(?:\/orgs\/(?:.+?)\/invitations)|(?:\/repos\/(?:.+?)\/(?:.+?)\/collaborators\/(?:.+?)))[^\/]*$
+       It may look scary, but paste it into https://www.debuggex.com/
+    and it will make a lot more sense!
+  */
+
+  return new RegExp(regex, "i");
+}
+
+const REGEX = routeMatcher(PATHS);
+function requiresAppAuth(url) {
+  return !!url && REGEX.test(url);
+}
+
+const FIVE_SECONDS_IN_MS = 5 * 1000;
+
+function isNotTimeSkewError(error) {
+  return !(error.message.match(/'Expiration time' claim \('exp'\) must be a numeric value representing the future time at which the assertion expires/) || error.message.match(/'Issued at' claim \('iat'\) must be an Integer representing the time that the assertion was issued/));
+}
+
+async function hook(state, request, route, parameters) {
+  const endpoint = request.endpoint.merge(route, parameters);
+  const url = endpoint.url; // Do not intercept request to retrieve a new token
+
+  if (/\/login\/oauth\/access_token$/.test(url)) {
+    return request(endpoint);
+  }
+
+  if (requiresAppAuth(url.replace(request.endpoint.DEFAULTS.baseUrl, ""))) {
+    const {
+      token
+    } = await getAppAuthentication(state);
+    endpoint.headers.authorization = `bearer ${token}`;
+    let response;
+
+    try {
+      response = await request(endpoint);
+    } catch (error) {
+      // If there's an issue with the expiration, regenerate the token and try again.
+      // Otherwise rethrow the error for upstream handling.
+      if (isNotTimeSkewError(error)) {
+        throw error;
+      } // If the date header is missing, we can't correct the system time skew.
+      // Throw the error to be handled upstream.
+
+
+      if (typeof error.response.headers.date === "undefined") {
+        throw error;
+      }
+
+      const diff = Math.floor((Date.parse(error.response.headers.date) - Date.parse(new Date().toString())) / 1000);
+      state.log.warn(error.message);
+      state.log.warn(`[@octokit/auth-app] GitHub API time and system time are different by ${diff} seconds. Retrying request with the difference accounted for.`);
+      const {
+        token
+      } = await getAppAuthentication(_objectSpread2(_objectSpread2({}, state), {}, {
+        timeDifference: diff
+      }));
+      endpoint.headers.authorization = `bearer ${token}`;
+      return request(endpoint);
+    }
+
+    return response;
+  }
+
+  if (authOauthUser.requiresBasicAuth(url)) {
+    const authentication = await state.oauthApp({
+      type: "oauth-app"
+    });
+    endpoint.headers.authorization = authentication.headers.authorization;
+    return request(endpoint);
+  }
+
+  const {
+    token,
+    createdAt
+  } = await getInstallationAuthentication(state, // @ts-expect-error TBD
+  {}, request);
+  endpoint.headers.authorization = `token ${token}`;
+  return sendRequestWithRetries(state, request, endpoint, createdAt);
+}
+/**
+ * Newly created tokens might not be accessible immediately after creation.
+ * In case of a 401 response, we retry with an exponential delay until more
+ * than five seconds pass since the creation of the token.
+ *
+ * @see https://github.com/octokit/auth-app.js/issues/65
+ */
+
+async function sendRequestWithRetries(state, request, options, createdAt, retries = 0) {
+  const timeSinceTokenCreationInMs = +new Date() - +new Date(createdAt);
+
+  try {
+    return await request(options);
+  } catch (error) {
+    if (error.status !== 401) {
+      throw error;
+    }
+
+    if (timeSinceTokenCreationInMs >= FIVE_SECONDS_IN_MS) {
+      if (retries > 0) {
+        error.message = `After ${retries} retries within ${timeSinceTokenCreationInMs / 1000}s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`;
+      }
+
+      throw error;
+    }
+
+    ++retries;
+    const awaitTime = retries * 1000;
+    state.log.warn(`[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${awaitTime / 1000}s)`);
+    await new Promise(resolve => setTimeout(resolve, awaitTime));
+    return sendRequestWithRetries(state, request, options, createdAt, retries);
+  }
+}
+
+const VERSION = "3.6.1";
+
+function createAppAuth(options) {
+  if (!options.appId) {
+    throw new Error("[@octokit/auth-app] appId option is required");
+  }
+
+  if (!options.privateKey) {
+    throw new Error("[@octokit/auth-app] privateKey option is required");
+  }
+
+  if ("installationId" in options && !options.installationId) {
+    throw new Error("[@octokit/auth-app] installationId is set to a falsy value");
+  }
+
+  const log = Object.assign({
+    warn: console.warn.bind(console)
+  }, options.log);
+  const request$1 = options.request || request.request.defaults({
+    headers: {
+      "user-agent": `octokit-auth-app.js/${VERSION} ${universalUserAgent.getUserAgent()}`
+    }
+  });
+  const state = Object.assign({
+    request: request$1,
+    cache: getCache()
+  }, options, options.installationId ? {
+    installationId: Number(options.installationId)
+  } : {}, {
+    log,
+    oauthApp: authOauthApp.createOAuthAppAuth({
+      clientType: "github-app",
+      clientId: options.clientId || "",
+      clientSecret: options.clientSecret || "",
+      request: request$1
+    })
+  }); // @ts-expect-error not worth the extra code to appease TS
+
+  return Object.assign(auth.bind(null, state), {
+    hook: hook.bind(null, state)
+  });
+}
+
+Object.defineProperty(exports, "createOAuthUserAuth", ({
+  enumerable: true,
+  get: function () {
+    return authOauthUser.createOAuthUserAuth;
+  }
+}));
+exports.createAppAuth = createAppAuth;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 3965:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var universalUserAgent = __nccwpck_require__(7259);
+var request = __nccwpck_require__(8069);
+var btoa = _interopDefault(__nccwpck_require__(2241));
+var authOauthUser = __nccwpck_require__(7930);
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+const _excluded = ["type"];
+async function auth(state, authOptions) {
+  if (authOptions.type === "oauth-app") {
+    return {
+      type: "oauth-app",
+      clientId: state.clientId,
+      clientSecret: state.clientSecret,
+      clientType: state.clientType,
+      headers: {
+        authorization: `basic ${btoa(`${state.clientId}:${state.clientSecret}`)}`
+      }
+    };
+  }
+
+  if ("factory" in authOptions) {
+    const _authOptions$state = _objectSpread2(_objectSpread2({}, authOptions), state),
+          options = _objectWithoutProperties(_authOptions$state, _excluded); // @ts-expect-error TODO: `option` cannot be never, is this a bug?
+
+
+    return authOptions.factory(options);
+  }
+
+  const common = _objectSpread2({
+    clientId: state.clientId,
+    clientSecret: state.clientSecret,
+    request: state.request
+  }, authOptions); // TS: Look what you made me do
+
+
+  const userAuth = state.clientType === "oauth-app" ? await authOauthUser.createOAuthUserAuth(_objectSpread2(_objectSpread2({}, common), {}, {
+    clientType: state.clientType
+  })) : await authOauthUser.createOAuthUserAuth(_objectSpread2(_objectSpread2({}, common), {}, {
+    clientType: state.clientType
+  }));
+  return userAuth();
+}
+
+async function hook(state, request, route, parameters) {
+  let endpoint = request.endpoint.merge(route, parameters); // Do not intercept OAuth Web/Device flow request
+
+  if (/\/login\/(oauth\/access_token|device\/code)$/.test(endpoint.url)) {
+    return request(endpoint);
+  }
+
+  if (state.clientType === "github-app" && !authOauthUser.requiresBasicAuth(endpoint.url)) {
+    throw new Error(`[@octokit/auth-oauth-app] GitHub Apps cannot use their client ID/secret for basic authentication for endpoints other than "/applications/{client_id}/**". "${endpoint.method} ${endpoint.url}" is not supported.`);
+  }
+
+  const credentials = btoa(`${state.clientId}:${state.clientSecret}`);
+  endpoint.headers.authorization = `basic ${credentials}`;
+
+  try {
+    return await request(endpoint);
+  } catch (error) {
+    /* istanbul ignore if */
+    if (error.status !== 401) throw error;
+    error.message = `[@octokit/auth-oauth-app] "${endpoint.method} ${endpoint.url}" does not support clientId/clientSecret basic authentication.`;
+    throw error;
+  }
+}
+
+const VERSION = "4.3.0";
+
+function createOAuthAppAuth(options) {
+  const state = Object.assign({
+    request: request.request.defaults({
+      headers: {
+        "user-agent": `octokit-auth-oauth-app.js/${VERSION} ${universalUserAgent.getUserAgent()}`
+      }
+    }),
+    clientType: "oauth-app"
+  }, options); // @ts-expect-error not worth the extra code to appease TS
+
+  return Object.assign(auth.bind(null, state), {
+    hook: hook.bind(null, state)
+  });
+}
+
+Object.defineProperty(exports, "createOAuthUserAuth", ({
+  enumerable: true,
+  get: function () {
+    return authOauthUser.createOAuthUserAuth;
+  }
+}));
+exports.createOAuthAppAuth = createOAuthAppAuth;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 8473:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+var universalUserAgent = __nccwpck_require__(7259);
+var request = __nccwpck_require__(8069);
+var oauthMethods = __nccwpck_require__(6334);
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+async function getOAuthAccessToken(state, options) {
+  const cachedAuthentication = getCachedAuthentication(state, options.auth);
+  if (cachedAuthentication) return cachedAuthentication; // Step 1: Request device and user codes
+  // https://docs.github.com/en/developers/apps/authorizing-oauth-apps#step-1-app-requests-the-device-and-user-verification-codes-from-github
+
+  const {
+    data: verification
+  } = await oauthMethods.createDeviceCode({
+    clientType: state.clientType,
+    clientId: state.clientId,
+    request: options.request || state.request,
+    // @ts-expect-error the extra code to make TS happy is not worth it
+    scopes: options.auth.scopes || state.scopes
+  }); // Step 2: User must enter the user code on https://github.com/login/device
+  // See https://docs.github.com/en/developers/apps/authorizing-oauth-apps#step-2-prompt-the-user-to-enter-the-user-code-in-a-browser
+
+  await state.onVerification(verification); // Step 3: Exchange device code for access token
+  // See https://docs.github.com/en/developers/apps/authorizing-oauth-apps#step-3-app-polls-github-to-check-if-the-user-authorized-the-device
+
+  const authentication = await waitForAccessToken(options.request || state.request, state.clientId, state.clientType, verification);
+  state.authentication = authentication;
+  return authentication;
+}
+
+function getCachedAuthentication(state, auth) {
+  if (auth.refresh === true) return false;
+  if (!state.authentication) return false;
+
+  if (state.clientType === "github-app") {
+    return state.authentication;
+  }
+
+  const authentication = state.authentication;
+  const newScope = ("scopes" in auth && auth.scopes || state.scopes).join(" ");
+  const currentScope = authentication.scopes.join(" ");
+  return newScope === currentScope ? authentication : false;
+}
+
+async function wait(seconds) {
+  await new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
+async function waitForAccessToken(request, clientId, clientType, verification) {
+  try {
+    const options = {
+      clientId,
+      request,
+      code: verification.device_code
+    }; // WHY TYPESCRIPT WHY ARE YOU DOING THIS TO ME
+
+    const {
+      authentication
+    } = clientType === "oauth-app" ? await oauthMethods.exchangeDeviceCode(_objectSpread2(_objectSpread2({}, options), {}, {
+      clientType: "oauth-app"
+    })) : await oauthMethods.exchangeDeviceCode(_objectSpread2(_objectSpread2({}, options), {}, {
+      clientType: "github-app"
+    }));
+    return _objectSpread2({
+      type: "token",
+      tokenType: "oauth"
+    }, authentication);
+  } catch (error) {
+    // istanbul ignore if
+    if (!error.response) throw error;
+    const errorType = error.response.data.error;
+
+    if (errorType === "authorization_pending") {
+      await wait(verification.interval);
+      return waitForAccessToken(request, clientId, clientType, verification);
+    }
+
+    if (errorType === "slow_down") {
+      await wait(verification.interval + 5);
+      return waitForAccessToken(request, clientId, clientType, verification);
+    }
+
+    throw error;
+  }
+}
+
+async function auth(state, authOptions) {
+  return getOAuthAccessToken(state, {
+    auth: authOptions
+  });
+}
+
+async function hook(state, request, route, parameters) {
+  let endpoint = request.endpoint.merge(route, parameters); // Do not intercept request to retrieve codes or token
+
+  if (/\/login\/(oauth\/access_token|device\/code)$/.test(endpoint.url)) {
+    return request(endpoint);
+  }
+
+  const {
+    token
+  } = await getOAuthAccessToken(state, {
+    request,
+    auth: {
+      type: "oauth"
+    }
+  });
+  endpoint.headers.authorization = `token ${token}`;
+  return request(endpoint);
+}
+
+const VERSION = "3.1.2";
+
+function createOAuthDeviceAuth(options) {
+  const requestWithDefaults = options.request || request.request.defaults({
+    headers: {
+      "user-agent": `octokit-auth-oauth-device.js/${VERSION} ${universalUserAgent.getUserAgent()}`
+    }
+  });
+
+  const {
+    request: request$1 = requestWithDefaults
+  } = options,
+        otherOptions = _objectWithoutProperties(options, ["request"]);
+
+  const state = options.clientType === "github-app" ? _objectSpread2(_objectSpread2({}, otherOptions), {}, {
+    clientType: "github-app",
+    request: request$1
+  }) : _objectSpread2(_objectSpread2({}, otherOptions), {}, {
+    clientType: "oauth-app",
+    request: request$1,
+    scopes: options.scopes || []
+  });
+
+  if (!options.clientId) {
+    throw new Error('[@octokit/auth-oauth-device] "clientId" option must be set (https://github.com/octokit/auth-oauth-device.js#usage)');
+  }
+
+  if (!options.onVerification) {
+    throw new Error('[@octokit/auth-oauth-device] "onVerification" option must be a function (https://github.com/octokit/auth-oauth-device.js#usage)');
+  } // @ts-ignore too much for tsc / ts-jest ¯\_(ツ)_/¯
+
+
+  return Object.assign(auth.bind(null, state), {
+    hook: hook.bind(null, state)
+  });
+}
+
+exports.createOAuthDeviceAuth = createOAuthDeviceAuth;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 7930:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var universalUserAgent = __nccwpck_require__(7259);
+var request = __nccwpck_require__(8069);
+var authOauthDevice = __nccwpck_require__(8473);
+var oauthMethods = __nccwpck_require__(6334);
+var btoa = _interopDefault(__nccwpck_require__(2241));
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+const VERSION = "1.3.0";
+
+async function getAuthentication(state) {
+  // handle code exchange form OAuth Web Flow
+  if ("code" in state.strategyOptions) {
+    const {
+      authentication
+    } = await oauthMethods.exchangeWebFlowCode(_objectSpread2(_objectSpread2({
+      clientId: state.clientId,
+      clientSecret: state.clientSecret,
+      clientType: state.clientType
+    }, state.strategyOptions), {}, {
+      request: state.request
+    }));
+    return _objectSpread2({
+      type: "token",
+      tokenType: "oauth"
+    }, authentication);
+  } // handle OAuth device flow
+
+
+  if ("onVerification" in state.strategyOptions) {
+    const deviceAuth = authOauthDevice.createOAuthDeviceAuth(_objectSpread2(_objectSpread2({
+      clientType: state.clientType,
+      clientId: state.clientId
+    }, state.strategyOptions), {}, {
+      request: state.request
+    }));
+    const authentication = await deviceAuth({
+      type: "oauth"
+    });
+    return _objectSpread2({
+      clientSecret: state.clientSecret
+    }, authentication);
+  } // use existing authentication
+
+
+  if ("token" in state.strategyOptions) {
+    return _objectSpread2({
+      type: "token",
+      tokenType: "oauth",
+      clientId: state.clientId,
+      clientSecret: state.clientSecret,
+      clientType: state.clientType
+    }, state.strategyOptions);
+  }
+
+  throw new Error("[@octokit/auth-oauth-user] Invalid strategy options");
+}
+
+async function auth(state, options = {}) {
+  if (!state.authentication) {
+    // This is what TS makes us do ¯\_(ツ)_/¯
+    state.authentication = state.clientType === "oauth-app" ? await getAuthentication(state) : await getAuthentication(state);
+  }
+
+  if (state.authentication.invalid) {
+    throw new Error("[@octokit/auth-oauth-user] Token is invalid");
+  }
+
+  const currentAuthentication = state.authentication; // (auto) refresh for user-to-server tokens
+
+  if ("expiresAt" in currentAuthentication) {
+    if (options.type === "refresh" || new Date(currentAuthentication.expiresAt) < new Date()) {
+      const {
+        authentication
+      } = await oauthMethods.refreshToken({
+        clientType: "github-app",
+        clientId: state.clientId,
+        clientSecret: state.clientSecret,
+        refreshToken: currentAuthentication.refreshToken,
+        request: state.request
+      });
+      state.authentication = _objectSpread2({
+        tokenType: "oauth",
+        type: "token"
+      }, authentication);
+    }
+  } // throw error for invalid refresh call
+
+
+  if (options.type === "refresh") {
+    if (state.clientType === "oauth-app") {
+      throw new Error("[@octokit/auth-oauth-user] OAuth Apps do not support expiring tokens");
+    }
+
+    if (!currentAuthentication.hasOwnProperty("expiresAt")) {
+      throw new Error("[@octokit/auth-oauth-user] Refresh token missing");
+    }
+  } // check or reset token
+
+
+  if (options.type === "check" || options.type === "reset") {
+    const method = options.type === "check" ? oauthMethods.checkToken : oauthMethods.resetToken;
+
+    try {
+      const {
+        authentication
+      } = await method({
+        // @ts-expect-error making TS happy would require unnecessary code so no
+        clientType: state.clientType,
+        clientId: state.clientId,
+        clientSecret: state.clientSecret,
+        token: state.authentication.token,
+        request: state.request
+      });
+      state.authentication = _objectSpread2({
+        tokenType: "oauth",
+        type: "token"
+      }, authentication);
+      return state.authentication;
+    } catch (error) {
+      // istanbul ignore else
+      if (error.status === 404) {
+        error.message = "[@octokit/auth-oauth-user] Token is invalid"; // @ts-expect-error TBD
+
+        state.authentication.invalid = true;
+      }
+
+      throw error;
+    }
+  } // invalidate
+
+
+  if (options.type === "delete" || options.type === "deleteAuthorization") {
+    const method = options.type === "delete" ? oauthMethods.deleteToken : oauthMethods.deleteAuthorization;
+
+    try {
+      await method({
+        // @ts-expect-error making TS happy would require unnecessary code so no
+        clientType: state.clientType,
+        clientId: state.clientId,
+        clientSecret: state.clientSecret,
+        token: state.authentication.token,
+        request: state.request
+      });
+    } catch (error) {
+      // istanbul ignore if
+      if (error.status !== 404) throw error;
+    }
+
+    state.authentication.invalid = true;
+    return state.authentication;
+  }
+
+  return state.authentication;
+}
+
+/**
+ * The following endpoints require an OAuth App to authenticate using its client_id and client_secret.
+ *
+ * - [`POST /applications/{client_id}/token`](https://docs.github.com/en/rest/reference/apps#check-a-token) - Check a token
+ * - [`PATCH /applications/{client_id}/token`](https://docs.github.com/en/rest/reference/apps#reset-a-token) - Reset a token
+ * - [`POST /applications/{client_id}/token/scoped`](https://docs.github.com/en/rest/reference/apps#create-a-scoped-access-token) - Create a scoped access token
+ * - [`DELETE /applications/{client_id}/token`](https://docs.github.com/en/rest/reference/apps#delete-an-app-token) - Delete an app token
+ * - [`DELETE /applications/{client_id}/grant`](https://docs.github.com/en/rest/reference/apps#delete-an-app-authorization) - Delete an app authorization
+ *
+ * deprecated:
+ *
+ * - [`GET /applications/{client_id}/tokens/{access_token}`](https://docs.github.com/en/rest/reference/apps#check-an-authorization) - Check an authorization
+ * - [`POST /applications/{client_id}/tokens/{access_token}`](https://docs.github.com/en/rest/reference/apps#reset-an-authorization) - Reset an authorization
+ * - [`DELETE /applications/{client_id}/tokens/{access_token}`](https://docs.github.com/en/rest/reference/apps#revoke-an-authorization-for-an-application) - Revoke an authorization for an application
+ * - [`DELETE /applications/{client_id}/grants/{access_token}`](https://docs.github.com/en/rest/reference/apps#revoke-a-grant-for-an-application) - Revoke a grant for an application
+ */
+const ROUTES_REQUIRING_BASIC_AUTH = /\/applications\/[^/]+\/(token|grant)s?/;
+function requiresBasicAuth(url) {
+  return url && ROUTES_REQUIRING_BASIC_AUTH.test(url);
+}
+
+async function hook(state, request, route, parameters = {}) {
+  const endpoint = request.endpoint.merge(route, parameters); // Do not intercept OAuth Web/Device flow request
+
+  if (/\/login\/(oauth\/access_token|device\/code)$/.test(endpoint.url)) {
+    return request(endpoint);
+  }
+
+  if (requiresBasicAuth(endpoint.url)) {
+    const credentials = btoa(`${state.clientId}:${state.clientSecret}`);
+    endpoint.headers.authorization = `basic ${credentials}`;
+    return request(endpoint);
+  } // TS makes us do this ¯\_(ツ)_/¯
+
+
+  const {
+    token
+  } = state.clientType === "oauth-app" ? await auth(_objectSpread2(_objectSpread2({}, state), {}, {
+    request
+  })) : await auth(_objectSpread2(_objectSpread2({}, state), {}, {
+    request
+  }));
+  endpoint.headers.authorization = "token " + token;
+  return request(endpoint);
+}
+
+const _excluded = ["clientId", "clientSecret", "clientType", "request"];
+function createOAuthUserAuth(_ref) {
+  let {
+    clientId,
+    clientSecret,
+    clientType = "oauth-app",
+    request: request$1 = request.request.defaults({
+      headers: {
+        "user-agent": `octokit-auth-oauth-app.js/${VERSION} ${universalUserAgent.getUserAgent()}`
+      }
+    })
+  } = _ref,
+      strategyOptions = _objectWithoutProperties(_ref, _excluded);
+
+  const state = Object.assign({
+    clientType,
+    clientId,
+    clientSecret,
+    strategyOptions,
+    request: request$1
+  }); // @ts-expect-error not worth the extra code needed to appease TS
+
+  return Object.assign(auth.bind(null, state), {
+    // @ts-expect-error not worth the extra code needed to appease TS
+    hook: hook.bind(null, state)
+  });
+}
+createOAuthUserAuth.VERSION = VERSION;
+
+exports.createOAuthUserAuth = createOAuthUserAuth;
+exports.requiresBasicAuth = requiresBasicAuth;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 9820:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+const REGEX_IS_INSTALLATION_LEGACY = /^v1\./;
+const REGEX_IS_INSTALLATION = /^ghs_/;
+const REGEX_IS_USER_TO_SERVER = /^ghu_/;
+async function auth(token) {
+  const isApp = token.split(/\./).length === 3;
+  const isInstallation = REGEX_IS_INSTALLATION_LEGACY.test(token) || REGEX_IS_INSTALLATION.test(token);
+  const isUserToServer = REGEX_IS_USER_TO_SERVER.test(token);
+  const tokenType = isApp ? "app" : isInstallation ? "installation" : isUserToServer ? "user-to-server" : "oauth";
+  return {
+    type: "token",
+    token: token,
+    tokenType
+  };
+}
+
+/**
+ * Prefix token for usage in the Authorization header
+ *
+ * @param token OAuth token or JSON Web Token
+ */
+function withAuthorizationPrefix(token) {
+  if (token.split(/\./).length === 3) {
+    return `bearer ${token}`;
+  }
+
+  return `token ${token}`;
+}
+
+async function hook(token, request, route, parameters) {
+  const endpoint = request.endpoint.merge(route, parameters);
+  endpoint.headers.authorization = withAuthorizationPrefix(token);
+  return request(endpoint);
+}
+
+const createTokenAuth = function createTokenAuth(token) {
+  if (!token) {
+    throw new Error("[@octokit/auth-token] No token passed to createTokenAuth");
+  }
+
+  if (typeof token !== "string") {
+    throw new Error("[@octokit/auth-token] Token passed to createTokenAuth is not a string");
+  }
+
+  token = token.replace(/^(token|bearer) +/i, "");
+  return Object.assign(auth.bind(null, token), {
+    hook: hook.bind(null, token)
+  });
+};
+
+exports.createTokenAuth = createTokenAuth;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 9400:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+async function auth(reason) {
+  return {
+    type: "unauthenticated",
+    reason
+  };
+}
+
+function isRateLimitError(error) {
+  if (error.status !== 403) {
+    return false;
+  }
+  /* istanbul ignore if */
+
+
+  if (!error.response) {
+    return false;
+  }
+
+  return error.response.headers["x-ratelimit-remaining"] === "0";
+}
+
+const REGEX_ABUSE_LIMIT_MESSAGE = /\babuse\b/i;
+function isAbuseLimitError(error) {
+  if (error.status !== 403) {
+    return false;
+  }
+
+  return REGEX_ABUSE_LIMIT_MESSAGE.test(error.message);
+}
+
+async function hook(reason, request, route, parameters) {
+  const endpoint = request.endpoint.merge(route, parameters);
+  return request(endpoint).catch(error => {
+    if (error.status === 404) {
+      error.message = `Not found. May be due to lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (isRateLimitError(error)) {
+      error.message = `API rate limit exceeded. This maybe caused by the lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (isAbuseLimitError(error)) {
+      error.message = `You have triggered an abuse detection mechanism. This maybe caused by the lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (error.status === 401) {
+      error.message = `Unauthorized. "${endpoint.method} ${endpoint.url}" failed most likely due to lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (error.status >= 400 && error.status < 500) {
+      error.message = error.message.replace(/\.?$/, `. May be caused by lack of authentication (${reason}).`);
+    }
+
+    throw error;
+  });
+}
+
+const createUnauthenticatedAuth = function createUnauthenticatedAuth(options) {
+  if (!options || !options.reason) {
+    throw new Error("[@octokit/auth-unauthenticated] No reason passed to createUnauthenticatedAuth");
+  }
+
+  return Object.assign(auth.bind(null, options.reason), {
+    hook: hook.bind(null, options.reason)
+  });
+};
+
+exports.createUnauthenticatedAuth = createUnauthenticatedAuth;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 5251:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+var universalUserAgent = __nccwpck_require__(7259);
+var beforeAfterHook = __nccwpck_require__(7654);
+var request = __nccwpck_require__(8069);
+var graphql = __nccwpck_require__(324);
+var authToken = __nccwpck_require__(9820);
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+const VERSION = "3.5.1";
+
+const _excluded = ["authStrategy"];
+class Octokit {
+  constructor(options = {}) {
+    const hook = new beforeAfterHook.Collection();
+    const requestDefaults = {
+      baseUrl: request.request.endpoint.DEFAULTS.baseUrl,
+      headers: {},
+      request: Object.assign({}, options.request, {
+        // @ts-ignore internal usage only, no need to type
+        hook: hook.bind(null, "request")
+      }),
+      mediaType: {
+        previews: [],
+        format: ""
+      }
+    }; // prepend default user agent with `options.userAgent` if set
+
+    requestDefaults.headers["user-agent"] = [options.userAgent, `octokit-core.js/${VERSION} ${universalUserAgent.getUserAgent()}`].filter(Boolean).join(" ");
+
+    if (options.baseUrl) {
+      requestDefaults.baseUrl = options.baseUrl;
+    }
+
+    if (options.previews) {
+      requestDefaults.mediaType.previews = options.previews;
+    }
+
+    if (options.timeZone) {
+      requestDefaults.headers["time-zone"] = options.timeZone;
+    }
+
+    this.request = request.request.defaults(requestDefaults);
+    this.graphql = graphql.withCustomRequest(this.request).defaults(requestDefaults);
+    this.log = Object.assign({
+      debug: () => {},
+      info: () => {},
+      warn: console.warn.bind(console),
+      error: console.error.bind(console)
+    }, options.log);
+    this.hook = hook; // (1) If neither `options.authStrategy` nor `options.auth` are set, the `octokit` instance
+    //     is unauthenticated. The `this.auth()` method is a no-op and no request hook is registered.
+    // (2) If only `options.auth` is set, use the default token authentication strategy.
+    // (3) If `options.authStrategy` is set then use it and pass in `options.auth`. Always pass own request as many strategies accept a custom request instance.
+    // TODO: type `options.auth` based on `options.authStrategy`.
+
+    if (!options.authStrategy) {
+      if (!options.auth) {
+        // (1)
+        this.auth = async () => ({
+          type: "unauthenticated"
+        });
+      } else {
+        // (2)
+        const auth = authToken.createTokenAuth(options.auth); // @ts-ignore  ¯\_(ツ)_/¯
+
+        hook.wrap("request", auth.hook);
+        this.auth = auth;
+      }
+    } else {
+      const {
+        authStrategy
+      } = options,
+            otherOptions = _objectWithoutProperties(options, _excluded);
+
+      const auth = authStrategy(Object.assign({
+        request: this.request,
+        log: this.log,
+        // we pass the current octokit instance as well as its constructor options
+        // to allow for authentication strategies that return a new octokit instance
+        // that shares the same internal state as the current one. The original
+        // requirement for this was the "event-octokit" authentication strategy
+        // of https://github.com/probot/octokit-auth-probot.
+        octokit: this,
+        octokitOptions: otherOptions
+      }, options.auth)); // @ts-ignore  ¯\_(ツ)_/¯
+
+      hook.wrap("request", auth.hook);
+      this.auth = auth;
+    } // apply plugins
+    // https://stackoverflow.com/a/16345172
+
+
+    const classConstructor = this.constructor;
+    classConstructor.plugins.forEach(plugin => {
+      Object.assign(this, plugin(this, options));
+    });
+  }
+
+  static defaults(defaults) {
+    const OctokitWithDefaults = class extends this {
+      constructor(...args) {
+        const options = args[0] || {};
+
+        if (typeof defaults === "function") {
+          super(defaults(options));
+          return;
+        }
+
+        super(Object.assign({}, defaults, options, options.userAgent && defaults.userAgent ? {
+          userAgent: `${options.userAgent} ${defaults.userAgent}`
+        } : null));
+      }
+
+    };
+    return OctokitWithDefaults;
+  }
+  /**
+   * Attach a plugin (or many) to your Octokit instance.
+   *
+   * @example
+   * const API = Octokit.plugin(plugin1, plugin2, plugin3, ...)
+   */
+
+
+  static plugin(...newPlugins) {
+    var _a;
+
+    const currentPlugins = this.plugins;
+    const NewOctokit = (_a = class extends this {}, _a.plugins = currentPlugins.concat(newPlugins.filter(plugin => !currentPlugins.includes(plugin))), _a);
+    return NewOctokit;
+  }
+
+}
+Octokit.VERSION = VERSION;
+Octokit.plugins = [];
+
+exports.Octokit = Octokit;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 3683:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+var isPlainObject = __nccwpck_require__(5349);
+var universalUserAgent = __nccwpck_require__(7259);
+
+function lowercaseKeys(object) {
+  if (!object) {
+    return {};
+  }
+
+  return Object.keys(object).reduce((newObj, key) => {
+    newObj[key.toLowerCase()] = object[key];
+    return newObj;
+  }, {});
+}
+
+function mergeDeep(defaults, options) {
+  const result = Object.assign({}, defaults);
+  Object.keys(options).forEach(key => {
+    if (isPlainObject.isPlainObject(options[key])) {
+      if (!(key in defaults)) Object.assign(result, {
+        [key]: options[key]
+      });else result[key] = mergeDeep(defaults[key], options[key]);
+    } else {
+      Object.assign(result, {
+        [key]: options[key]
+      });
+    }
+  });
+  return result;
+}
+
+function removeUndefinedProperties(obj) {
+  for (const key in obj) {
+    if (obj[key] === undefined) {
+      delete obj[key];
+    }
+  }
+
+  return obj;
+}
+
+function merge(defaults, route, options) {
+  if (typeof route === "string") {
+    let [method, url] = route.split(" ");
+    options = Object.assign(url ? {
+      method,
+      url
+    } : {
+      url: method
+    }, options);
+  } else {
+    options = Object.assign({}, route);
+  } // lowercase header names before merging with defaults to avoid duplicates
+
+
+  options.headers = lowercaseKeys(options.headers); // remove properties with undefined values before merging
+
+  removeUndefinedProperties(options);
+  removeUndefinedProperties(options.headers);
+  const mergedOptions = mergeDeep(defaults || {}, options); // mediaType.previews arrays are merged, instead of overwritten
+
+  if (defaults && defaults.mediaType.previews.length) {
+    mergedOptions.mediaType.previews = defaults.mediaType.previews.filter(preview => !mergedOptions.mediaType.previews.includes(preview)).concat(mergedOptions.mediaType.previews);
+  }
+
+  mergedOptions.mediaType.previews = mergedOptions.mediaType.previews.map(preview => preview.replace(/-preview/, ""));
+  return mergedOptions;
+}
+
+function addQueryParameters(url, parameters) {
+  const separator = /\?/.test(url) ? "&" : "?";
+  const names = Object.keys(parameters);
+
+  if (names.length === 0) {
+    return url;
+  }
+
+  return url + separator + names.map(name => {
+    if (name === "q") {
+      return "q=" + parameters.q.split("+").map(encodeURIComponent).join("+");
+    }
+
+    return `${name}=${encodeURIComponent(parameters[name])}`;
+  }).join("&");
+}
+
+const urlVariableRegex = /\{[^}]+\}/g;
+
+function removeNonChars(variableName) {
+  return variableName.replace(/^\W+|\W+$/g, "").split(/,/);
+}
+
+function extractUrlVariableNames(url) {
+  const matches = url.match(urlVariableRegex);
+
+  if (!matches) {
+    return [];
+  }
+
+  return matches.map(removeNonChars).reduce((a, b) => a.concat(b), []);
+}
+
+function omit(object, keysToOmit) {
+  return Object.keys(object).filter(option => !keysToOmit.includes(option)).reduce((obj, key) => {
+    obj[key] = object[key];
+    return obj;
+  }, {});
+}
+
+// Based on https://github.com/bramstein/url-template, licensed under BSD
+// TODO: create separate package.
+//
+// Copyright (c) 2012-2014, Bram Stein
+// All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//  1. Redistributions of source code must retain the above copyright
+//     notice, this list of conditions and the following disclaimer.
+//  2. Redistributions in binary form must reproduce the above copyright
+//     notice, this list of conditions and the following disclaimer in the
+//     documentation and/or other materials provided with the distribution.
+//  3. The name of the author may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+// EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+// EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+/* istanbul ignore file */
+function encodeReserved(str) {
+  return str.split(/(%[0-9A-Fa-f]{2})/g).map(function (part) {
+    if (!/%[0-9A-Fa-f]/.test(part)) {
+      part = encodeURI(part).replace(/%5B/g, "[").replace(/%5D/g, "]");
+    }
+
+    return part;
+  }).join("");
+}
+
+function encodeUnreserved(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+    return "%" + c.charCodeAt(0).toString(16).toUpperCase();
+  });
+}
+
+function encodeValue(operator, value, key) {
+  value = operator === "+" || operator === "#" ? encodeReserved(value) : encodeUnreserved(value);
+
+  if (key) {
+    return encodeUnreserved(key) + "=" + value;
+  } else {
+    return value;
+  }
+}
+
+function isDefined(value) {
+  return value !== undefined && value !== null;
+}
+
+function isKeyOperator(operator) {
+  return operator === ";" || operator === "&" || operator === "?";
+}
+
+function getValues(context, operator, key, modifier) {
+  var value = context[key],
+      result = [];
+
+  if (isDefined(value) && value !== "") {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      value = value.toString();
+
+      if (modifier && modifier !== "*") {
+        value = value.substring(0, parseInt(modifier, 10));
+      }
+
+      result.push(encodeValue(operator, value, isKeyOperator(operator) ? key : ""));
+    } else {
+      if (modifier === "*") {
+        if (Array.isArray(value)) {
+          value.filter(isDefined).forEach(function (value) {
+            result.push(encodeValue(operator, value, isKeyOperator(operator) ? key : ""));
+          });
+        } else {
+          Object.keys(value).forEach(function (k) {
+            if (isDefined(value[k])) {
+              result.push(encodeValue(operator, value[k], k));
+            }
+          });
+        }
+      } else {
+        const tmp = [];
+
+        if (Array.isArray(value)) {
+          value.filter(isDefined).forEach(function (value) {
+            tmp.push(encodeValue(operator, value));
+          });
+        } else {
+          Object.keys(value).forEach(function (k) {
+            if (isDefined(value[k])) {
+              tmp.push(encodeUnreserved(k));
+              tmp.push(encodeValue(operator, value[k].toString()));
+            }
+          });
+        }
+
+        if (isKeyOperator(operator)) {
+          result.push(encodeUnreserved(key) + "=" + tmp.join(","));
+        } else if (tmp.length !== 0) {
+          result.push(tmp.join(","));
+        }
+      }
+    }
+  } else {
+    if (operator === ";") {
+      if (isDefined(value)) {
+        result.push(encodeUnreserved(key));
+      }
+    } else if (value === "" && (operator === "&" || operator === "?")) {
+      result.push(encodeUnreserved(key) + "=");
+    } else if (value === "") {
+      result.push("");
+    }
+  }
+
+  return result;
+}
+
+function parseUrl(template) {
+  return {
+    expand: expand.bind(null, template)
+  };
+}
+
+function expand(template, context) {
+  var operators = ["+", "#", ".", "/", ";", "?", "&"];
+  return template.replace(/\{([^\{\}]+)\}|([^\{\}]+)/g, function (_, expression, literal) {
+    if (expression) {
+      let operator = "";
+      const values = [];
+
+      if (operators.indexOf(expression.charAt(0)) !== -1) {
+        operator = expression.charAt(0);
+        expression = expression.substr(1);
+      }
+
+      expression.split(/,/g).forEach(function (variable) {
+        var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
+        values.push(getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
+      });
+
+      if (operator && operator !== "+") {
+        var separator = ",";
+
+        if (operator === "?") {
+          separator = "&";
+        } else if (operator !== "#") {
+          separator = operator;
+        }
+
+        return (values.length !== 0 ? operator : "") + values.join(separator);
+      } else {
+        return values.join(",");
+      }
+    } else {
+      return encodeReserved(literal);
+    }
+  });
+}
+
+function parse(options) {
+  // https://fetch.spec.whatwg.org/#methods
+  let method = options.method.toUpperCase(); // replace :varname with {varname} to make it RFC 6570 compatible
+
+  let url = (options.url || "/").replace(/:([a-z]\w+)/g, "{$1}");
+  let headers = Object.assign({}, options.headers);
+  let body;
+  let parameters = omit(options, ["method", "baseUrl", "url", "headers", "request", "mediaType"]); // extract variable names from URL to calculate remaining variables later
+
+  const urlVariableNames = extractUrlVariableNames(url);
+  url = parseUrl(url).expand(parameters);
+
+  if (!/^http/.test(url)) {
+    url = options.baseUrl + url;
+  }
+
+  const omittedParameters = Object.keys(options).filter(option => urlVariableNames.includes(option)).concat("baseUrl");
+  const remainingParameters = omit(parameters, omittedParameters);
+  const isBinaryRequest = /application\/octet-stream/i.test(headers.accept);
+
+  if (!isBinaryRequest) {
+    if (options.mediaType.format) {
+      // e.g. application/vnd.github.v3+json => application/vnd.github.v3.raw
+      headers.accept = headers.accept.split(/,/).map(preview => preview.replace(/application\/vnd(\.\w+)(\.v3)?(\.\w+)?(\+json)?$/, `application/vnd$1$2.${options.mediaType.format}`)).join(",");
+    }
+
+    if (options.mediaType.previews.length) {
+      const previewsFromAcceptHeader = headers.accept.match(/[\w-]+(?=-preview)/g) || [];
+      headers.accept = previewsFromAcceptHeader.concat(options.mediaType.previews).map(preview => {
+        const format = options.mediaType.format ? `.${options.mediaType.format}` : "+json";
+        return `application/vnd.github.${preview}-preview${format}`;
+      }).join(",");
+    }
+  } // for GET/HEAD requests, set URL query parameters from remaining parameters
+  // for PATCH/POST/PUT/DELETE requests, set request body from remaining parameters
+
+
+  if (["GET", "HEAD"].includes(method)) {
+    url = addQueryParameters(url, remainingParameters);
+  } else {
+    if ("data" in remainingParameters) {
+      body = remainingParameters.data;
+    } else {
+      if (Object.keys(remainingParameters).length) {
+        body = remainingParameters;
+      } else {
+        headers["content-length"] = 0;
+      }
+    }
+  } // default content-type for JSON if body is set
+
+
+  if (!headers["content-type"] && typeof body !== "undefined") {
+    headers["content-type"] = "application/json; charset=utf-8";
+  } // GitHub expects 'content-length: 0' header for PUT/PATCH requests without body.
+  // fetch does not allow to set `content-length` header, but we can set body to an empty string
+
+
+  if (["PATCH", "PUT"].includes(method) && typeof body === "undefined") {
+    body = "";
+  } // Only return body/request keys if present
+
+
+  return Object.assign({
+    method,
+    url,
+    headers
+  }, typeof body !== "undefined" ? {
+    body
+  } : null, options.request ? {
+    request: options.request
+  } : null);
+}
+
+function endpointWithDefaults(defaults, route, options) {
+  return parse(merge(defaults, route, options));
+}
+
+function withDefaults(oldDefaults, newDefaults) {
+  const DEFAULTS = merge(oldDefaults, newDefaults);
+  const endpoint = endpointWithDefaults.bind(null, DEFAULTS);
+  return Object.assign(endpoint, {
+    DEFAULTS,
+    defaults: withDefaults.bind(null, DEFAULTS),
+    merge: merge.bind(null, DEFAULTS),
+    parse
+  });
+}
+
+const VERSION = "6.0.12";
+
+const userAgent = `octokit-endpoint.js/${VERSION} ${universalUserAgent.getUserAgent()}`; // DEFAULTS has all properties set that EndpointOptions has, except url.
+// So we use RequestParameters and add method as additional required property.
+
+const DEFAULTS = {
+  method: "GET",
+  baseUrl: "https://api.github.com",
+  headers: {
+    accept: "application/vnd.github.v3+json",
+    "user-agent": userAgent
+  },
+  mediaType: {
+    format: "",
+    previews: []
+  }
+};
+
+const endpoint = withDefaults(null, DEFAULTS);
+
+exports.endpoint = endpoint;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 324:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+var request = __nccwpck_require__(8069);
+var universalUserAgent = __nccwpck_require__(7259);
+
+const VERSION = "4.8.0";
+
+function _buildMessageForResponseErrors(data) {
+  return `Request failed due to following response errors:\n` + data.errors.map(e => ` - ${e.message}`).join("\n");
+}
+
+class GraphqlResponseError extends Error {
+  constructor(request, headers, response) {
+    super(_buildMessageForResponseErrors(response));
+    this.request = request;
+    this.headers = headers;
+    this.response = response;
+    this.name = "GraphqlResponseError"; // Expose the errors and response data in their shorthand properties.
+
+    this.errors = response.errors;
+    this.data = response.data; // Maintains proper stack trace (only available on V8)
+
+    /* istanbul ignore next */
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+
+}
+
+const NON_VARIABLE_OPTIONS = ["method", "baseUrl", "url", "headers", "request", "query", "mediaType"];
+const FORBIDDEN_VARIABLE_OPTIONS = ["query", "method", "url"];
+const GHES_V3_SUFFIX_REGEX = /\/api\/v3\/?$/;
+function graphql(request, query, options) {
+  if (options) {
+    if (typeof query === "string" && "query" in options) {
+      return Promise.reject(new Error(`[@octokit/graphql] "query" cannot be used as variable name`));
+    }
+
+    for (const key in options) {
+      if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key)) continue;
+      return Promise.reject(new Error(`[@octokit/graphql] "${key}" cannot be used as variable name`));
+    }
+  }
+
+  const parsedOptions = typeof query === "string" ? Object.assign({
+    query
+  }, options) : query;
+  const requestOptions = Object.keys(parsedOptions).reduce((result, key) => {
+    if (NON_VARIABLE_OPTIONS.includes(key)) {
+      result[key] = parsedOptions[key];
+      return result;
+    }
+
+    if (!result.variables) {
+      result.variables = {};
+    }
+
+    result.variables[key] = parsedOptions[key];
+    return result;
+  }, {}); // workaround for GitHub Enterprise baseUrl set with /api/v3 suffix
+  // https://github.com/octokit/auth-app.js/issues/111#issuecomment-657610451
+
+  const baseUrl = parsedOptions.baseUrl || request.endpoint.DEFAULTS.baseUrl;
+
+  if (GHES_V3_SUFFIX_REGEX.test(baseUrl)) {
+    requestOptions.url = baseUrl.replace(GHES_V3_SUFFIX_REGEX, "/api/graphql");
+  }
+
+  return request(requestOptions).then(response => {
+    if (response.data.errors) {
+      const headers = {};
+
+      for (const key of Object.keys(response.headers)) {
+        headers[key] = response.headers[key];
+      }
+
+      throw new GraphqlResponseError(requestOptions, headers, response.data);
+    }
+
+    return response.data.data;
+  });
+}
+
+function withDefaults(request$1, newDefaults) {
+  const newRequest = request$1.defaults(newDefaults);
+
+  const newApi = (query, options) => {
+    return graphql(newRequest, query, options);
+  };
+
+  return Object.assign(newApi, {
+    defaults: withDefaults.bind(null, newRequest),
+    endpoint: request.request.endpoint
+  });
+}
+
+const graphql$1 = withDefaults(request.request, {
+  headers: {
+    "user-agent": `octokit-graphql.js/${VERSION} ${universalUserAgent.getUserAgent()}`
+  },
+  method: "POST",
+  url: "/graphql"
+});
+function withCustomRequest(customRequest) {
+  return withDefaults(customRequest, {
+    method: "POST",
+    url: "/graphql"
+  });
+}
+
+exports.GraphqlResponseError = GraphqlResponseError;
+exports.graphql = graphql$1;
+exports.withCustomRequest = withCustomRequest;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 4860:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var OAuthAppAuth = __nccwpck_require__(3965);
+var core = __nccwpck_require__(5251);
+var universalUserAgent = __nccwpck_require__(7259);
+var authOauthUser = __nccwpck_require__(7930);
+var OAuthMethods = __nccwpck_require__(6334);
+var authUnauthenticated = __nccwpck_require__(9400);
+var fromEntries = _interopDefault(__nccwpck_require__(7108));
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+const VERSION = "3.6.0";
+
+function addEventHandler(state, eventName, eventHandler) {
+  if (Array.isArray(eventName)) {
+    for (const singleEventName of eventName) {
+      addEventHandler(state, singleEventName, eventHandler);
+    }
+
+    return;
+  }
+
+  if (!state.eventHandlers[eventName]) {
+    state.eventHandlers[eventName] = [];
+  }
+
+  state.eventHandlers[eventName].push(eventHandler);
+}
+
+const OAuthAppOctokit = core.Octokit.defaults({
+  userAgent: `octokit-oauth-app.js/${VERSION} ${universalUserAgent.getUserAgent()}`
+});
+
+async function emitEvent(state, context) {
+  const {
+    name,
+    action
+  } = context;
+
+  if (state.eventHandlers[`${name}.${action}`]) {
+    for (const eventHandler of state.eventHandlers[`${name}.${action}`]) {
+      await eventHandler(context);
+    }
+  }
+
+  if (state.eventHandlers[name]) {
+    for (const eventHandler of state.eventHandlers[name]) {
+      await eventHandler(context);
+    }
+  }
+}
+
+async function getUserOctokitWithState(state, options) {
+  return state.octokit.auth(_objectSpread2(_objectSpread2({
+    type: "oauth-user"
+  }, options), {}, {
+    async factory(options) {
+      const octokit = new state.Octokit({
+        authStrategy: authOauthUser.createOAuthUserAuth,
+        auth: options
+      });
+      const authentication = await octokit.auth({
+        type: "get"
+      });
+      await emitEvent(state, {
+        name: "token",
+        action: "created",
+        token: authentication.token,
+        scopes: authentication.scopes,
+        authentication,
+        octokit
+      });
+      return octokit;
+    }
+
+  }));
+}
+
+function getWebFlowAuthorizationUrlWithState(state, options) {
+  const optionsWithDefaults = _objectSpread2(_objectSpread2({
+    clientId: state.clientId,
+    request: state.octokit.request
+  }, options), {}, {
+    allowSignup: options.allowSignup || state.allowSignup,
+    scopes: options.scopes || state.defaultScopes
+  });
+
+  return OAuthMethods.getWebFlowAuthorizationUrl(_objectSpread2({
+    clientType: state.clientType
+  }, optionsWithDefaults));
+}
+
+async function createTokenWithState(state, options) {
+  const authentication = await state.octokit.auth(_objectSpread2({
+    type: "oauth-user"
+  }, options));
+  await emitEvent(state, {
+    name: "token",
+    action: "created",
+    token: authentication.token,
+    scopes: authentication.scopes,
+    authentication,
+    octokit: new state.Octokit({
+      authStrategy: OAuthAppAuth.createOAuthUserAuth,
+      auth: {
+        clientType: state.clientType,
+        clientId: state.clientId,
+        clientSecret: state.clientSecret,
+        token: authentication.token,
+        scopes: authentication.scopes,
+        refreshToken: authentication.refreshToken,
+        expiresAt: authentication.expiresAt,
+        refreshTokenExpiresAt: authentication.refreshTokenExpiresAt
+      }
+    })
+  });
+  return {
+    authentication
+  };
+}
+
+async function checkTokenWithState(state, options) {
+  const result = await OAuthMethods.checkToken(_objectSpread2({
+    // @ts-expect-error not worth the extra code to appease TS
+    clientType: state.clientType,
+    clientId: state.clientId,
+    clientSecret: state.clientSecret,
+    request: state.octokit.request
+  }, options));
+  Object.assign(result.authentication, {
+    type: "token",
+    tokenType: "oauth"
+  });
+  return result;
+}
+
+async function resetTokenWithState(state, options) {
+  const optionsWithDefaults = _objectSpread2({
+    clientId: state.clientId,
+    clientSecret: state.clientSecret,
+    request: state.octokit.request
+  }, options);
+
+  if (state.clientType === "oauth-app") {
+    const response = await OAuthMethods.resetToken(_objectSpread2({
+      clientType: "oauth-app"
+    }, optionsWithDefaults));
+    const authentication = Object.assign(response.authentication, {
+      type: "token",
+      tokenType: "oauth"
+    });
+    await emitEvent(state, {
+      name: "token",
+      action: "reset",
+      token: response.authentication.token,
+      scopes: response.authentication.scopes || undefined,
+      authentication: authentication,
+      octokit: new state.Octokit({
+        authStrategy: authOauthUser.createOAuthUserAuth,
+        auth: {
+          clientType: state.clientType,
+          clientId: state.clientId,
+          clientSecret: state.clientSecret,
+          token: response.authentication.token,
+          scopes: response.authentication.scopes
+        }
+      })
+    });
+    return _objectSpread2(_objectSpread2({}, response), {}, {
+      authentication
+    });
+  }
+
+  const response = await OAuthMethods.resetToken(_objectSpread2({
+    clientType: "github-app"
+  }, optionsWithDefaults));
+  const authentication = Object.assign(response.authentication, {
+    type: "token",
+    tokenType: "oauth"
+  });
+  await emitEvent(state, {
+    name: "token",
+    action: "reset",
+    token: response.authentication.token,
+    authentication: authentication,
+    octokit: new state.Octokit({
+      authStrategy: authOauthUser.createOAuthUserAuth,
+      auth: {
+        clientType: state.clientType,
+        clientId: state.clientId,
+        clientSecret: state.clientSecret,
+        token: response.authentication.token
+      }
+    })
+  });
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+async function refreshTokenWithState(state, options) {
+  if (state.clientType === "oauth-app") {
+    throw new Error("[@octokit/oauth-app] app.refreshToken() is not supported for OAuth Apps");
+  }
+
+  const response = await OAuthMethods.refreshToken({
+    clientType: "github-app",
+    clientId: state.clientId,
+    clientSecret: state.clientSecret,
+    request: state.octokit.request,
+    refreshToken: options.refreshToken
+  });
+  const authentication = Object.assign(response.authentication, {
+    type: "token",
+    tokenType: "oauth"
+  });
+  await emitEvent(state, {
+    name: "token",
+    action: "refreshed",
+    token: response.authentication.token,
+    authentication: authentication,
+    octokit: new state.Octokit({
+      authStrategy: authOauthUser.createOAuthUserAuth,
+      auth: {
+        clientType: state.clientType,
+        clientId: state.clientId,
+        clientSecret: state.clientSecret,
+        token: response.authentication.token
+      }
+    })
+  });
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+async function scopeTokenWithState(state, options) {
+  if (state.clientType === "oauth-app") {
+    throw new Error("[@octokit/oauth-app] app.scopeToken() is not supported for OAuth Apps");
+  }
+
+  const response = await OAuthMethods.scopeToken(_objectSpread2({
+    clientType: "github-app",
+    clientId: state.clientId,
+    clientSecret: state.clientSecret,
+    request: state.octokit.request
+  }, options));
+  const authentication = Object.assign(response.authentication, {
+    type: "token",
+    tokenType: "oauth"
+  });
+  await emitEvent(state, {
+    name: "token",
+    action: "scoped",
+    token: response.authentication.token,
+    authentication: authentication,
+    octokit: new state.Octokit({
+      authStrategy: authOauthUser.createOAuthUserAuth,
+      auth: {
+        clientType: state.clientType,
+        clientId: state.clientId,
+        clientSecret: state.clientSecret,
+        token: response.authentication.token
+      }
+    })
+  });
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+async function deleteTokenWithState(state, options) {
+  const optionsWithDefaults = _objectSpread2({
+    clientId: state.clientId,
+    clientSecret: state.clientSecret,
+    request: state.octokit.request
+  }, options);
+
+  const response = state.clientType === "oauth-app" ? await OAuthMethods.deleteToken(_objectSpread2({
+    clientType: "oauth-app"
+  }, optionsWithDefaults)) : // istanbul ignore next
+  await OAuthMethods.deleteToken(_objectSpread2({
+    clientType: "github-app"
+  }, optionsWithDefaults));
+  await emitEvent(state, {
+    name: "token",
+    action: "deleted",
+    token: options.token,
+    octokit: new state.Octokit({
+      authStrategy: authUnauthenticated.createUnauthenticatedAuth,
+      auth: {
+        reason: `Handling "token.deleted" event. The access for the token has been revoked.`
+      }
+    })
+  });
+  return response;
+}
+
+async function deleteAuthorizationWithState(state, options) {
+  const optionsWithDefaults = _objectSpread2({
+    clientId: state.clientId,
+    clientSecret: state.clientSecret,
+    request: state.octokit.request
+  }, options);
+
+  const response = state.clientType === "oauth-app" ? await OAuthMethods.deleteAuthorization(_objectSpread2({
+    clientType: "oauth-app"
+  }, optionsWithDefaults)) : // istanbul ignore next
+  await OAuthMethods.deleteAuthorization(_objectSpread2({
+    clientType: "github-app"
+  }, optionsWithDefaults));
+  await emitEvent(state, {
+    name: "token",
+    action: "deleted",
+    token: options.token,
+    octokit: new state.Octokit({
+      authStrategy: authUnauthenticated.createUnauthenticatedAuth,
+      auth: {
+        reason: `Handling "token.deleted" event. The access for the token has been revoked.`
+      }
+    })
+  });
+  await emitEvent(state, {
+    name: "authorization",
+    action: "deleted",
+    token: options.token,
+    octokit: new state.Octokit({
+      authStrategy: authUnauthenticated.createUnauthenticatedAuth,
+      auth: {
+        reason: `Handling "authorization.deleted" event. The access for the app has been revoked.`
+      }
+    })
+  });
+  return response;
+}
+
+function parseRequest(request) {
+  const {
+    method,
+    url,
+    headers
+  } = request;
+
+  async function text() {
+    const text = await new Promise((resolve, reject) => {
+      let bodyChunks = [];
+      request.on("error", reject).on("data", chunk => bodyChunks.push(chunk)).on("end", () => resolve(Buffer.concat(bodyChunks).toString()));
+    });
+    return text;
   }
 
   return {
-    type: 'link',
-    title: null,
-    url: 'mailto:' + atext + '@' + label,
-    children: [{type: 'text', value: atext + '@' + label}]
+    method,
+    url,
+    headers,
+    text
+  };
+}
+
+function sendResponse(octokitResponse, response) {
+  response.writeHead(octokitResponse.status, octokitResponse.headers);
+  response.end(octokitResponse.text);
+}
+
+function onUnhandledRequestDefault(request) {
+  return {
+    status: 404,
+    headers: {
+      "content-type": "application/json"
+    },
+    text: JSON.stringify({
+      error: `Unknown route: ${request.method} ${request.url}`
+    })
+  };
+}
+
+async function handleRequest(app, {
+  pathPrefix = "/api/github/oauth"
+}, request) {
+  if (request.method === "OPTIONS") {
+    return {
+      status: 200,
+      headers: {
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "*",
+        "access-control-allow-headers": "Content-Type, User-Agent, Authorization"
+      }
+    };
+  } // request.url may include ?query parameters which we don't want for `route`
+  // hence the workaround using new URL()
+
+
+  const {
+    pathname
+  } = new URL(request.url, "http://localhost");
+  const route = [request.method, pathname].join(" ");
+  const routes = {
+    getLogin: `GET ${pathPrefix}/login`,
+    getCallback: `GET ${pathPrefix}/callback`,
+    createToken: `POST ${pathPrefix}/token`,
+    getToken: `GET ${pathPrefix}/token`,
+    patchToken: `PATCH ${pathPrefix}/token`,
+    patchRefreshToken: `PATCH ${pathPrefix}/refresh-token`,
+    scopeToken: `POST ${pathPrefix}/token/scoped`,
+    deleteToken: `DELETE ${pathPrefix}/token`,
+    deleteGrant: `DELETE ${pathPrefix}/grant`
+  }; // handle unknown routes
+
+  if (!Object.values(routes).includes(route)) {
+    return null;
+  }
+
+  let json;
+
+  try {
+    const text = await request.text();
+    json = text ? JSON.parse(text) : {};
+  } catch (error) {
+    return {
+      status: 400,
+      headers: {
+        "content-type": "application/json",
+        "access-control-allow-origin": "*"
+      },
+      text: JSON.stringify({
+        error: "[@octokit/oauth-app] request error"
+      })
+    };
+  }
+
+  const {
+    searchParams
+  } = new URL(request.url, "http://localhost");
+  const query = fromEntries(searchParams);
+  const headers = request.headers;
+
+  try {
+    var _headers$authorizatio6;
+
+    if (route === routes.getLogin) {
+      const {
+        url
+      } = app.getWebFlowAuthorizationUrl({
+        state: query.state,
+        scopes: query.scopes ? query.scopes.split(",") : undefined,
+        allowSignup: query.allowSignup !== "false",
+        redirectUrl: query.redirectUrl
+      });
+      return {
+        status: 302,
+        headers: {
+          location: url
+        }
+      };
+    }
+
+    if (route === routes.getCallback) {
+      if (query.error) {
+        throw new Error(`[@octokit/oauth-app] ${query.error} ${query.error_description}`);
+      }
+
+      if (!query.state || !query.code) {
+        throw new Error('[@octokit/oauth-app] Both "code" & "state" parameters are required');
+      }
+
+      const {
+        authentication: {
+          token
+        }
+      } = await app.createToken({
+        state: query.state,
+        code: query.code
+      });
+      return {
+        status: 200,
+        headers: {
+          "content-type": "text/html"
+        },
+        text: `<h1>Token created successfull</h1>
+    
+<p>Your token is: <strong>${token}</strong>. Copy it now as it cannot be shown again.</p>`
+      };
+    }
+
+    if (route === routes.createToken) {
+      const {
+        state: oauthState,
+        code,
+        redirectUrl
+      } = json;
+
+      if (!oauthState || !code) {
+        throw new Error('[@octokit/oauth-app] Both "code" & "state" parameters are required');
+      }
+
+      const result = await app.createToken({
+        state: oauthState,
+        code,
+        redirectUrl
+      }); // @ts-ignore
+
+      delete result.authentication.clientSecret;
+      return {
+        status: 201,
+        headers: {
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        text: JSON.stringify(result)
+      };
+    }
+
+    if (route === routes.getToken) {
+      var _headers$authorizatio;
+
+      const token = (_headers$authorizatio = headers.authorization) === null || _headers$authorizatio === void 0 ? void 0 : _headers$authorizatio.substr("token ".length);
+
+      if (!token) {
+        throw new Error('[@octokit/oauth-app] "Authorization" header is required');
+      }
+
+      const result = await app.checkToken({
+        token
+      }); // @ts-ignore
+
+      delete result.authentication.clientSecret;
+      return {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        text: JSON.stringify(result)
+      };
+    }
+
+    if (route === routes.patchToken) {
+      var _headers$authorizatio2;
+
+      const token = (_headers$authorizatio2 = headers.authorization) === null || _headers$authorizatio2 === void 0 ? void 0 : _headers$authorizatio2.substr("token ".length);
+
+      if (!token) {
+        throw new Error('[@octokit/oauth-app] "Authorization" header is required');
+      }
+
+      const result = await app.resetToken({
+        token
+      }); // @ts-ignore
+
+      delete result.authentication.clientSecret;
+      return {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        text: JSON.stringify(result)
+      };
+    }
+
+    if (route === routes.patchRefreshToken) {
+      var _headers$authorizatio3;
+
+      const token = (_headers$authorizatio3 = headers.authorization) === null || _headers$authorizatio3 === void 0 ? void 0 : _headers$authorizatio3.substr("token ".length);
+
+      if (!token) {
+        throw new Error('[@octokit/oauth-app] "Authorization" header is required');
+      }
+
+      const {
+        refreshToken
+      } = json;
+
+      if (!refreshToken) {
+        throw new Error("[@octokit/oauth-app] refreshToken must be sent in request body");
+      }
+
+      const result = await app.refreshToken({
+        refreshToken
+      }); // @ts-ignore
+
+      delete result.authentication.clientSecret;
+      return {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        text: JSON.stringify(result)
+      };
+    }
+
+    if (route === routes.scopeToken) {
+      var _headers$authorizatio4;
+
+      const token = (_headers$authorizatio4 = headers.authorization) === null || _headers$authorizatio4 === void 0 ? void 0 : _headers$authorizatio4.substr("token ".length);
+
+      if (!token) {
+        throw new Error('[@octokit/oauth-app] "Authorization" header is required');
+      }
+
+      const result = await app.scopeToken(_objectSpread2({
+        token
+      }, json)); // @ts-ignore
+
+      delete result.authentication.clientSecret;
+      return {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        text: JSON.stringify(result)
+      };
+    }
+
+    if (route === routes.deleteToken) {
+      var _headers$authorizatio5;
+
+      const token = (_headers$authorizatio5 = headers.authorization) === null || _headers$authorizatio5 === void 0 ? void 0 : _headers$authorizatio5.substr("token ".length);
+
+      if (!token) {
+        throw new Error('[@octokit/oauth-app] "Authorization" header is required');
+      }
+
+      await app.deleteToken({
+        token
+      });
+      return {
+        status: 204,
+        headers: {
+          "access-control-allow-origin": "*"
+        }
+      };
+    } // route === routes.deleteGrant
+
+
+    const token = (_headers$authorizatio6 = headers.authorization) === null || _headers$authorizatio6 === void 0 ? void 0 : _headers$authorizatio6.substr("token ".length);
+
+    if (!token) {
+      throw new Error('[@octokit/oauth-app] "Authorization" header is required');
+    }
+
+    await app.deleteAuthorization({
+      token
+    });
+    return {
+      status: 204,
+      headers: {
+        "access-control-allow-origin": "*"
+      }
+    };
+  } catch (error) {
+    return {
+      status: 400,
+      headers: {
+        "content-type": "application/json",
+        "access-control-allow-origin": "*"
+      },
+      text: JSON.stringify({
+        error: error.message
+      })
+    };
   }
 }
 
-function isCorrectDomain(domain) {
-  var parts = domain.split('.')
+function onUnhandledRequestDefaultNode(request, response) {
+  const octokitRequest = parseRequest(request);
+  const octokitResponse = onUnhandledRequestDefault(octokitRequest);
+  sendResponse(octokitResponse, response);
+}
 
-  if (
-    parts.length < 2 ||
-    (parts[parts.length - 1] &&
-      (/_/.test(parts[parts.length - 1]) ||
-        !/[a-zA-Z\d]/.test(parts[parts.length - 1]))) ||
-    (parts[parts.length - 2] &&
-      (/_/.test(parts[parts.length - 2]) ||
-        !/[a-zA-Z\d]/.test(parts[parts.length - 2])))
-  ) {
+function createNodeMiddleware(app, {
+  pathPrefix,
+  onUnhandledRequest = onUnhandledRequestDefaultNode
+} = {}) {
+  return async function (request, response, next) {
+    const octokitRequest = parseRequest(request);
+    const octokitResponse = await handleRequest(app, {
+      pathPrefix
+    }, octokitRequest);
+
+    if (octokitResponse) {
+      sendResponse(octokitResponse, response);
+    } else if (typeof next === "function") {
+      next();
+    } else {
+      onUnhandledRequest(request, response);
+    }
+  };
+}
+
+function parseRequest$1(request) {
+  // @ts-ignore Worker environment supports fromEntries/entries.
+  const headers = Object.fromEntries(request.headers.entries());
+  return {
+    method: request.method,
+    url: request.url,
+    headers,
+    text: () => request.text()
+  };
+}
+
+function sendResponse$1(octokitResponse) {
+  return new Response(octokitResponse.text, {
+    status: octokitResponse.status,
+    headers: octokitResponse.headers
+  });
+}
+
+async function onUnhandledRequestDefaultCloudflare(request) {
+  const octokitRequest = parseRequest$1(request);
+  const octokitResponse = onUnhandledRequestDefault(octokitRequest);
+  return sendResponse$1(octokitResponse);
+}
+
+function createCloudflareHandler(app, {
+  pathPrefix,
+  onUnhandledRequest = onUnhandledRequestDefaultCloudflare
+} = {}) {
+  return async function (request) {
+    const octokitRequest = parseRequest$1(request);
+    const octokitResponse = await handleRequest(app, {
+      pathPrefix
+    }, octokitRequest);
+    return octokitResponse ? sendResponse$1(octokitResponse) : await onUnhandledRequest(request);
+  };
+}
+
+function parseRequest$2(request) {
+  const {
+    method
+  } = request.requestContext.http;
+  let url = request.rawPath;
+  const {
+    stage
+  } = request.requestContext;
+  if (url.startsWith("/" + stage)) url = url.substring(stage.length + 1);
+  if (request.rawQueryString) url += "?" + request.rawQueryString;
+  const headers = request.headers;
+
+  const text = async () => request.body || "";
+
+  return {
+    method,
+    url,
+    headers,
+    text
+  };
+}
+
+function sendResponse$2(octokitResponse) {
+  return {
+    statusCode: octokitResponse.status,
+    headers: octokitResponse.headers,
+    body: octokitResponse.text
+  };
+}
+
+async function onUnhandledRequestDefaultAWSAPIGatewayV2(event) {
+  const request = parseRequest$2(event);
+  const response = onUnhandledRequestDefault(request);
+  return sendResponse$2(response);
+}
+
+function createAWSLambdaAPIGatewayV2Handler(app, {
+  pathPrefix,
+  onUnhandledRequest = onUnhandledRequestDefaultAWSAPIGatewayV2
+} = {}) {
+  return async function (event) {
+    const request = parseRequest$2(event);
+    const response = await handleRequest(app, {
+      pathPrefix
+    }, request);
+    return response ? sendResponse$2(response) : onUnhandledRequest(event);
+  };
+}
+
+class OAuthApp {
+  constructor(options) {
+    const Octokit = options.Octokit || OAuthAppOctokit;
+    this.type = options.clientType || "oauth-app";
+    const octokit = new Octokit({
+      authStrategy: OAuthAppAuth.createOAuthAppAuth,
+      auth: {
+        clientType: this.type,
+        clientId: options.clientId,
+        clientSecret: options.clientSecret
+      }
+    });
+    const state = {
+      clientType: this.type,
+      clientId: options.clientId,
+      clientSecret: options.clientSecret,
+      // @ts-expect-error defaultScopes not permitted for GitHub Apps
+      defaultScopes: options.defaultScopes || [],
+      allowSignup: options.allowSignup,
+      baseUrl: options.baseUrl,
+      log: options.log,
+      Octokit,
+      octokit,
+      eventHandlers: {}
+    };
+    this.on = addEventHandler.bind(null, state); // @ts-expect-error TODO: figure this out
+
+    this.octokit = octokit;
+    this.getUserOctokit = getUserOctokitWithState.bind(null, state);
+    this.getWebFlowAuthorizationUrl = getWebFlowAuthorizationUrlWithState.bind(null, state);
+    this.createToken = createTokenWithState.bind(null, state);
+    this.checkToken = checkTokenWithState.bind(null, state);
+    this.resetToken = resetTokenWithState.bind(null, state);
+    this.refreshToken = refreshTokenWithState.bind(null, state);
+    this.scopeToken = scopeTokenWithState.bind(null, state);
+    this.deleteToken = deleteTokenWithState.bind(null, state);
+    this.deleteAuthorization = deleteAuthorizationWithState.bind(null, state);
+  }
+
+  static defaults(defaults) {
+    const OAuthAppWithDefaults = class extends this {
+      constructor(...args) {
+        super(_objectSpread2(_objectSpread2({}, defaults), args[0]));
+      }
+
+    };
+    return OAuthAppWithDefaults;
+  }
+
+}
+OAuthApp.VERSION = VERSION;
+
+exports.OAuthApp = OAuthApp;
+exports.createAWSLambdaAPIGatewayV2Handler = createAWSLambdaAPIGatewayV2Handler;
+exports.createCloudflareHandler = createCloudflareHandler;
+exports.createNodeMiddleware = createNodeMiddleware;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 6961:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function oauthAuthorizationUrl(options) {
+  const clientType = options.clientType || "oauth-app";
+  const baseUrl = options.baseUrl || "https://github.com";
+  const result = {
+    clientType,
+    allowSignup: options.allowSignup === false ? false : true,
+    clientId: options.clientId,
+    login: options.login || null,
+    redirectUrl: options.redirectUrl || null,
+    state: options.state || Math.random().toString(36).substr(2),
+    url: ""
+  };
+
+  if (clientType === "oauth-app") {
+    const scopes = "scopes" in options ? options.scopes : [];
+    result.scopes = typeof scopes === "string" ? scopes.split(/[,\s]+/).filter(Boolean) : scopes;
+  }
+
+  result.url = urlBuilderAuthorize(`${baseUrl}/login/oauth/authorize`, result);
+  return result;
+}
+
+function urlBuilderAuthorize(base, options) {
+  const map = {
+    allowSignup: "allow_signup",
+    clientId: "client_id",
+    login: "login",
+    redirectUrl: "redirect_uri",
+    scopes: "scope",
+    state: "state"
+  };
+  let url = base;
+  Object.keys(map) // Filter out keys that are null and remove the url key
+  .filter(k => options[k] !== null) // Filter out empty scopes array
+  .filter(k => {
+    if (k !== "scopes") return true;
+    if (options.clientType === "github-app") return false;
+    return !Array.isArray(options[k]) || options[k].length > 0;
+  }) // Map Array with the proper URL parameter names and change the value to a string using template strings
+  // @ts-ignore
+  .map(key => [map[key], `${options[key]}`]) // Finally, build the URL
+  .forEach(([key, value], index) => {
+    url += index === 0 ? `?` : "&";
+    url += `${key}=${encodeURIComponent(value)}`;
+  });
+  return url;
+}
+
+exports.oauthAuthorizationUrl = oauthAuthorizationUrl;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 6334:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var oauthAuthorizationUrl = __nccwpck_require__(6961);
+var request = __nccwpck_require__(8069);
+var requestError = __nccwpck_require__(5032);
+var btoa = _interopDefault(__nccwpck_require__(2241));
+
+const VERSION = "1.2.6";
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+function requestToOAuthBaseUrl(request) {
+  const endpointDefaults = request.endpoint.DEFAULTS;
+  return /^https:\/\/(api\.)?github\.com$/.test(endpointDefaults.baseUrl) ? "https://github.com" : endpointDefaults.baseUrl.replace("/api/v3", "");
+}
+async function oauthRequest(request, route, parameters) {
+  const withOAuthParameters = _objectSpread2({
+    baseUrl: requestToOAuthBaseUrl(request),
+    headers: {
+      accept: "application/json"
+    }
+  }, parameters);
+
+  const response = await request(route, withOAuthParameters);
+
+  if ("error" in response.data) {
+    const error = new requestError.RequestError(`${response.data.error_description} (${response.data.error}, ${response.data.error_uri})`, 400, {
+      request: request.endpoint.merge(route, withOAuthParameters),
+      headers: response.headers
+    }); // @ts-ignore add custom response property until https://github.com/octokit/request-error.js/issues/169 is resolved
+
+    error.response = response;
+    throw error;
+  }
+
+  return response;
+}
+
+const _excluded = ["request"];
+function getWebFlowAuthorizationUrl(_ref) {
+  let {
+    request: request$1 = request.request
+  } = _ref,
+      options = _objectWithoutProperties(_ref, _excluded);
+
+  const baseUrl = requestToOAuthBaseUrl(request$1); // @ts-expect-error TypeScript wants `clientType` to be set explicitly ¯\_(ツ)_/¯
+
+  return oauthAuthorizationUrl.oauthAuthorizationUrl(_objectSpread2(_objectSpread2({}, options), {}, {
+    baseUrl
+  }));
+}
+
+async function exchangeWebFlowCode(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const response = await oauthRequest(request$1, "POST /login/oauth/access_token", {
+    client_id: options.clientId,
+    client_secret: options.clientSecret,
+    code: options.code,
+    redirect_uri: options.redirectUrl
+  });
+  const authentication = {
+    clientType: options.clientType,
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+    token: response.data.access_token,
+    scopes: response.data.scope.split(/\s+/).filter(Boolean)
+  };
+
+  if (options.clientType === "github-app") {
+    if ("refresh_token" in response.data) {
+      const apiTimeInMs = new Date(response.headers.date).getTime();
+      authentication.refreshToken = response.data.refresh_token, authentication.expiresAt = toTimestamp(apiTimeInMs, response.data.expires_in), authentication.refreshTokenExpiresAt = toTimestamp(apiTimeInMs, response.data.refresh_token_expires_in);
+    }
+
+    delete authentication.scopes;
+  }
+
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+function toTimestamp(apiTimeInMs, expirationInSeconds) {
+  return new Date(apiTimeInMs + expirationInSeconds * 1000).toISOString();
+}
+
+async function createDeviceCode(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const parameters = {
+    client_id: options.clientId
+  };
+
+  if ("scopes" in options && Array.isArray(options.scopes)) {
+    parameters.scope = options.scopes.join(" ");
+  }
+
+  return oauthRequest(request$1, "POST /login/device/code", parameters);
+}
+
+async function exchangeDeviceCode(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const response = await oauthRequest(request$1, "POST /login/oauth/access_token", {
+    client_id: options.clientId,
+    device_code: options.code,
+    grant_type: "urn:ietf:params:oauth:grant-type:device_code"
+  });
+  const authentication = {
+    clientType: options.clientType,
+    clientId: options.clientId,
+    token: response.data.access_token,
+    scopes: response.data.scope.split(/\s+/).filter(Boolean)
+  };
+
+  if ("clientSecret" in options) {
+    authentication.clientSecret = options.clientSecret;
+  }
+
+  if (options.clientType === "github-app") {
+    if ("refresh_token" in response.data) {
+      const apiTimeInMs = new Date(response.headers.date).getTime();
+      authentication.refreshToken = response.data.refresh_token, authentication.expiresAt = toTimestamp$1(apiTimeInMs, response.data.expires_in), authentication.refreshTokenExpiresAt = toTimestamp$1(apiTimeInMs, response.data.refresh_token_expires_in);
+    }
+
+    delete authentication.scopes;
+  }
+
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+function toTimestamp$1(apiTimeInMs, expirationInSeconds) {
+  return new Date(apiTimeInMs + expirationInSeconds * 1000).toISOString();
+}
+
+async function checkToken(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const response = await request$1("POST /applications/{client_id}/token", {
+    headers: {
+      authorization: `basic ${btoa(`${options.clientId}:${options.clientSecret}`)}`
+    },
+    client_id: options.clientId,
+    access_token: options.token
+  });
+  const authentication = {
+    clientType: options.clientType,
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+    token: options.token,
+    scopes: response.data.scopes
+  };
+  if (response.data.expires_at) authentication.expiresAt = response.data.expires_at;
+
+  if (options.clientType === "github-app") {
+    delete authentication.scopes;
+  }
+
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+async function refreshToken(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const response = await oauthRequest(request$1, "POST /login/oauth/access_token", {
+    client_id: options.clientId,
+    client_secret: options.clientSecret,
+    grant_type: "refresh_token",
+    refresh_token: options.refreshToken
+  });
+  const apiTimeInMs = new Date(response.headers.date).getTime();
+  const authentication = {
+    clientType: "github-app",
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+    token: response.data.access_token,
+    refreshToken: response.data.refresh_token,
+    expiresAt: toTimestamp$2(apiTimeInMs, response.data.expires_in),
+    refreshTokenExpiresAt: toTimestamp$2(apiTimeInMs, response.data.refresh_token_expires_in)
+  };
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+function toTimestamp$2(apiTimeInMs, expirationInSeconds) {
+  return new Date(apiTimeInMs + expirationInSeconds * 1000).toISOString();
+}
+
+const _excluded$1 = ["request", "clientType", "clientId", "clientSecret", "token"];
+async function scopeToken(options) {
+  const {
+    request: request$1,
+    clientType,
+    clientId,
+    clientSecret,
+    token
+  } = options,
+        requestOptions = _objectWithoutProperties(options, _excluded$1);
+
+  const response = await (request$1 ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request)("POST /applications/{client_id}/token/scoped", _objectSpread2({
+    headers: {
+      authorization: `basic ${btoa(`${clientId}:${clientSecret}`)}`
+    },
+    client_id: clientId,
+    access_token: token
+  }, requestOptions));
+  const authentication = Object.assign({
+    clientType,
+    clientId,
+    clientSecret,
+    token: response.data.token
+  }, response.data.expires_at ? {
+    expiresAt: response.data.expires_at
+  } : {});
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+async function resetToken(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const auth = btoa(`${options.clientId}:${options.clientSecret}`);
+  const response = await request$1("PATCH /applications/{client_id}/token", {
+    headers: {
+      authorization: `basic ${auth}`
+    },
+    client_id: options.clientId,
+    access_token: options.token
+  });
+  const authentication = {
+    clientType: options.clientType,
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+    token: response.data.token,
+    scopes: response.data.scopes
+  };
+  if (response.data.expires_at) authentication.expiresAt = response.data.expires_at;
+
+  if (options.clientType === "github-app") {
+    delete authentication.scopes;
+  }
+
+  return _objectSpread2(_objectSpread2({}, response), {}, {
+    authentication
+  });
+}
+
+async function deleteToken(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const auth = btoa(`${options.clientId}:${options.clientSecret}`);
+  return request$1("DELETE /applications/{client_id}/token", {
+    headers: {
+      authorization: `basic ${auth}`
+    },
+    client_id: options.clientId,
+    access_token: options.token
+  });
+}
+
+async function deleteAuthorization(options) {
+  const request$1 = options.request ||
+  /* istanbul ignore next: we always pass a custom request in tests */
+  request.request;
+  const auth = btoa(`${options.clientId}:${options.clientSecret}`);
+  return request$1("DELETE /applications/{client_id}/grant", {
+    headers: {
+      authorization: `basic ${auth}`
+    },
+    client_id: options.clientId,
+    access_token: options.token
+  });
+}
+
+exports.VERSION = VERSION;
+exports.checkToken = checkToken;
+exports.createDeviceCode = createDeviceCode;
+exports.deleteAuthorization = deleteAuthorization;
+exports.deleteToken = deleteToken;
+exports.exchangeDeviceCode = exchangeDeviceCode;
+exports.exchangeWebFlowCode = exchangeWebFlowCode;
+exports.getWebFlowAuthorizationUrl = getWebFlowAuthorizationUrl;
+exports.refreshToken = refreshToken;
+exports.resetToken = resetToken;
+exports.scopeToken = scopeToken;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 6647:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+const VERSION = "2.17.0";
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+/**
+ * Some “list” response that can be paginated have a different response structure
+ *
+ * They have a `total_count` key in the response (search also has `incomplete_results`,
+ * /installation/repositories also has `repository_selection`), as well as a key with
+ * the list of the items which name varies from endpoint to endpoint.
+ *
+ * Octokit normalizes these responses so that paginated results are always returned following
+ * the same structure. One challenge is that if the list response has only one page, no Link
+ * header is provided, so this header alone is not sufficient to check wether a response is
+ * paginated or not.
+ *
+ * We check if a "total_count" key is present in the response data, but also make sure that
+ * a "url" property is not, as the "Get the combined status for a specific ref" endpoint would
+ * otherwise match: https://developer.github.com/v3/repos/statuses/#get-the-combined-status-for-a-specific-ref
+ */
+function normalizePaginatedListResponse(response) {
+  // endpoints can respond with 204 if repository is empty
+  if (!response.data) {
+    return _objectSpread2(_objectSpread2({}, response), {}, {
+      data: []
+    });
+  }
+
+  const responseNeedsNormalization = "total_count" in response.data && !("url" in response.data);
+  if (!responseNeedsNormalization) return response; // keep the additional properties intact as there is currently no other way
+  // to retrieve the same information.
+
+  const incompleteResults = response.data.incomplete_results;
+  const repositorySelection = response.data.repository_selection;
+  const totalCount = response.data.total_count;
+  delete response.data.incomplete_results;
+  delete response.data.repository_selection;
+  delete response.data.total_count;
+  const namespaceKey = Object.keys(response.data)[0];
+  const data = response.data[namespaceKey];
+  response.data = data;
+
+  if (typeof incompleteResults !== "undefined") {
+    response.data.incomplete_results = incompleteResults;
+  }
+
+  if (typeof repositorySelection !== "undefined") {
+    response.data.repository_selection = repositorySelection;
+  }
+
+  response.data.total_count = totalCount;
+  return response;
+}
+
+function iterator(octokit, route, parameters) {
+  const options = typeof route === "function" ? route.endpoint(parameters) : octokit.request.endpoint(route, parameters);
+  const requestMethod = typeof route === "function" ? route : octokit.request;
+  const method = options.method;
+  const headers = options.headers;
+  let url = options.url;
+  return {
+    [Symbol.asyncIterator]: () => ({
+      async next() {
+        if (!url) return {
+          done: true
+        };
+
+        try {
+          const response = await requestMethod({
+            method,
+            url,
+            headers
+          });
+          const normalizedResponse = normalizePaginatedListResponse(response); // `response.headers.link` format:
+          // '<https://api.github.com/users/aseemk/followers?page=2>; rel="next", <https://api.github.com/users/aseemk/followers?page=2>; rel="last"'
+          // sets `url` to undefined if "next" URL is not present or `link` header is not set
+
+          url = ((normalizedResponse.headers.link || "").match(/<([^>]+)>;\s*rel="next"/) || [])[1];
+          return {
+            value: normalizedResponse
+          };
+        } catch (error) {
+          if (error.status !== 409) throw error;
+          url = "";
+          return {
+            value: {
+              status: 200,
+              headers: {},
+              data: []
+            }
+          };
+        }
+      }
+
+    })
+  };
+}
+
+function paginate(octokit, route, parameters, mapFn) {
+  if (typeof parameters === "function") {
+    mapFn = parameters;
+    parameters = undefined;
+  }
+
+  return gather(octokit, [], iterator(octokit, route, parameters)[Symbol.asyncIterator](), mapFn);
+}
+
+function gather(octokit, results, iterator, mapFn) {
+  return iterator.next().then(result => {
+    if (result.done) {
+      return results;
+    }
+
+    let earlyExit = false;
+
+    function done() {
+      earlyExit = true;
+    }
+
+    results = results.concat(mapFn ? mapFn(result.value, done) : result.value.data);
+
+    if (earlyExit) {
+      return results;
+    }
+
+    return gather(octokit, results, iterator, mapFn);
+  });
+}
+
+const composePaginateRest = Object.assign(paginate, {
+  iterator
+});
+
+const paginatingEndpoints = ["GET /app/hook/deliveries", "GET /app/installations", "GET /applications/grants", "GET /authorizations", "GET /enterprises/{enterprise}/actions/permissions/organizations", "GET /enterprises/{enterprise}/actions/runner-groups", "GET /enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations", "GET /enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners", "GET /enterprises/{enterprise}/actions/runners", "GET /enterprises/{enterprise}/actions/runners/downloads", "GET /events", "GET /gists", "GET /gists/public", "GET /gists/starred", "GET /gists/{gist_id}/comments", "GET /gists/{gist_id}/commits", "GET /gists/{gist_id}/forks", "GET /installation/repositories", "GET /issues", "GET /marketplace_listing/plans", "GET /marketplace_listing/plans/{plan_id}/accounts", "GET /marketplace_listing/stubbed/plans", "GET /marketplace_listing/stubbed/plans/{plan_id}/accounts", "GET /networks/{owner}/{repo}/events", "GET /notifications", "GET /organizations", "GET /orgs/{org}/actions/permissions/repositories", "GET /orgs/{org}/actions/runner-groups", "GET /orgs/{org}/actions/runner-groups/{runner_group_id}/repositories", "GET /orgs/{org}/actions/runner-groups/{runner_group_id}/runners", "GET /orgs/{org}/actions/runners", "GET /orgs/{org}/actions/runners/downloads", "GET /orgs/{org}/actions/secrets", "GET /orgs/{org}/actions/secrets/{secret_name}/repositories", "GET /orgs/{org}/blocks", "GET /orgs/{org}/credential-authorizations", "GET /orgs/{org}/events", "GET /orgs/{org}/failed_invitations", "GET /orgs/{org}/hooks", "GET /orgs/{org}/hooks/{hook_id}/deliveries", "GET /orgs/{org}/installations", "GET /orgs/{org}/invitations", "GET /orgs/{org}/invitations/{invitation_id}/teams", "GET /orgs/{org}/issues", "GET /orgs/{org}/members", "GET /orgs/{org}/migrations", "GET /orgs/{org}/migrations/{migration_id}/repositories", "GET /orgs/{org}/outside_collaborators", "GET /orgs/{org}/packages", "GET /orgs/{org}/projects", "GET /orgs/{org}/public_members", "GET /orgs/{org}/repos", "GET /orgs/{org}/secret-scanning/alerts", "GET /orgs/{org}/team-sync/groups", "GET /orgs/{org}/teams", "GET /orgs/{org}/teams/{team_slug}/discussions", "GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments", "GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions", "GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions", "GET /orgs/{org}/teams/{team_slug}/invitations", "GET /orgs/{org}/teams/{team_slug}/members", "GET /orgs/{org}/teams/{team_slug}/projects", "GET /orgs/{org}/teams/{team_slug}/repos", "GET /orgs/{org}/teams/{team_slug}/team-sync/group-mappings", "GET /orgs/{org}/teams/{team_slug}/teams", "GET /projects/columns/{column_id}/cards", "GET /projects/{project_id}/collaborators", "GET /projects/{project_id}/columns", "GET /repos/{owner}/{repo}/actions/artifacts", "GET /repos/{owner}/{repo}/actions/runners", "GET /repos/{owner}/{repo}/actions/runners/downloads", "GET /repos/{owner}/{repo}/actions/runs", "GET /repos/{owner}/{repo}/actions/runs/{run_id}/artifacts", "GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}/jobs", "GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs", "GET /repos/{owner}/{repo}/actions/secrets", "GET /repos/{owner}/{repo}/actions/workflows", "GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs", "GET /repos/{owner}/{repo}/assignees", "GET /repos/{owner}/{repo}/autolinks", "GET /repos/{owner}/{repo}/branches", "GET /repos/{owner}/{repo}/check-runs/{check_run_id}/annotations", "GET /repos/{owner}/{repo}/check-suites/{check_suite_id}/check-runs", "GET /repos/{owner}/{repo}/code-scanning/alerts", "GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances", "GET /repos/{owner}/{repo}/code-scanning/analyses", "GET /repos/{owner}/{repo}/collaborators", "GET /repos/{owner}/{repo}/comments", "GET /repos/{owner}/{repo}/comments/{comment_id}/reactions", "GET /repos/{owner}/{repo}/commits", "GET /repos/{owner}/{repo}/commits/{commit_sha}/branches-where-head", "GET /repos/{owner}/{repo}/commits/{commit_sha}/comments", "GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls", "GET /repos/{owner}/{repo}/commits/{ref}/check-runs", "GET /repos/{owner}/{repo}/commits/{ref}/check-suites", "GET /repos/{owner}/{repo}/commits/{ref}/statuses", "GET /repos/{owner}/{repo}/contributors", "GET /repos/{owner}/{repo}/deployments", "GET /repos/{owner}/{repo}/deployments/{deployment_id}/statuses", "GET /repos/{owner}/{repo}/events", "GET /repos/{owner}/{repo}/forks", "GET /repos/{owner}/{repo}/git/matching-refs/{ref}", "GET /repos/{owner}/{repo}/hooks", "GET /repos/{owner}/{repo}/hooks/{hook_id}/deliveries", "GET /repos/{owner}/{repo}/invitations", "GET /repos/{owner}/{repo}/issues", "GET /repos/{owner}/{repo}/issues/comments", "GET /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions", "GET /repos/{owner}/{repo}/issues/events", "GET /repos/{owner}/{repo}/issues/{issue_number}/comments", "GET /repos/{owner}/{repo}/issues/{issue_number}/events", "GET /repos/{owner}/{repo}/issues/{issue_number}/labels", "GET /repos/{owner}/{repo}/issues/{issue_number}/reactions", "GET /repos/{owner}/{repo}/issues/{issue_number}/timeline", "GET /repos/{owner}/{repo}/keys", "GET /repos/{owner}/{repo}/labels", "GET /repos/{owner}/{repo}/milestones", "GET /repos/{owner}/{repo}/milestones/{milestone_number}/labels", "GET /repos/{owner}/{repo}/notifications", "GET /repos/{owner}/{repo}/pages/builds", "GET /repos/{owner}/{repo}/projects", "GET /repos/{owner}/{repo}/pulls", "GET /repos/{owner}/{repo}/pulls/comments", "GET /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions", "GET /repos/{owner}/{repo}/pulls/{pull_number}/comments", "GET /repos/{owner}/{repo}/pulls/{pull_number}/commits", "GET /repos/{owner}/{repo}/pulls/{pull_number}/files", "GET /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers", "GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews", "GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments", "GET /repos/{owner}/{repo}/releases", "GET /repos/{owner}/{repo}/releases/{release_id}/assets", "GET /repos/{owner}/{repo}/secret-scanning/alerts", "GET /repos/{owner}/{repo}/stargazers", "GET /repos/{owner}/{repo}/subscribers", "GET /repos/{owner}/{repo}/tags", "GET /repos/{owner}/{repo}/teams", "GET /repositories", "GET /repositories/{repository_id}/environments/{environment_name}/secrets", "GET /scim/v2/enterprises/{enterprise}/Groups", "GET /scim/v2/enterprises/{enterprise}/Users", "GET /scim/v2/organizations/{org}/Users", "GET /search/code", "GET /search/commits", "GET /search/issues", "GET /search/labels", "GET /search/repositories", "GET /search/topics", "GET /search/users", "GET /teams/{team_id}/discussions", "GET /teams/{team_id}/discussions/{discussion_number}/comments", "GET /teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}/reactions", "GET /teams/{team_id}/discussions/{discussion_number}/reactions", "GET /teams/{team_id}/invitations", "GET /teams/{team_id}/members", "GET /teams/{team_id}/projects", "GET /teams/{team_id}/repos", "GET /teams/{team_id}/team-sync/group-mappings", "GET /teams/{team_id}/teams", "GET /user/blocks", "GET /user/emails", "GET /user/followers", "GET /user/following", "GET /user/gpg_keys", "GET /user/installations", "GET /user/installations/{installation_id}/repositories", "GET /user/issues", "GET /user/keys", "GET /user/marketplace_purchases", "GET /user/marketplace_purchases/stubbed", "GET /user/memberships/orgs", "GET /user/migrations", "GET /user/migrations/{migration_id}/repositories", "GET /user/orgs", "GET /user/packages", "GET /user/public_emails", "GET /user/repos", "GET /user/repository_invitations", "GET /user/starred", "GET /user/subscriptions", "GET /user/teams", "GET /users", "GET /users/{username}/events", "GET /users/{username}/events/orgs/{org}", "GET /users/{username}/events/public", "GET /users/{username}/followers", "GET /users/{username}/following", "GET /users/{username}/gists", "GET /users/{username}/gpg_keys", "GET /users/{username}/keys", "GET /users/{username}/orgs", "GET /users/{username}/packages", "GET /users/{username}/projects", "GET /users/{username}/received_events", "GET /users/{username}/received_events/public", "GET /users/{username}/repos", "GET /users/{username}/starred", "GET /users/{username}/subscriptions"];
+
+function isPaginatingEndpoint(arg) {
+  if (typeof arg === "string") {
+    return paginatingEndpoints.includes(arg);
+  } else {
+    return false;
+  }
+}
+
+/**
+ * @param octokit Octokit instance
+ * @param options Options passed to Octokit constructor
+ */
+
+function paginateRest(octokit) {
+  return {
+    paginate: Object.assign(paginate.bind(null, octokit), {
+      iterator: iterator.bind(null, octokit)
+    })
+  };
+}
+paginateRest.VERSION = VERSION;
+
+exports.composePaginateRest = composePaginateRest;
+exports.isPaginatingEndpoint = isPaginatingEndpoint;
+exports.paginateRest = paginateRest;
+exports.paginatingEndpoints = paginatingEndpoints;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 1492:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+const Endpoints = {
+  actions: {
+    addSelectedRepoToOrgSecret: ["PUT /orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}"],
+    approveWorkflowRun: ["POST /repos/{owner}/{repo}/actions/runs/{run_id}/approve"],
+    cancelWorkflowRun: ["POST /repos/{owner}/{repo}/actions/runs/{run_id}/cancel"],
+    createOrUpdateEnvironmentSecret: ["PUT /repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}"],
+    createOrUpdateOrgSecret: ["PUT /orgs/{org}/actions/secrets/{secret_name}"],
+    createOrUpdateRepoSecret: ["PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}"],
+    createRegistrationTokenForOrg: ["POST /orgs/{org}/actions/runners/registration-token"],
+    createRegistrationTokenForRepo: ["POST /repos/{owner}/{repo}/actions/runners/registration-token"],
+    createRemoveTokenForOrg: ["POST /orgs/{org}/actions/runners/remove-token"],
+    createRemoveTokenForRepo: ["POST /repos/{owner}/{repo}/actions/runners/remove-token"],
+    createWorkflowDispatch: ["POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"],
+    deleteArtifact: ["DELETE /repos/{owner}/{repo}/actions/artifacts/{artifact_id}"],
+    deleteEnvironmentSecret: ["DELETE /repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}"],
+    deleteOrgSecret: ["DELETE /orgs/{org}/actions/secrets/{secret_name}"],
+    deleteRepoSecret: ["DELETE /repos/{owner}/{repo}/actions/secrets/{secret_name}"],
+    deleteSelfHostedRunnerFromOrg: ["DELETE /orgs/{org}/actions/runners/{runner_id}"],
+    deleteSelfHostedRunnerFromRepo: ["DELETE /repos/{owner}/{repo}/actions/runners/{runner_id}"],
+    deleteWorkflowRun: ["DELETE /repos/{owner}/{repo}/actions/runs/{run_id}"],
+    deleteWorkflowRunLogs: ["DELETE /repos/{owner}/{repo}/actions/runs/{run_id}/logs"],
+    disableSelectedRepositoryGithubActionsOrganization: ["DELETE /orgs/{org}/actions/permissions/repositories/{repository_id}"],
+    disableWorkflow: ["PUT /repos/{owner}/{repo}/actions/workflows/{workflow_id}/disable"],
+    downloadArtifact: ["GET /repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}"],
+    downloadJobLogsForWorkflowRun: ["GET /repos/{owner}/{repo}/actions/jobs/{job_id}/logs"],
+    downloadWorkflowRunAttemptLogs: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}/logs"],
+    downloadWorkflowRunLogs: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs"],
+    enableSelectedRepositoryGithubActionsOrganization: ["PUT /orgs/{org}/actions/permissions/repositories/{repository_id}"],
+    enableWorkflow: ["PUT /repos/{owner}/{repo}/actions/workflows/{workflow_id}/enable"],
+    getAllowedActionsOrganization: ["GET /orgs/{org}/actions/permissions/selected-actions"],
+    getAllowedActionsRepository: ["GET /repos/{owner}/{repo}/actions/permissions/selected-actions"],
+    getArtifact: ["GET /repos/{owner}/{repo}/actions/artifacts/{artifact_id}"],
+    getEnvironmentPublicKey: ["GET /repositories/{repository_id}/environments/{environment_name}/secrets/public-key"],
+    getEnvironmentSecret: ["GET /repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}"],
+    getGithubActionsPermissionsOrganization: ["GET /orgs/{org}/actions/permissions"],
+    getGithubActionsPermissionsRepository: ["GET /repos/{owner}/{repo}/actions/permissions"],
+    getJobForWorkflowRun: ["GET /repos/{owner}/{repo}/actions/jobs/{job_id}"],
+    getOrgPublicKey: ["GET /orgs/{org}/actions/secrets/public-key"],
+    getOrgSecret: ["GET /orgs/{org}/actions/secrets/{secret_name}"],
+    getPendingDeploymentsForRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"],
+    getRepoPermissions: ["GET /repos/{owner}/{repo}/actions/permissions", {}, {
+      renamed: ["actions", "getGithubActionsPermissionsRepository"]
+    }],
+    getRepoPublicKey: ["GET /repos/{owner}/{repo}/actions/secrets/public-key"],
+    getRepoSecret: ["GET /repos/{owner}/{repo}/actions/secrets/{secret_name}"],
+    getReviewsForRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/approvals"],
+    getSelfHostedRunnerForOrg: ["GET /orgs/{org}/actions/runners/{runner_id}"],
+    getSelfHostedRunnerForRepo: ["GET /repos/{owner}/{repo}/actions/runners/{runner_id}"],
+    getWorkflow: ["GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}"],
+    getWorkflowRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}"],
+    getWorkflowRunAttempt: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}"],
+    getWorkflowRunUsage: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/timing"],
+    getWorkflowUsage: ["GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing"],
+    listArtifactsForRepo: ["GET /repos/{owner}/{repo}/actions/artifacts"],
+    listEnvironmentSecrets: ["GET /repositories/{repository_id}/environments/{environment_name}/secrets"],
+    listJobsForWorkflowRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs"],
+    listJobsForWorkflowRunAttempt: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}/jobs"],
+    listOrgSecrets: ["GET /orgs/{org}/actions/secrets"],
+    listRepoSecrets: ["GET /repos/{owner}/{repo}/actions/secrets"],
+    listRepoWorkflows: ["GET /repos/{owner}/{repo}/actions/workflows"],
+    listRunnerApplicationsForOrg: ["GET /orgs/{org}/actions/runners/downloads"],
+    listRunnerApplicationsForRepo: ["GET /repos/{owner}/{repo}/actions/runners/downloads"],
+    listSelectedReposForOrgSecret: ["GET /orgs/{org}/actions/secrets/{secret_name}/repositories"],
+    listSelectedRepositoriesEnabledGithubActionsOrganization: ["GET /orgs/{org}/actions/permissions/repositories"],
+    listSelfHostedRunnersForOrg: ["GET /orgs/{org}/actions/runners"],
+    listSelfHostedRunnersForRepo: ["GET /repos/{owner}/{repo}/actions/runners"],
+    listWorkflowRunArtifacts: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/artifacts"],
+    listWorkflowRuns: ["GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs"],
+    listWorkflowRunsForRepo: ["GET /repos/{owner}/{repo}/actions/runs"],
+    removeSelectedRepoFromOrgSecret: ["DELETE /orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}"],
+    reviewPendingDeploymentsForRun: ["POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"],
+    setAllowedActionsOrganization: ["PUT /orgs/{org}/actions/permissions/selected-actions"],
+    setAllowedActionsRepository: ["PUT /repos/{owner}/{repo}/actions/permissions/selected-actions"],
+    setGithubActionsPermissionsOrganization: ["PUT /orgs/{org}/actions/permissions"],
+    setGithubActionsPermissionsRepository: ["PUT /repos/{owner}/{repo}/actions/permissions"],
+    setSelectedReposForOrgSecret: ["PUT /orgs/{org}/actions/secrets/{secret_name}/repositories"],
+    setSelectedRepositoriesEnabledGithubActionsOrganization: ["PUT /orgs/{org}/actions/permissions/repositories"]
+  },
+  activity: {
+    checkRepoIsStarredByAuthenticatedUser: ["GET /user/starred/{owner}/{repo}"],
+    deleteRepoSubscription: ["DELETE /repos/{owner}/{repo}/subscription"],
+    deleteThreadSubscription: ["DELETE /notifications/threads/{thread_id}/subscription"],
+    getFeeds: ["GET /feeds"],
+    getRepoSubscription: ["GET /repos/{owner}/{repo}/subscription"],
+    getThread: ["GET /notifications/threads/{thread_id}"],
+    getThreadSubscriptionForAuthenticatedUser: ["GET /notifications/threads/{thread_id}/subscription"],
+    listEventsForAuthenticatedUser: ["GET /users/{username}/events"],
+    listNotificationsForAuthenticatedUser: ["GET /notifications"],
+    listOrgEventsForAuthenticatedUser: ["GET /users/{username}/events/orgs/{org}"],
+    listPublicEvents: ["GET /events"],
+    listPublicEventsForRepoNetwork: ["GET /networks/{owner}/{repo}/events"],
+    listPublicEventsForUser: ["GET /users/{username}/events/public"],
+    listPublicOrgEvents: ["GET /orgs/{org}/events"],
+    listReceivedEventsForUser: ["GET /users/{username}/received_events"],
+    listReceivedPublicEventsForUser: ["GET /users/{username}/received_events/public"],
+    listRepoEvents: ["GET /repos/{owner}/{repo}/events"],
+    listRepoNotificationsForAuthenticatedUser: ["GET /repos/{owner}/{repo}/notifications"],
+    listReposStarredByAuthenticatedUser: ["GET /user/starred"],
+    listReposStarredByUser: ["GET /users/{username}/starred"],
+    listReposWatchedByUser: ["GET /users/{username}/subscriptions"],
+    listStargazersForRepo: ["GET /repos/{owner}/{repo}/stargazers"],
+    listWatchedReposForAuthenticatedUser: ["GET /user/subscriptions"],
+    listWatchersForRepo: ["GET /repos/{owner}/{repo}/subscribers"],
+    markNotificationsAsRead: ["PUT /notifications"],
+    markRepoNotificationsAsRead: ["PUT /repos/{owner}/{repo}/notifications"],
+    markThreadAsRead: ["PATCH /notifications/threads/{thread_id}"],
+    setRepoSubscription: ["PUT /repos/{owner}/{repo}/subscription"],
+    setThreadSubscription: ["PUT /notifications/threads/{thread_id}/subscription"],
+    starRepoForAuthenticatedUser: ["PUT /user/starred/{owner}/{repo}"],
+    unstarRepoForAuthenticatedUser: ["DELETE /user/starred/{owner}/{repo}"]
+  },
+  apps: {
+    addRepoToInstallation: ["PUT /user/installations/{installation_id}/repositories/{repository_id}", {}, {
+      renamed: ["apps", "addRepoToInstallationForAuthenticatedUser"]
+    }],
+    addRepoToInstallationForAuthenticatedUser: ["PUT /user/installations/{installation_id}/repositories/{repository_id}"],
+    checkToken: ["POST /applications/{client_id}/token"],
+    createContentAttachment: ["POST /content_references/{content_reference_id}/attachments", {
+      mediaType: {
+        previews: ["corsair"]
+      }
+    }],
+    createContentAttachmentForRepo: ["POST /repos/{owner}/{repo}/content_references/{content_reference_id}/attachments", {
+      mediaType: {
+        previews: ["corsair"]
+      }
+    }],
+    createFromManifest: ["POST /app-manifests/{code}/conversions"],
+    createInstallationAccessToken: ["POST /app/installations/{installation_id}/access_tokens"],
+    deleteAuthorization: ["DELETE /applications/{client_id}/grant"],
+    deleteInstallation: ["DELETE /app/installations/{installation_id}"],
+    deleteToken: ["DELETE /applications/{client_id}/token"],
+    getAuthenticated: ["GET /app"],
+    getBySlug: ["GET /apps/{app_slug}"],
+    getInstallation: ["GET /app/installations/{installation_id}"],
+    getOrgInstallation: ["GET /orgs/{org}/installation"],
+    getRepoInstallation: ["GET /repos/{owner}/{repo}/installation"],
+    getSubscriptionPlanForAccount: ["GET /marketplace_listing/accounts/{account_id}"],
+    getSubscriptionPlanForAccountStubbed: ["GET /marketplace_listing/stubbed/accounts/{account_id}"],
+    getUserInstallation: ["GET /users/{username}/installation"],
+    getWebhookConfigForApp: ["GET /app/hook/config"],
+    getWebhookDelivery: ["GET /app/hook/deliveries/{delivery_id}"],
+    listAccountsForPlan: ["GET /marketplace_listing/plans/{plan_id}/accounts"],
+    listAccountsForPlanStubbed: ["GET /marketplace_listing/stubbed/plans/{plan_id}/accounts"],
+    listInstallationReposForAuthenticatedUser: ["GET /user/installations/{installation_id}/repositories"],
+    listInstallations: ["GET /app/installations"],
+    listInstallationsForAuthenticatedUser: ["GET /user/installations"],
+    listPlans: ["GET /marketplace_listing/plans"],
+    listPlansStubbed: ["GET /marketplace_listing/stubbed/plans"],
+    listReposAccessibleToInstallation: ["GET /installation/repositories"],
+    listSubscriptionsForAuthenticatedUser: ["GET /user/marketplace_purchases"],
+    listSubscriptionsForAuthenticatedUserStubbed: ["GET /user/marketplace_purchases/stubbed"],
+    listWebhookDeliveries: ["GET /app/hook/deliveries"],
+    redeliverWebhookDelivery: ["POST /app/hook/deliveries/{delivery_id}/attempts"],
+    removeRepoFromInstallation: ["DELETE /user/installations/{installation_id}/repositories/{repository_id}", {}, {
+      renamed: ["apps", "removeRepoFromInstallationForAuthenticatedUser"]
+    }],
+    removeRepoFromInstallationForAuthenticatedUser: ["DELETE /user/installations/{installation_id}/repositories/{repository_id}"],
+    resetToken: ["PATCH /applications/{client_id}/token"],
+    revokeInstallationAccessToken: ["DELETE /installation/token"],
+    scopeToken: ["POST /applications/{client_id}/token/scoped"],
+    suspendInstallation: ["PUT /app/installations/{installation_id}/suspended"],
+    unsuspendInstallation: ["DELETE /app/installations/{installation_id}/suspended"],
+    updateWebhookConfigForApp: ["PATCH /app/hook/config"]
+  },
+  billing: {
+    getGithubActionsBillingOrg: ["GET /orgs/{org}/settings/billing/actions"],
+    getGithubActionsBillingUser: ["GET /users/{username}/settings/billing/actions"],
+    getGithubPackagesBillingOrg: ["GET /orgs/{org}/settings/billing/packages"],
+    getGithubPackagesBillingUser: ["GET /users/{username}/settings/billing/packages"],
+    getSharedStorageBillingOrg: ["GET /orgs/{org}/settings/billing/shared-storage"],
+    getSharedStorageBillingUser: ["GET /users/{username}/settings/billing/shared-storage"]
+  },
+  checks: {
+    create: ["POST /repos/{owner}/{repo}/check-runs"],
+    createSuite: ["POST /repos/{owner}/{repo}/check-suites"],
+    get: ["GET /repos/{owner}/{repo}/check-runs/{check_run_id}"],
+    getSuite: ["GET /repos/{owner}/{repo}/check-suites/{check_suite_id}"],
+    listAnnotations: ["GET /repos/{owner}/{repo}/check-runs/{check_run_id}/annotations"],
+    listForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/check-runs"],
+    listForSuite: ["GET /repos/{owner}/{repo}/check-suites/{check_suite_id}/check-runs"],
+    listSuitesForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/check-suites"],
+    rerequestRun: ["POST /repos/{owner}/{repo}/check-runs/{check_run_id}/rerequest"],
+    rerequestSuite: ["POST /repos/{owner}/{repo}/check-suites/{check_suite_id}/rerequest"],
+    setSuitesPreferences: ["PATCH /repos/{owner}/{repo}/check-suites/preferences"],
+    update: ["PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}"]
+  },
+  codeScanning: {
+    deleteAnalysis: ["DELETE /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}{?confirm_delete}"],
+    getAlert: ["GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}", {}, {
+      renamedParameters: {
+        alert_id: "alert_number"
+      }
+    }],
+    getAnalysis: ["GET /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}"],
+    getSarif: ["GET /repos/{owner}/{repo}/code-scanning/sarifs/{sarif_id}"],
+    listAlertInstances: ["GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances"],
+    listAlertsForRepo: ["GET /repos/{owner}/{repo}/code-scanning/alerts"],
+    listAlertsInstances: ["GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances", {}, {
+      renamed: ["codeScanning", "listAlertInstances"]
+    }],
+    listRecentAnalyses: ["GET /repos/{owner}/{repo}/code-scanning/analyses"],
+    updateAlert: ["PATCH /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}"],
+    uploadSarif: ["POST /repos/{owner}/{repo}/code-scanning/sarifs"]
+  },
+  codesOfConduct: {
+    getAllCodesOfConduct: ["GET /codes_of_conduct"],
+    getConductCode: ["GET /codes_of_conduct/{key}"]
+  },
+  emojis: {
+    get: ["GET /emojis"]
+  },
+  enterpriseAdmin: {
+    disableSelectedOrganizationGithubActionsEnterprise: ["DELETE /enterprises/{enterprise}/actions/permissions/organizations/{org_id}"],
+    enableSelectedOrganizationGithubActionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions/organizations/{org_id}"],
+    getAllowedActionsEnterprise: ["GET /enterprises/{enterprise}/actions/permissions/selected-actions"],
+    getGithubActionsPermissionsEnterprise: ["GET /enterprises/{enterprise}/actions/permissions"],
+    listSelectedOrganizationsEnabledGithubActionsEnterprise: ["GET /enterprises/{enterprise}/actions/permissions/organizations"],
+    setAllowedActionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions/selected-actions"],
+    setGithubActionsPermissionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions"],
+    setSelectedOrganizationsEnabledGithubActionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions/organizations"]
+  },
+  gists: {
+    checkIsStarred: ["GET /gists/{gist_id}/star"],
+    create: ["POST /gists"],
+    createComment: ["POST /gists/{gist_id}/comments"],
+    delete: ["DELETE /gists/{gist_id}"],
+    deleteComment: ["DELETE /gists/{gist_id}/comments/{comment_id}"],
+    fork: ["POST /gists/{gist_id}/forks"],
+    get: ["GET /gists/{gist_id}"],
+    getComment: ["GET /gists/{gist_id}/comments/{comment_id}"],
+    getRevision: ["GET /gists/{gist_id}/{sha}"],
+    list: ["GET /gists"],
+    listComments: ["GET /gists/{gist_id}/comments"],
+    listCommits: ["GET /gists/{gist_id}/commits"],
+    listForUser: ["GET /users/{username}/gists"],
+    listForks: ["GET /gists/{gist_id}/forks"],
+    listPublic: ["GET /gists/public"],
+    listStarred: ["GET /gists/starred"],
+    star: ["PUT /gists/{gist_id}/star"],
+    unstar: ["DELETE /gists/{gist_id}/star"],
+    update: ["PATCH /gists/{gist_id}"],
+    updateComment: ["PATCH /gists/{gist_id}/comments/{comment_id}"]
+  },
+  git: {
+    createBlob: ["POST /repos/{owner}/{repo}/git/blobs"],
+    createCommit: ["POST /repos/{owner}/{repo}/git/commits"],
+    createRef: ["POST /repos/{owner}/{repo}/git/refs"],
+    createTag: ["POST /repos/{owner}/{repo}/git/tags"],
+    createTree: ["POST /repos/{owner}/{repo}/git/trees"],
+    deleteRef: ["DELETE /repos/{owner}/{repo}/git/refs/{ref}"],
+    getBlob: ["GET /repos/{owner}/{repo}/git/blobs/{file_sha}"],
+    getCommit: ["GET /repos/{owner}/{repo}/git/commits/{commit_sha}"],
+    getRef: ["GET /repos/{owner}/{repo}/git/ref/{ref}"],
+    getTag: ["GET /repos/{owner}/{repo}/git/tags/{tag_sha}"],
+    getTree: ["GET /repos/{owner}/{repo}/git/trees/{tree_sha}"],
+    listMatchingRefs: ["GET /repos/{owner}/{repo}/git/matching-refs/{ref}"],
+    updateRef: ["PATCH /repos/{owner}/{repo}/git/refs/{ref}"]
+  },
+  gitignore: {
+    getAllTemplates: ["GET /gitignore/templates"],
+    getTemplate: ["GET /gitignore/templates/{name}"]
+  },
+  interactions: {
+    getRestrictionsForAuthenticatedUser: ["GET /user/interaction-limits"],
+    getRestrictionsForOrg: ["GET /orgs/{org}/interaction-limits"],
+    getRestrictionsForRepo: ["GET /repos/{owner}/{repo}/interaction-limits"],
+    getRestrictionsForYourPublicRepos: ["GET /user/interaction-limits", {}, {
+      renamed: ["interactions", "getRestrictionsForAuthenticatedUser"]
+    }],
+    removeRestrictionsForAuthenticatedUser: ["DELETE /user/interaction-limits"],
+    removeRestrictionsForOrg: ["DELETE /orgs/{org}/interaction-limits"],
+    removeRestrictionsForRepo: ["DELETE /repos/{owner}/{repo}/interaction-limits"],
+    removeRestrictionsForYourPublicRepos: ["DELETE /user/interaction-limits", {}, {
+      renamed: ["interactions", "removeRestrictionsForAuthenticatedUser"]
+    }],
+    setRestrictionsForAuthenticatedUser: ["PUT /user/interaction-limits"],
+    setRestrictionsForOrg: ["PUT /orgs/{org}/interaction-limits"],
+    setRestrictionsForRepo: ["PUT /repos/{owner}/{repo}/interaction-limits"],
+    setRestrictionsForYourPublicRepos: ["PUT /user/interaction-limits", {}, {
+      renamed: ["interactions", "setRestrictionsForAuthenticatedUser"]
+    }]
+  },
+  issues: {
+    addAssignees: ["POST /repos/{owner}/{repo}/issues/{issue_number}/assignees"],
+    addLabels: ["POST /repos/{owner}/{repo}/issues/{issue_number}/labels"],
+    checkUserCanBeAssigned: ["GET /repos/{owner}/{repo}/assignees/{assignee}"],
+    create: ["POST /repos/{owner}/{repo}/issues"],
+    createComment: ["POST /repos/{owner}/{repo}/issues/{issue_number}/comments"],
+    createLabel: ["POST /repos/{owner}/{repo}/labels"],
+    createMilestone: ["POST /repos/{owner}/{repo}/milestones"],
+    deleteComment: ["DELETE /repos/{owner}/{repo}/issues/comments/{comment_id}"],
+    deleteLabel: ["DELETE /repos/{owner}/{repo}/labels/{name}"],
+    deleteMilestone: ["DELETE /repos/{owner}/{repo}/milestones/{milestone_number}"],
+    get: ["GET /repos/{owner}/{repo}/issues/{issue_number}"],
+    getComment: ["GET /repos/{owner}/{repo}/issues/comments/{comment_id}"],
+    getEvent: ["GET /repos/{owner}/{repo}/issues/events/{event_id}"],
+    getLabel: ["GET /repos/{owner}/{repo}/labels/{name}"],
+    getMilestone: ["GET /repos/{owner}/{repo}/milestones/{milestone_number}"],
+    list: ["GET /issues"],
+    listAssignees: ["GET /repos/{owner}/{repo}/assignees"],
+    listComments: ["GET /repos/{owner}/{repo}/issues/{issue_number}/comments"],
+    listCommentsForRepo: ["GET /repos/{owner}/{repo}/issues/comments"],
+    listEvents: ["GET /repos/{owner}/{repo}/issues/{issue_number}/events"],
+    listEventsForRepo: ["GET /repos/{owner}/{repo}/issues/events"],
+    listEventsForTimeline: ["GET /repos/{owner}/{repo}/issues/{issue_number}/timeline"],
+    listForAuthenticatedUser: ["GET /user/issues"],
+    listForOrg: ["GET /orgs/{org}/issues"],
+    listForRepo: ["GET /repos/{owner}/{repo}/issues"],
+    listLabelsForMilestone: ["GET /repos/{owner}/{repo}/milestones/{milestone_number}/labels"],
+    listLabelsForRepo: ["GET /repos/{owner}/{repo}/labels"],
+    listLabelsOnIssue: ["GET /repos/{owner}/{repo}/issues/{issue_number}/labels"],
+    listMilestones: ["GET /repos/{owner}/{repo}/milestones"],
+    lock: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/lock"],
+    removeAllLabels: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels"],
+    removeAssignees: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/assignees"],
+    removeLabel: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}"],
+    setLabels: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/labels"],
+    unlock: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/lock"],
+    update: ["PATCH /repos/{owner}/{repo}/issues/{issue_number}"],
+    updateComment: ["PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}"],
+    updateLabel: ["PATCH /repos/{owner}/{repo}/labels/{name}"],
+    updateMilestone: ["PATCH /repos/{owner}/{repo}/milestones/{milestone_number}"]
+  },
+  licenses: {
+    get: ["GET /licenses/{license}"],
+    getAllCommonlyUsed: ["GET /licenses"],
+    getForRepo: ["GET /repos/{owner}/{repo}/license"]
+  },
+  markdown: {
+    render: ["POST /markdown"],
+    renderRaw: ["POST /markdown/raw", {
+      headers: {
+        "content-type": "text/plain; charset=utf-8"
+      }
+    }]
+  },
+  meta: {
+    get: ["GET /meta"],
+    getOctocat: ["GET /octocat"],
+    getZen: ["GET /zen"],
+    root: ["GET /"]
+  },
+  migrations: {
+    cancelImport: ["DELETE /repos/{owner}/{repo}/import"],
+    deleteArchiveForAuthenticatedUser: ["DELETE /user/migrations/{migration_id}/archive"],
+    deleteArchiveForOrg: ["DELETE /orgs/{org}/migrations/{migration_id}/archive"],
+    downloadArchiveForOrg: ["GET /orgs/{org}/migrations/{migration_id}/archive"],
+    getArchiveForAuthenticatedUser: ["GET /user/migrations/{migration_id}/archive"],
+    getCommitAuthors: ["GET /repos/{owner}/{repo}/import/authors"],
+    getImportStatus: ["GET /repos/{owner}/{repo}/import"],
+    getLargeFiles: ["GET /repos/{owner}/{repo}/import/large_files"],
+    getStatusForAuthenticatedUser: ["GET /user/migrations/{migration_id}"],
+    getStatusForOrg: ["GET /orgs/{org}/migrations/{migration_id}"],
+    listForAuthenticatedUser: ["GET /user/migrations"],
+    listForOrg: ["GET /orgs/{org}/migrations"],
+    listReposForAuthenticatedUser: ["GET /user/migrations/{migration_id}/repositories"],
+    listReposForOrg: ["GET /orgs/{org}/migrations/{migration_id}/repositories"],
+    listReposForUser: ["GET /user/migrations/{migration_id}/repositories", {}, {
+      renamed: ["migrations", "listReposForAuthenticatedUser"]
+    }],
+    mapCommitAuthor: ["PATCH /repos/{owner}/{repo}/import/authors/{author_id}"],
+    setLfsPreference: ["PATCH /repos/{owner}/{repo}/import/lfs"],
+    startForAuthenticatedUser: ["POST /user/migrations"],
+    startForOrg: ["POST /orgs/{org}/migrations"],
+    startImport: ["PUT /repos/{owner}/{repo}/import"],
+    unlockRepoForAuthenticatedUser: ["DELETE /user/migrations/{migration_id}/repos/{repo_name}/lock"],
+    unlockRepoForOrg: ["DELETE /orgs/{org}/migrations/{migration_id}/repos/{repo_name}/lock"],
+    updateImport: ["PATCH /repos/{owner}/{repo}/import"]
+  },
+  orgs: {
+    blockUser: ["PUT /orgs/{org}/blocks/{username}"],
+    cancelInvitation: ["DELETE /orgs/{org}/invitations/{invitation_id}"],
+    checkBlockedUser: ["GET /orgs/{org}/blocks/{username}"],
+    checkMembershipForUser: ["GET /orgs/{org}/members/{username}"],
+    checkPublicMembershipForUser: ["GET /orgs/{org}/public_members/{username}"],
+    convertMemberToOutsideCollaborator: ["PUT /orgs/{org}/outside_collaborators/{username}"],
+    createInvitation: ["POST /orgs/{org}/invitations"],
+    createWebhook: ["POST /orgs/{org}/hooks"],
+    deleteWebhook: ["DELETE /orgs/{org}/hooks/{hook_id}"],
+    get: ["GET /orgs/{org}"],
+    getMembershipForAuthenticatedUser: ["GET /user/memberships/orgs/{org}"],
+    getMembershipForUser: ["GET /orgs/{org}/memberships/{username}"],
+    getWebhook: ["GET /orgs/{org}/hooks/{hook_id}"],
+    getWebhookConfigForOrg: ["GET /orgs/{org}/hooks/{hook_id}/config"],
+    getWebhookDelivery: ["GET /orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}"],
+    list: ["GET /organizations"],
+    listAppInstallations: ["GET /orgs/{org}/installations"],
+    listBlockedUsers: ["GET /orgs/{org}/blocks"],
+    listFailedInvitations: ["GET /orgs/{org}/failed_invitations"],
+    listForAuthenticatedUser: ["GET /user/orgs"],
+    listForUser: ["GET /users/{username}/orgs"],
+    listInvitationTeams: ["GET /orgs/{org}/invitations/{invitation_id}/teams"],
+    listMembers: ["GET /orgs/{org}/members"],
+    listMembershipsForAuthenticatedUser: ["GET /user/memberships/orgs"],
+    listOutsideCollaborators: ["GET /orgs/{org}/outside_collaborators"],
+    listPendingInvitations: ["GET /orgs/{org}/invitations"],
+    listPublicMembers: ["GET /orgs/{org}/public_members"],
+    listWebhookDeliveries: ["GET /orgs/{org}/hooks/{hook_id}/deliveries"],
+    listWebhooks: ["GET /orgs/{org}/hooks"],
+    pingWebhook: ["POST /orgs/{org}/hooks/{hook_id}/pings"],
+    redeliverWebhookDelivery: ["POST /orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}/attempts"],
+    removeMember: ["DELETE /orgs/{org}/members/{username}"],
+    removeMembershipForUser: ["DELETE /orgs/{org}/memberships/{username}"],
+    removeOutsideCollaborator: ["DELETE /orgs/{org}/outside_collaborators/{username}"],
+    removePublicMembershipForAuthenticatedUser: ["DELETE /orgs/{org}/public_members/{username}"],
+    setMembershipForUser: ["PUT /orgs/{org}/memberships/{username}"],
+    setPublicMembershipForAuthenticatedUser: ["PUT /orgs/{org}/public_members/{username}"],
+    unblockUser: ["DELETE /orgs/{org}/blocks/{username}"],
+    update: ["PATCH /orgs/{org}"],
+    updateMembershipForAuthenticatedUser: ["PATCH /user/memberships/orgs/{org}"],
+    updateWebhook: ["PATCH /orgs/{org}/hooks/{hook_id}"],
+    updateWebhookConfigForOrg: ["PATCH /orgs/{org}/hooks/{hook_id}/config"]
+  },
+  packages: {
+    deletePackageForAuthenticatedUser: ["DELETE /user/packages/{package_type}/{package_name}"],
+    deletePackageForOrg: ["DELETE /orgs/{org}/packages/{package_type}/{package_name}"],
+    deletePackageForUser: ["DELETE /users/{username}/packages/{package_type}/{package_name}"],
+    deletePackageVersionForAuthenticatedUser: ["DELETE /user/packages/{package_type}/{package_name}/versions/{package_version_id}"],
+    deletePackageVersionForOrg: ["DELETE /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
+    deletePackageVersionForUser: ["DELETE /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
+    getAllPackageVersionsForAPackageOwnedByAnOrg: ["GET /orgs/{org}/packages/{package_type}/{package_name}/versions", {}, {
+      renamed: ["packages", "getAllPackageVersionsForPackageOwnedByOrg"]
+    }],
+    getAllPackageVersionsForAPackageOwnedByTheAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}/versions", {}, {
+      renamed: ["packages", "getAllPackageVersionsForPackageOwnedByAuthenticatedUser"]
+    }],
+    getAllPackageVersionsForPackageOwnedByAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}/versions"],
+    getAllPackageVersionsForPackageOwnedByOrg: ["GET /orgs/{org}/packages/{package_type}/{package_name}/versions"],
+    getAllPackageVersionsForPackageOwnedByUser: ["GET /users/{username}/packages/{package_type}/{package_name}/versions"],
+    getPackageForAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}"],
+    getPackageForOrganization: ["GET /orgs/{org}/packages/{package_type}/{package_name}"],
+    getPackageForUser: ["GET /users/{username}/packages/{package_type}/{package_name}"],
+    getPackageVersionForAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}/versions/{package_version_id}"],
+    getPackageVersionForOrganization: ["GET /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
+    getPackageVersionForUser: ["GET /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
+    listPackagesForAuthenticatedUser: ["GET /user/packages"],
+    listPackagesForOrganization: ["GET /orgs/{org}/packages"],
+    listPackagesForUser: ["GET /users/{username}/packages"],
+    restorePackageForAuthenticatedUser: ["POST /user/packages/{package_type}/{package_name}/restore{?token}"],
+    restorePackageForOrg: ["POST /orgs/{org}/packages/{package_type}/{package_name}/restore{?token}"],
+    restorePackageForUser: ["POST /users/{username}/packages/{package_type}/{package_name}/restore{?token}"],
+    restorePackageVersionForAuthenticatedUser: ["POST /user/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"],
+    restorePackageVersionForOrg: ["POST /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"],
+    restorePackageVersionForUser: ["POST /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"]
+  },
+  projects: {
+    addCollaborator: ["PUT /projects/{project_id}/collaborators/{username}"],
+    createCard: ["POST /projects/columns/{column_id}/cards"],
+    createColumn: ["POST /projects/{project_id}/columns"],
+    createForAuthenticatedUser: ["POST /user/projects"],
+    createForOrg: ["POST /orgs/{org}/projects"],
+    createForRepo: ["POST /repos/{owner}/{repo}/projects"],
+    delete: ["DELETE /projects/{project_id}"],
+    deleteCard: ["DELETE /projects/columns/cards/{card_id}"],
+    deleteColumn: ["DELETE /projects/columns/{column_id}"],
+    get: ["GET /projects/{project_id}"],
+    getCard: ["GET /projects/columns/cards/{card_id}"],
+    getColumn: ["GET /projects/columns/{column_id}"],
+    getPermissionForUser: ["GET /projects/{project_id}/collaborators/{username}/permission"],
+    listCards: ["GET /projects/columns/{column_id}/cards"],
+    listCollaborators: ["GET /projects/{project_id}/collaborators"],
+    listColumns: ["GET /projects/{project_id}/columns"],
+    listForOrg: ["GET /orgs/{org}/projects"],
+    listForRepo: ["GET /repos/{owner}/{repo}/projects"],
+    listForUser: ["GET /users/{username}/projects"],
+    moveCard: ["POST /projects/columns/cards/{card_id}/moves"],
+    moveColumn: ["POST /projects/columns/{column_id}/moves"],
+    removeCollaborator: ["DELETE /projects/{project_id}/collaborators/{username}"],
+    update: ["PATCH /projects/{project_id}"],
+    updateCard: ["PATCH /projects/columns/cards/{card_id}"],
+    updateColumn: ["PATCH /projects/columns/{column_id}"]
+  },
+  pulls: {
+    checkIfMerged: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/merge"],
+    create: ["POST /repos/{owner}/{repo}/pulls"],
+    createReplyForReviewComment: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies"],
+    createReview: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews"],
+    createReviewComment: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/comments"],
+    deletePendingReview: ["DELETE /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}"],
+    deleteReviewComment: ["DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}"],
+    dismissReview: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals"],
+    get: ["GET /repos/{owner}/{repo}/pulls/{pull_number}"],
+    getReview: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}"],
+    getReviewComment: ["GET /repos/{owner}/{repo}/pulls/comments/{comment_id}"],
+    list: ["GET /repos/{owner}/{repo}/pulls"],
+    listCommentsForReview: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments"],
+    listCommits: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/commits"],
+    listFiles: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/files"],
+    listRequestedReviewers: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers"],
+    listReviewComments: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/comments"],
+    listReviewCommentsForRepo: ["GET /repos/{owner}/{repo}/pulls/comments"],
+    listReviews: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews"],
+    merge: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge"],
+    removeRequestedReviewers: ["DELETE /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers"],
+    requestReviewers: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers"],
+    submitReview: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events"],
+    update: ["PATCH /repos/{owner}/{repo}/pulls/{pull_number}"],
+    updateBranch: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/update-branch"],
+    updateReview: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}"],
+    updateReviewComment: ["PATCH /repos/{owner}/{repo}/pulls/comments/{comment_id}"]
+  },
+  rateLimit: {
+    get: ["GET /rate_limit"]
+  },
+  reactions: {
+    createForCommitComment: ["POST /repos/{owner}/{repo}/comments/{comment_id}/reactions"],
+    createForIssue: ["POST /repos/{owner}/{repo}/issues/{issue_number}/reactions"],
+    createForIssueComment: ["POST /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions"],
+    createForPullRequestReviewComment: ["POST /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions"],
+    createForRelease: ["POST /repos/{owner}/{repo}/releases/{release_id}/reactions"],
+    createForTeamDiscussionCommentInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions"],
+    createForTeamDiscussionInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions"],
+    deleteForCommitComment: ["DELETE /repos/{owner}/{repo}/comments/{comment_id}/reactions/{reaction_id}"],
+    deleteForIssue: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}"],
+    deleteForIssueComment: ["DELETE /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}"],
+    deleteForPullRequestComment: ["DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions/{reaction_id}"],
+    deleteForTeamDiscussion: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions/{reaction_id}"],
+    deleteForTeamDiscussionComment: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions/{reaction_id}"],
+    listForCommitComment: ["GET /repos/{owner}/{repo}/comments/{comment_id}/reactions"],
+    listForIssue: ["GET /repos/{owner}/{repo}/issues/{issue_number}/reactions"],
+    listForIssueComment: ["GET /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions"],
+    listForPullRequestReviewComment: ["GET /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions"],
+    listForTeamDiscussionCommentInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions"],
+    listForTeamDiscussionInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions"]
+  },
+  repos: {
+    acceptInvitation: ["PATCH /user/repository_invitations/{invitation_id}", {}, {
+      renamed: ["repos", "acceptInvitationForAuthenticatedUser"]
+    }],
+    acceptInvitationForAuthenticatedUser: ["PATCH /user/repository_invitations/{invitation_id}"],
+    addAppAccessRestrictions: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", {}, {
+      mapToData: "apps"
+    }],
+    addCollaborator: ["PUT /repos/{owner}/{repo}/collaborators/{username}"],
+    addStatusCheckContexts: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", {}, {
+      mapToData: "contexts"
+    }],
+    addTeamAccessRestrictions: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", {}, {
+      mapToData: "teams"
+    }],
+    addUserAccessRestrictions: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", {}, {
+      mapToData: "users"
+    }],
+    checkCollaborator: ["GET /repos/{owner}/{repo}/collaborators/{username}"],
+    checkVulnerabilityAlerts: ["GET /repos/{owner}/{repo}/vulnerability-alerts"],
+    compareCommits: ["GET /repos/{owner}/{repo}/compare/{base}...{head}"],
+    compareCommitsWithBasehead: ["GET /repos/{owner}/{repo}/compare/{basehead}"],
+    createAutolink: ["POST /repos/{owner}/{repo}/autolinks"],
+    createCommitComment: ["POST /repos/{owner}/{repo}/commits/{commit_sha}/comments"],
+    createCommitSignatureProtection: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"],
+    createCommitStatus: ["POST /repos/{owner}/{repo}/statuses/{sha}"],
+    createDeployKey: ["POST /repos/{owner}/{repo}/keys"],
+    createDeployment: ["POST /repos/{owner}/{repo}/deployments"],
+    createDeploymentStatus: ["POST /repos/{owner}/{repo}/deployments/{deployment_id}/statuses"],
+    createDispatchEvent: ["POST /repos/{owner}/{repo}/dispatches"],
+    createForAuthenticatedUser: ["POST /user/repos"],
+    createFork: ["POST /repos/{owner}/{repo}/forks"],
+    createInOrg: ["POST /orgs/{org}/repos"],
+    createOrUpdateEnvironment: ["PUT /repos/{owner}/{repo}/environments/{environment_name}"],
+    createOrUpdateFileContents: ["PUT /repos/{owner}/{repo}/contents/{path}"],
+    createPagesSite: ["POST /repos/{owner}/{repo}/pages"],
+    createRelease: ["POST /repos/{owner}/{repo}/releases"],
+    createUsingTemplate: ["POST /repos/{template_owner}/{template_repo}/generate"],
+    createWebhook: ["POST /repos/{owner}/{repo}/hooks"],
+    declineInvitation: ["DELETE /user/repository_invitations/{invitation_id}", {}, {
+      renamed: ["repos", "declineInvitationForAuthenticatedUser"]
+    }],
+    declineInvitationForAuthenticatedUser: ["DELETE /user/repository_invitations/{invitation_id}"],
+    delete: ["DELETE /repos/{owner}/{repo}"],
+    deleteAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions"],
+    deleteAdminBranchProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins"],
+    deleteAnEnvironment: ["DELETE /repos/{owner}/{repo}/environments/{environment_name}"],
+    deleteAutolink: ["DELETE /repos/{owner}/{repo}/autolinks/{autolink_id}"],
+    deleteBranchProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection"],
+    deleteCommitComment: ["DELETE /repos/{owner}/{repo}/comments/{comment_id}"],
+    deleteCommitSignatureProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"],
+    deleteDeployKey: ["DELETE /repos/{owner}/{repo}/keys/{key_id}"],
+    deleteDeployment: ["DELETE /repos/{owner}/{repo}/deployments/{deployment_id}"],
+    deleteFile: ["DELETE /repos/{owner}/{repo}/contents/{path}"],
+    deleteInvitation: ["DELETE /repos/{owner}/{repo}/invitations/{invitation_id}"],
+    deletePagesSite: ["DELETE /repos/{owner}/{repo}/pages"],
+    deletePullRequestReviewProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"],
+    deleteRelease: ["DELETE /repos/{owner}/{repo}/releases/{release_id}"],
+    deleteReleaseAsset: ["DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}"],
+    deleteWebhook: ["DELETE /repos/{owner}/{repo}/hooks/{hook_id}"],
+    disableAutomatedSecurityFixes: ["DELETE /repos/{owner}/{repo}/automated-security-fixes"],
+    disableLfsForRepo: ["DELETE /repos/{owner}/{repo}/lfs"],
+    disableVulnerabilityAlerts: ["DELETE /repos/{owner}/{repo}/vulnerability-alerts"],
+    downloadArchive: ["GET /repos/{owner}/{repo}/zipball/{ref}", {}, {
+      renamed: ["repos", "downloadZipballArchive"]
+    }],
+    downloadTarballArchive: ["GET /repos/{owner}/{repo}/tarball/{ref}"],
+    downloadZipballArchive: ["GET /repos/{owner}/{repo}/zipball/{ref}"],
+    enableAutomatedSecurityFixes: ["PUT /repos/{owner}/{repo}/automated-security-fixes"],
+    enableLfsForRepo: ["PUT /repos/{owner}/{repo}/lfs"],
+    enableVulnerabilityAlerts: ["PUT /repos/{owner}/{repo}/vulnerability-alerts"],
+    generateReleaseNotes: ["POST /repos/{owner}/{repo}/releases/generate-notes"],
+    get: ["GET /repos/{owner}/{repo}"],
+    getAccessRestrictions: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions"],
+    getAdminBranchProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins"],
+    getAllEnvironments: ["GET /repos/{owner}/{repo}/environments"],
+    getAllStatusCheckContexts: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts"],
+    getAllTopics: ["GET /repos/{owner}/{repo}/topics", {
+      mediaType: {
+        previews: ["mercy"]
+      }
+    }],
+    getAppsWithAccessToProtectedBranch: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps"],
+    getAutolink: ["GET /repos/{owner}/{repo}/autolinks/{autolink_id}"],
+    getBranch: ["GET /repos/{owner}/{repo}/branches/{branch}"],
+    getBranchProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection"],
+    getClones: ["GET /repos/{owner}/{repo}/traffic/clones"],
+    getCodeFrequencyStats: ["GET /repos/{owner}/{repo}/stats/code_frequency"],
+    getCollaboratorPermissionLevel: ["GET /repos/{owner}/{repo}/collaborators/{username}/permission"],
+    getCombinedStatusForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/status"],
+    getCommit: ["GET /repos/{owner}/{repo}/commits/{ref}"],
+    getCommitActivityStats: ["GET /repos/{owner}/{repo}/stats/commit_activity"],
+    getCommitComment: ["GET /repos/{owner}/{repo}/comments/{comment_id}"],
+    getCommitSignatureProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"],
+    getCommunityProfileMetrics: ["GET /repos/{owner}/{repo}/community/profile"],
+    getContent: ["GET /repos/{owner}/{repo}/contents/{path}"],
+    getContributorsStats: ["GET /repos/{owner}/{repo}/stats/contributors"],
+    getDeployKey: ["GET /repos/{owner}/{repo}/keys/{key_id}"],
+    getDeployment: ["GET /repos/{owner}/{repo}/deployments/{deployment_id}"],
+    getDeploymentStatus: ["GET /repos/{owner}/{repo}/deployments/{deployment_id}/statuses/{status_id}"],
+    getEnvironment: ["GET /repos/{owner}/{repo}/environments/{environment_name}"],
+    getLatestPagesBuild: ["GET /repos/{owner}/{repo}/pages/builds/latest"],
+    getLatestRelease: ["GET /repos/{owner}/{repo}/releases/latest"],
+    getPages: ["GET /repos/{owner}/{repo}/pages"],
+    getPagesBuild: ["GET /repos/{owner}/{repo}/pages/builds/{build_id}"],
+    getPagesHealthCheck: ["GET /repos/{owner}/{repo}/pages/health"],
+    getParticipationStats: ["GET /repos/{owner}/{repo}/stats/participation"],
+    getPullRequestReviewProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"],
+    getPunchCardStats: ["GET /repos/{owner}/{repo}/stats/punch_card"],
+    getReadme: ["GET /repos/{owner}/{repo}/readme"],
+    getReadmeInDirectory: ["GET /repos/{owner}/{repo}/readme/{dir}"],
+    getRelease: ["GET /repos/{owner}/{repo}/releases/{release_id}"],
+    getReleaseAsset: ["GET /repos/{owner}/{repo}/releases/assets/{asset_id}"],
+    getReleaseByTag: ["GET /repos/{owner}/{repo}/releases/tags/{tag}"],
+    getStatusChecksProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"],
+    getTeamsWithAccessToProtectedBranch: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams"],
+    getTopPaths: ["GET /repos/{owner}/{repo}/traffic/popular/paths"],
+    getTopReferrers: ["GET /repos/{owner}/{repo}/traffic/popular/referrers"],
+    getUsersWithAccessToProtectedBranch: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users"],
+    getViews: ["GET /repos/{owner}/{repo}/traffic/views"],
+    getWebhook: ["GET /repos/{owner}/{repo}/hooks/{hook_id}"],
+    getWebhookConfigForRepo: ["GET /repos/{owner}/{repo}/hooks/{hook_id}/config"],
+    getWebhookDelivery: ["GET /repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}"],
+    listAutolinks: ["GET /repos/{owner}/{repo}/autolinks"],
+    listBranches: ["GET /repos/{owner}/{repo}/branches"],
+    listBranchesForHeadCommit: ["GET /repos/{owner}/{repo}/commits/{commit_sha}/branches-where-head"],
+    listCollaborators: ["GET /repos/{owner}/{repo}/collaborators"],
+    listCommentsForCommit: ["GET /repos/{owner}/{repo}/commits/{commit_sha}/comments"],
+    listCommitCommentsForRepo: ["GET /repos/{owner}/{repo}/comments"],
+    listCommitStatusesForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/statuses"],
+    listCommits: ["GET /repos/{owner}/{repo}/commits"],
+    listContributors: ["GET /repos/{owner}/{repo}/contributors"],
+    listDeployKeys: ["GET /repos/{owner}/{repo}/keys"],
+    listDeploymentStatuses: ["GET /repos/{owner}/{repo}/deployments/{deployment_id}/statuses"],
+    listDeployments: ["GET /repos/{owner}/{repo}/deployments"],
+    listForAuthenticatedUser: ["GET /user/repos"],
+    listForOrg: ["GET /orgs/{org}/repos"],
+    listForUser: ["GET /users/{username}/repos"],
+    listForks: ["GET /repos/{owner}/{repo}/forks"],
+    listInvitations: ["GET /repos/{owner}/{repo}/invitations"],
+    listInvitationsForAuthenticatedUser: ["GET /user/repository_invitations"],
+    listLanguages: ["GET /repos/{owner}/{repo}/languages"],
+    listPagesBuilds: ["GET /repos/{owner}/{repo}/pages/builds"],
+    listPublic: ["GET /repositories"],
+    listPullRequestsAssociatedWithCommit: ["GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls"],
+    listReleaseAssets: ["GET /repos/{owner}/{repo}/releases/{release_id}/assets"],
+    listReleases: ["GET /repos/{owner}/{repo}/releases"],
+    listTags: ["GET /repos/{owner}/{repo}/tags"],
+    listTeams: ["GET /repos/{owner}/{repo}/teams"],
+    listWebhookDeliveries: ["GET /repos/{owner}/{repo}/hooks/{hook_id}/deliveries"],
+    listWebhooks: ["GET /repos/{owner}/{repo}/hooks"],
+    merge: ["POST /repos/{owner}/{repo}/merges"],
+    mergeUpstream: ["POST /repos/{owner}/{repo}/merge-upstream"],
+    pingWebhook: ["POST /repos/{owner}/{repo}/hooks/{hook_id}/pings"],
+    redeliverWebhookDelivery: ["POST /repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}/attempts"],
+    removeAppAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", {}, {
+      mapToData: "apps"
+    }],
+    removeCollaborator: ["DELETE /repos/{owner}/{repo}/collaborators/{username}"],
+    removeStatusCheckContexts: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", {}, {
+      mapToData: "contexts"
+    }],
+    removeStatusCheckProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"],
+    removeTeamAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", {}, {
+      mapToData: "teams"
+    }],
+    removeUserAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", {}, {
+      mapToData: "users"
+    }],
+    renameBranch: ["POST /repos/{owner}/{repo}/branches/{branch}/rename"],
+    replaceAllTopics: ["PUT /repos/{owner}/{repo}/topics", {
+      mediaType: {
+        previews: ["mercy"]
+      }
+    }],
+    requestPagesBuild: ["POST /repos/{owner}/{repo}/pages/builds"],
+    setAdminBranchProtection: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins"],
+    setAppAccessRestrictions: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", {}, {
+      mapToData: "apps"
+    }],
+    setStatusCheckContexts: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", {}, {
+      mapToData: "contexts"
+    }],
+    setTeamAccessRestrictions: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", {}, {
+      mapToData: "teams"
+    }],
+    setUserAccessRestrictions: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", {}, {
+      mapToData: "users"
+    }],
+    testPushWebhook: ["POST /repos/{owner}/{repo}/hooks/{hook_id}/tests"],
+    transfer: ["POST /repos/{owner}/{repo}/transfer"],
+    update: ["PATCH /repos/{owner}/{repo}"],
+    updateBranchProtection: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection"],
+    updateCommitComment: ["PATCH /repos/{owner}/{repo}/comments/{comment_id}"],
+    updateInformationAboutPagesSite: ["PUT /repos/{owner}/{repo}/pages"],
+    updateInvitation: ["PATCH /repos/{owner}/{repo}/invitations/{invitation_id}"],
+    updatePullRequestReviewProtection: ["PATCH /repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"],
+    updateRelease: ["PATCH /repos/{owner}/{repo}/releases/{release_id}"],
+    updateReleaseAsset: ["PATCH /repos/{owner}/{repo}/releases/assets/{asset_id}"],
+    updateStatusCheckPotection: ["PATCH /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", {}, {
+      renamed: ["repos", "updateStatusCheckProtection"]
+    }],
+    updateStatusCheckProtection: ["PATCH /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"],
+    updateWebhook: ["PATCH /repos/{owner}/{repo}/hooks/{hook_id}"],
+    updateWebhookConfigForRepo: ["PATCH /repos/{owner}/{repo}/hooks/{hook_id}/config"],
+    uploadReleaseAsset: ["POST /repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}", {
+      baseUrl: "https://uploads.github.com"
+    }]
+  },
+  search: {
+    code: ["GET /search/code"],
+    commits: ["GET /search/commits"],
+    issuesAndPullRequests: ["GET /search/issues"],
+    labels: ["GET /search/labels"],
+    repos: ["GET /search/repositories"],
+    topics: ["GET /search/topics", {
+      mediaType: {
+        previews: ["mercy"]
+      }
+    }],
+    users: ["GET /search/users"]
+  },
+  secretScanning: {
+    getAlert: ["GET /repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}"],
+    listAlertsForOrg: ["GET /orgs/{org}/secret-scanning/alerts"],
+    listAlertsForRepo: ["GET /repos/{owner}/{repo}/secret-scanning/alerts"],
+    updateAlert: ["PATCH /repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}"]
+  },
+  teams: {
+    addOrUpdateMembershipForUserInOrg: ["PUT /orgs/{org}/teams/{team_slug}/memberships/{username}"],
+    addOrUpdateProjectPermissionsInOrg: ["PUT /orgs/{org}/teams/{team_slug}/projects/{project_id}"],
+    addOrUpdateRepoPermissionsInOrg: ["PUT /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}"],
+    checkPermissionsForProjectInOrg: ["GET /orgs/{org}/teams/{team_slug}/projects/{project_id}"],
+    checkPermissionsForRepoInOrg: ["GET /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}"],
+    create: ["POST /orgs/{org}/teams"],
+    createDiscussionCommentInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments"],
+    createDiscussionInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions"],
+    deleteDiscussionCommentInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}"],
+    deleteDiscussionInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}"],
+    deleteInOrg: ["DELETE /orgs/{org}/teams/{team_slug}"],
+    getByName: ["GET /orgs/{org}/teams/{team_slug}"],
+    getDiscussionCommentInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}"],
+    getDiscussionInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}"],
+    getMembershipForUserInOrg: ["GET /orgs/{org}/teams/{team_slug}/memberships/{username}"],
+    list: ["GET /orgs/{org}/teams"],
+    listChildInOrg: ["GET /orgs/{org}/teams/{team_slug}/teams"],
+    listDiscussionCommentsInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments"],
+    listDiscussionsInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions"],
+    listForAuthenticatedUser: ["GET /user/teams"],
+    listMembersInOrg: ["GET /orgs/{org}/teams/{team_slug}/members"],
+    listPendingInvitationsInOrg: ["GET /orgs/{org}/teams/{team_slug}/invitations"],
+    listProjectsInOrg: ["GET /orgs/{org}/teams/{team_slug}/projects"],
+    listReposInOrg: ["GET /orgs/{org}/teams/{team_slug}/repos"],
+    removeMembershipForUserInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/memberships/{username}"],
+    removeProjectInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/projects/{project_id}"],
+    removeRepoInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}"],
+    updateDiscussionCommentInOrg: ["PATCH /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}"],
+    updateDiscussionInOrg: ["PATCH /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}"],
+    updateInOrg: ["PATCH /orgs/{org}/teams/{team_slug}"]
+  },
+  users: {
+    addEmailForAuthenticated: ["POST /user/emails", {}, {
+      renamed: ["users", "addEmailForAuthenticatedUser"]
+    }],
+    addEmailForAuthenticatedUser: ["POST /user/emails"],
+    block: ["PUT /user/blocks/{username}"],
+    checkBlocked: ["GET /user/blocks/{username}"],
+    checkFollowingForUser: ["GET /users/{username}/following/{target_user}"],
+    checkPersonIsFollowedByAuthenticated: ["GET /user/following/{username}"],
+    createGpgKeyForAuthenticated: ["POST /user/gpg_keys", {}, {
+      renamed: ["users", "createGpgKeyForAuthenticatedUser"]
+    }],
+    createGpgKeyForAuthenticatedUser: ["POST /user/gpg_keys"],
+    createPublicSshKeyForAuthenticated: ["POST /user/keys", {}, {
+      renamed: ["users", "createPublicSshKeyForAuthenticatedUser"]
+    }],
+    createPublicSshKeyForAuthenticatedUser: ["POST /user/keys"],
+    deleteEmailForAuthenticated: ["DELETE /user/emails", {}, {
+      renamed: ["users", "deleteEmailForAuthenticatedUser"]
+    }],
+    deleteEmailForAuthenticatedUser: ["DELETE /user/emails"],
+    deleteGpgKeyForAuthenticated: ["DELETE /user/gpg_keys/{gpg_key_id}", {}, {
+      renamed: ["users", "deleteGpgKeyForAuthenticatedUser"]
+    }],
+    deleteGpgKeyForAuthenticatedUser: ["DELETE /user/gpg_keys/{gpg_key_id}"],
+    deletePublicSshKeyForAuthenticated: ["DELETE /user/keys/{key_id}", {}, {
+      renamed: ["users", "deletePublicSshKeyForAuthenticatedUser"]
+    }],
+    deletePublicSshKeyForAuthenticatedUser: ["DELETE /user/keys/{key_id}"],
+    follow: ["PUT /user/following/{username}"],
+    getAuthenticated: ["GET /user"],
+    getByUsername: ["GET /users/{username}"],
+    getContextForUser: ["GET /users/{username}/hovercard"],
+    getGpgKeyForAuthenticated: ["GET /user/gpg_keys/{gpg_key_id}", {}, {
+      renamed: ["users", "getGpgKeyForAuthenticatedUser"]
+    }],
+    getGpgKeyForAuthenticatedUser: ["GET /user/gpg_keys/{gpg_key_id}"],
+    getPublicSshKeyForAuthenticated: ["GET /user/keys/{key_id}", {}, {
+      renamed: ["users", "getPublicSshKeyForAuthenticatedUser"]
+    }],
+    getPublicSshKeyForAuthenticatedUser: ["GET /user/keys/{key_id}"],
+    list: ["GET /users"],
+    listBlockedByAuthenticated: ["GET /user/blocks", {}, {
+      renamed: ["users", "listBlockedByAuthenticatedUser"]
+    }],
+    listBlockedByAuthenticatedUser: ["GET /user/blocks"],
+    listEmailsForAuthenticated: ["GET /user/emails", {}, {
+      renamed: ["users", "listEmailsForAuthenticatedUser"]
+    }],
+    listEmailsForAuthenticatedUser: ["GET /user/emails"],
+    listFollowedByAuthenticated: ["GET /user/following", {}, {
+      renamed: ["users", "listFollowedByAuthenticatedUser"]
+    }],
+    listFollowedByAuthenticatedUser: ["GET /user/following"],
+    listFollowersForAuthenticatedUser: ["GET /user/followers"],
+    listFollowersForUser: ["GET /users/{username}/followers"],
+    listFollowingForUser: ["GET /users/{username}/following"],
+    listGpgKeysForAuthenticated: ["GET /user/gpg_keys", {}, {
+      renamed: ["users", "listGpgKeysForAuthenticatedUser"]
+    }],
+    listGpgKeysForAuthenticatedUser: ["GET /user/gpg_keys"],
+    listGpgKeysForUser: ["GET /users/{username}/gpg_keys"],
+    listPublicEmailsForAuthenticated: ["GET /user/public_emails", {}, {
+      renamed: ["users", "listPublicEmailsForAuthenticatedUser"]
+    }],
+    listPublicEmailsForAuthenticatedUser: ["GET /user/public_emails"],
+    listPublicKeysForUser: ["GET /users/{username}/keys"],
+    listPublicSshKeysForAuthenticated: ["GET /user/keys", {}, {
+      renamed: ["users", "listPublicSshKeysForAuthenticatedUser"]
+    }],
+    listPublicSshKeysForAuthenticatedUser: ["GET /user/keys"],
+    setPrimaryEmailVisibilityForAuthenticated: ["PATCH /user/email/visibility", {}, {
+      renamed: ["users", "setPrimaryEmailVisibilityForAuthenticatedUser"]
+    }],
+    setPrimaryEmailVisibilityForAuthenticatedUser: ["PATCH /user/email/visibility"],
+    unblock: ["DELETE /user/blocks/{username}"],
+    unfollow: ["DELETE /user/following/{username}"],
+    updateAuthenticated: ["PATCH /user"]
+  }
+};
+
+const VERSION = "5.13.0";
+
+function endpointsToMethods(octokit, endpointsMap) {
+  const newMethods = {};
+
+  for (const [scope, endpoints] of Object.entries(endpointsMap)) {
+    for (const [methodName, endpoint] of Object.entries(endpoints)) {
+      const [route, defaults, decorations] = endpoint;
+      const [method, url] = route.split(/ /);
+      const endpointDefaults = Object.assign({
+        method,
+        url
+      }, defaults);
+
+      if (!newMethods[scope]) {
+        newMethods[scope] = {};
+      }
+
+      const scopeMethods = newMethods[scope];
+
+      if (decorations) {
+        scopeMethods[methodName] = decorate(octokit, scope, methodName, endpointDefaults, decorations);
+        continue;
+      }
+
+      scopeMethods[methodName] = octokit.request.defaults(endpointDefaults);
+    }
+  }
+
+  return newMethods;
+}
+
+function decorate(octokit, scope, methodName, defaults, decorations) {
+  const requestWithDefaults = octokit.request.defaults(defaults);
+  /* istanbul ignore next */
+
+  function withDecorations(...args) {
+    // @ts-ignore https://github.com/microsoft/TypeScript/issues/25488
+    let options = requestWithDefaults.endpoint.merge(...args); // There are currently no other decorations than `.mapToData`
+
+    if (decorations.mapToData) {
+      options = Object.assign({}, options, {
+        data: options[decorations.mapToData],
+        [decorations.mapToData]: undefined
+      });
+      return requestWithDefaults(options);
+    }
+
+    if (decorations.renamed) {
+      const [newScope, newMethodName] = decorations.renamed;
+      octokit.log.warn(`octokit.${scope}.${methodName}() has been renamed to octokit.${newScope}.${newMethodName}()`);
+    }
+
+    if (decorations.deprecated) {
+      octokit.log.warn(decorations.deprecated);
+    }
+
+    if (decorations.renamedParameters) {
+      // @ts-ignore https://github.com/microsoft/TypeScript/issues/25488
+      const options = requestWithDefaults.endpoint.merge(...args);
+
+      for (const [name, alias] of Object.entries(decorations.renamedParameters)) {
+        if (name in options) {
+          octokit.log.warn(`"${name}" parameter is deprecated for "octokit.${scope}.${methodName}()". Use "${alias}" instead`);
+
+          if (!(alias in options)) {
+            options[alias] = options[name];
+          }
+
+          delete options[name];
+        }
+      }
+
+      return requestWithDefaults(options);
+    } // @ts-ignore https://github.com/microsoft/TypeScript/issues/25488
+
+
+    return requestWithDefaults(...args);
+  }
+
+  return Object.assign(withDecorations, requestWithDefaults);
+}
+
+function restEndpointMethods(octokit) {
+  const api = endpointsToMethods(octokit, Endpoints);
+  return {
+    rest: api
+  };
+}
+restEndpointMethods.VERSION = VERSION;
+function legacyRestEndpointMethods(octokit) {
+  const api = endpointsToMethods(octokit, Endpoints);
+  return _objectSpread2(_objectSpread2({}, api), {}, {
+    rest: api
+  });
+}
+legacyRestEndpointMethods.VERSION = VERSION;
+
+exports.legacyRestEndpointMethods = legacyRestEndpointMethods;
+exports.restEndpointMethods = restEndpointMethods;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 3741:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var Bottleneck = _interopDefault(__nccwpck_require__(4025));
+
+// @ts-ignore
+async function errorRequest(octokit, state, error, options) {
+  if (!error.request || !error.request.request) {
+    // address https://github.com/octokit/plugin-retry.js/issues/8
+    throw error;
+  } // retry all >= 400 && not doNotRetry
+
+
+  if (error.status >= 400 && !state.doNotRetry.includes(error.status)) {
+    const retries = options.request.retries != null ? options.request.retries : state.retries;
+    const retryAfter = Math.pow((options.request.retryCount || 0) + 1, 2);
+    throw octokit.retry.retryRequest(error, retries, retryAfter);
+  } // Maybe eventually there will be more cases here
+
+
+  throw error;
+}
+
+// @ts-ignore
+
+async function wrapRequest(state, request, options) {
+  const limiter = new Bottleneck(); // @ts-ignore
+
+  limiter.on("failed", function (error, info) {
+    const maxRetries = ~~error.request.request.retries;
+    const after = ~~error.request.request.retryAfter;
+    options.request.retryCount = info.retryCount + 1;
+
+    if (maxRetries > info.retryCount) {
+      // Returning a number instructs the limiter to retry
+      // the request after that number of milliseconds have passed
+      return after * state.retryAfterBaseValue;
+    }
+  });
+  return limiter.schedule(request, options);
+}
+
+const VERSION = "3.0.9";
+function retry(octokit, octokitOptions) {
+  const state = Object.assign({
+    enabled: true,
+    retryAfterBaseValue: 1000,
+    doNotRetry: [400, 401, 403, 404, 422],
+    retries: 3
+  }, octokitOptions.retry);
+
+  if (state.enabled) {
+    octokit.hook.error("request", errorRequest.bind(null, octokit, state));
+    octokit.hook.wrap("request", wrapRequest.bind(null, state));
+  }
+
+  return {
+    retry: {
+      retryRequest: (error, retries, retryAfter) => {
+        error.request.request = Object.assign({}, error.request.request, {
+          retries: retries,
+          retryAfter: retryAfter
+        });
+        return error;
+      }
+    }
+  };
+}
+retry.VERSION = VERSION;
+
+exports.VERSION = VERSION;
+exports.retry = retry;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 5032:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var deprecation = __nccwpck_require__(6962);
+var once = _interopDefault(__nccwpck_require__(5847));
+
+const logOnceCode = once(deprecation => console.warn(deprecation));
+const logOnceHeaders = once(deprecation => console.warn(deprecation));
+/**
+ * Error with extra properties to help with debugging
+ */
+
+class RequestError extends Error {
+  constructor(message, statusCode, options) {
+    super(message); // Maintains proper stack trace (only available on V8)
+
+    /* istanbul ignore next */
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    this.name = "HttpError";
+    this.status = statusCode;
+    let headers;
+
+    if ("headers" in options && typeof options.headers !== "undefined") {
+      headers = options.headers;
+    }
+
+    if ("response" in options) {
+      this.response = options.response;
+      headers = options.response.headers;
+    } // redact request credentials without mutating original request options
+
+
+    const requestCopy = Object.assign({}, options.request);
+
+    if (options.request.headers.authorization) {
+      requestCopy.headers = Object.assign({}, options.request.headers, {
+        authorization: options.request.headers.authorization.replace(/ .*$/, " [REDACTED]")
+      });
+    }
+
+    requestCopy.url = requestCopy.url // client_id & client_secret can be passed as URL query parameters to increase rate limit
+    // see https://developer.github.com/v3/#increasing-the-unauthenticated-rate-limit-for-oauth-applications
+    .replace(/\bclient_secret=\w+/g, "client_secret=[REDACTED]") // OAuth tokens can be passed as URL query parameters, although it is not recommended
+    // see https://developer.github.com/v3/#oauth2-token-sent-in-a-header
+    .replace(/\baccess_token=\w+/g, "access_token=[REDACTED]");
+    this.request = requestCopy; // deprecations
+
+    Object.defineProperty(this, "code", {
+      get() {
+        logOnceCode(new deprecation.Deprecation("[@octokit/request-error] `error.code` is deprecated, use `error.status`."));
+        return statusCode;
+      }
+
+    });
+    Object.defineProperty(this, "headers", {
+      get() {
+        logOnceHeaders(new deprecation.Deprecation("[@octokit/request-error] `error.headers` is deprecated, use `error.response.headers`."));
+        return headers || {};
+      }
+
+    });
+  }
+
+}
+
+exports.RequestError = RequestError;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 8069:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var endpoint = __nccwpck_require__(3683);
+var universalUserAgent = __nccwpck_require__(7259);
+var isPlainObject = __nccwpck_require__(5349);
+var nodeFetch = _interopDefault(__nccwpck_require__(7636));
+var requestError = __nccwpck_require__(5032);
+
+const VERSION = "5.6.2";
+
+function getBufferResponse(response) {
+  return response.arrayBuffer();
+}
+
+function fetchWrapper(requestOptions) {
+  const log = requestOptions.request && requestOptions.request.log ? requestOptions.request.log : console;
+
+  if (isPlainObject.isPlainObject(requestOptions.body) || Array.isArray(requestOptions.body)) {
+    requestOptions.body = JSON.stringify(requestOptions.body);
+  }
+
+  let headers = {};
+  let status;
+  let url;
+  const fetch = requestOptions.request && requestOptions.request.fetch || nodeFetch;
+  return fetch(requestOptions.url, Object.assign({
+    method: requestOptions.method,
+    body: requestOptions.body,
+    headers: requestOptions.headers,
+    redirect: requestOptions.redirect
+  }, // `requestOptions.request.agent` type is incompatible
+  // see https://github.com/octokit/types.ts/pull/264
+  requestOptions.request)).then(async response => {
+    url = response.url;
+    status = response.status;
+
+    for (const keyAndValue of response.headers) {
+      headers[keyAndValue[0]] = keyAndValue[1];
+    }
+
+    if ("deprecation" in headers) {
+      const matches = headers.link && headers.link.match(/<([^>]+)>; rel="deprecation"/);
+      const deprecationLink = matches && matches.pop();
+      log.warn(`[@octokit/request] "${requestOptions.method} ${requestOptions.url}" is deprecated. It is scheduled to be removed on ${headers.sunset}${deprecationLink ? `. See ${deprecationLink}` : ""}`);
+    }
+
+    if (status === 204 || status === 205) {
+      return;
+    } // GitHub API returns 200 for HEAD requests
+
+
+    if (requestOptions.method === "HEAD") {
+      if (status < 400) {
+        return;
+      }
+
+      throw new requestError.RequestError(response.statusText, status, {
+        response: {
+          url,
+          status,
+          headers,
+          data: undefined
+        },
+        request: requestOptions
+      });
+    }
+
+    if (status === 304) {
+      throw new requestError.RequestError("Not modified", status, {
+        response: {
+          url,
+          status,
+          headers,
+          data: await getResponseData(response)
+        },
+        request: requestOptions
+      });
+    }
+
+    if (status >= 400) {
+      const data = await getResponseData(response);
+      const error = new requestError.RequestError(toErrorMessage(data), status, {
+        response: {
+          url,
+          status,
+          headers,
+          data
+        },
+        request: requestOptions
+      });
+      throw error;
+    }
+
+    return getResponseData(response);
+  }).then(data => {
+    return {
+      status,
+      url,
+      headers,
+      data
+    };
+  }).catch(error => {
+    if (error instanceof requestError.RequestError) throw error;
+    throw new requestError.RequestError(error.message, 500, {
+      request: requestOptions
+    });
+  });
+}
+
+async function getResponseData(response) {
+  const contentType = response.headers.get("content-type");
+
+  if (/application\/json/.test(contentType)) {
+    return response.json();
+  }
+
+  if (!contentType || /^text\/|charset=utf-8$/.test(contentType)) {
+    return response.text();
+  }
+
+  return getBufferResponse(response);
+}
+
+function toErrorMessage(data) {
+  if (typeof data === "string") return data; // istanbul ignore else - just in case
+
+  if ("message" in data) {
+    if (Array.isArray(data.errors)) {
+      return `${data.message}: ${data.errors.map(JSON.stringify).join(", ")}`;
+    }
+
+    return data.message;
+  } // istanbul ignore next - just in case
+
+
+  return `Unknown error: ${JSON.stringify(data)}`;
+}
+
+function withDefaults(oldEndpoint, newDefaults) {
+  const endpoint = oldEndpoint.defaults(newDefaults);
+
+  const newApi = function (route, parameters) {
+    const endpointOptions = endpoint.merge(route, parameters);
+
+    if (!endpointOptions.request || !endpointOptions.request.hook) {
+      return fetchWrapper(endpoint.parse(endpointOptions));
+    }
+
+    const request = (route, parameters) => {
+      return fetchWrapper(endpoint.parse(endpoint.merge(route, parameters)));
+    };
+
+    Object.assign(request, {
+      endpoint,
+      defaults: withDefaults.bind(null, endpoint)
+    });
+    return endpointOptions.request.hook(request, endpointOptions);
+  };
+
+  return Object.assign(newApi, {
+    endpoint,
+    defaults: withDefaults.bind(null, endpoint)
+  });
+}
+
+const request = withDefaults(endpoint.endpoint, {
+  headers: {
+    "user-agent": `octokit-request.js/${VERSION} ${universalUserAgent.getUserAgent()}`
+  }
+});
+
+exports.request = request;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 8249:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+var crypto = __nccwpck_require__(6113);
+var buffer = __nccwpck_require__(4300);
+
+const VERSION = "2.0.0";
+
+var Algorithm;
+
+(function (Algorithm) {
+  Algorithm["SHA1"] = "sha1";
+  Algorithm["SHA256"] = "sha256";
+})(Algorithm || (Algorithm = {}));
+
+async function sign(options, payload) {
+  const {
+    secret,
+    algorithm
+  } = typeof options === "object" ? {
+    secret: options.secret,
+    algorithm: options.algorithm || Algorithm.SHA256
+  } : {
+    secret: options,
+    algorithm: Algorithm.SHA256
+  };
+
+  if (!secret || !payload) {
+    throw new TypeError("[@octokit/webhooks-methods] secret & payload required for sign()");
+  }
+
+  if (!Object.values(Algorithm).includes(algorithm)) {
+    throw new TypeError(`[@octokit/webhooks] Algorithm ${algorithm} is not supported. Must be  'sha1' or 'sha256'`);
+  }
+
+  return `${algorithm}=${crypto.createHmac(algorithm, secret).update(payload).digest("hex")}`;
+}
+sign.VERSION = VERSION;
+
+const getAlgorithm = signature => {
+  return signature.startsWith("sha256=") ? "sha256" : "sha1";
+};
+
+async function verify(secret, eventPayload, signature) {
+  if (!secret || !eventPayload || !signature) {
+    throw new TypeError("[@octokit/webhooks-methods] secret, eventPayload & signature required");
+  }
+
+  const signatureBuffer = buffer.Buffer.from(signature);
+  const algorithm = getAlgorithm(signature);
+  const verificationBuffer = buffer.Buffer.from(await sign({
+    secret,
+    algorithm
+  }, eventPayload));
+
+  if (signatureBuffer.length !== verificationBuffer.length) {
+    return false;
+  } // constant time comparison to prevent timing attachs
+  // https://stackoverflow.com/a/31096242/206879
+  // https://en.wikipedia.org/wiki/Timing_attack
+
+
+  return crypto.timingSafeEqual(signatureBuffer, verificationBuffer);
+}
+verify.VERSION = VERSION;
+
+exports.sign = sign;
+exports.verify = verify;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 1647:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var AggregateError = _interopDefault(__nccwpck_require__(6394));
+var webhooksMethods = __nccwpck_require__(8249);
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+const createLogger = logger => _objectSpread2({
+  debug: () => {},
+  info: () => {},
+  warn: console.warn.bind(console),
+  error: console.error.bind(console)
+}, logger);
+
+// THIS FILE IS GENERATED - DO NOT EDIT DIRECTLY
+// make edits in scripts/generate-types.ts
+const emitterEventNames = ["branch_protection_rule", "branch_protection_rule.created", "branch_protection_rule.deleted", "branch_protection_rule.edited", "check_run", "check_run.completed", "check_run.created", "check_run.requested_action", "check_run.rerequested", "check_suite", "check_suite.completed", "check_suite.requested", "check_suite.rerequested", "code_scanning_alert", "code_scanning_alert.appeared_in_branch", "code_scanning_alert.closed_by_user", "code_scanning_alert.created", "code_scanning_alert.fixed", "code_scanning_alert.reopened", "code_scanning_alert.reopened_by_user", "commit_comment", "commit_comment.created", "content_reference", "content_reference.created", "create", "delete", "deploy_key", "deploy_key.created", "deploy_key.deleted", "deployment", "deployment.created", "deployment_status", "deployment_status.created", "discussion", "discussion.answered", "discussion.category_changed", "discussion.created", "discussion.deleted", "discussion.edited", "discussion.labeled", "discussion.locked", "discussion.pinned", "discussion.transferred", "discussion.unanswered", "discussion.unlabeled", "discussion.unlocked", "discussion.unpinned", "discussion_comment", "discussion_comment.created", "discussion_comment.deleted", "discussion_comment.edited", "fork", "github_app_authorization", "github_app_authorization.revoked", "gollum", "installation", "installation.created", "installation.deleted", "installation.new_permissions_accepted", "installation.suspend", "installation.unsuspend", "installation_repositories", "installation_repositories.added", "installation_repositories.removed", "issue_comment", "issue_comment.created", "issue_comment.deleted", "issue_comment.edited", "issues", "issues.assigned", "issues.closed", "issues.deleted", "issues.demilestoned", "issues.edited", "issues.labeled", "issues.locked", "issues.milestoned", "issues.opened", "issues.pinned", "issues.reopened", "issues.transferred", "issues.unassigned", "issues.unlabeled", "issues.unlocked", "issues.unpinned", "label", "label.created", "label.deleted", "label.edited", "marketplace_purchase", "marketplace_purchase.cancelled", "marketplace_purchase.changed", "marketplace_purchase.pending_change", "marketplace_purchase.pending_change_cancelled", "marketplace_purchase.purchased", "member", "member.added", "member.edited", "member.removed", "membership", "membership.added", "membership.removed", "meta", "meta.deleted", "milestone", "milestone.closed", "milestone.created", "milestone.deleted", "milestone.edited", "milestone.opened", "org_block", "org_block.blocked", "org_block.unblocked", "organization", "organization.deleted", "organization.member_added", "organization.member_invited", "organization.member_removed", "organization.renamed", "package", "package.published", "package.updated", "page_build", "ping", "project", "project.closed", "project.created", "project.deleted", "project.edited", "project.reopened", "project_card", "project_card.converted", "project_card.created", "project_card.deleted", "project_card.edited", "project_card.moved", "project_column", "project_column.created", "project_column.deleted", "project_column.edited", "project_column.moved", "public", "pull_request", "pull_request.assigned", "pull_request.auto_merge_disabled", "pull_request.auto_merge_enabled", "pull_request.closed", "pull_request.converted_to_draft", "pull_request.edited", "pull_request.labeled", "pull_request.locked", "pull_request.opened", "pull_request.ready_for_review", "pull_request.reopened", "pull_request.review_request_removed", "pull_request.review_requested", "pull_request.synchronize", "pull_request.unassigned", "pull_request.unlabeled", "pull_request.unlocked", "pull_request_review", "pull_request_review.dismissed", "pull_request_review.edited", "pull_request_review.submitted", "pull_request_review_comment", "pull_request_review_comment.created", "pull_request_review_comment.deleted", "pull_request_review_comment.edited", "pull_request_review_thread", "pull_request_review_thread.resolved", "pull_request_review_thread.unresolved", "push", "release", "release.created", "release.deleted", "release.edited", "release.prereleased", "release.published", "release.released", "release.unpublished", "repository", "repository.archived", "repository.created", "repository.deleted", "repository.edited", "repository.privatized", "repository.publicized", "repository.renamed", "repository.transferred", "repository.unarchived", "repository_dispatch", "repository_import", "repository_vulnerability_alert", "repository_vulnerability_alert.create", "repository_vulnerability_alert.dismiss", "repository_vulnerability_alert.resolve", "secret_scanning_alert", "secret_scanning_alert.created", "secret_scanning_alert.reopened", "secret_scanning_alert.resolved", "security_advisory", "security_advisory.performed", "security_advisory.published", "security_advisory.updated", "security_advisory.withdrawn", "sponsorship", "sponsorship.cancelled", "sponsorship.created", "sponsorship.edited", "sponsorship.pending_cancellation", "sponsorship.pending_tier_change", "sponsorship.tier_changed", "star", "star.created", "star.deleted", "status", "team", "team.added_to_repository", "team.created", "team.deleted", "team.edited", "team.removed_from_repository", "team_add", "watch", "watch.started", "workflow_dispatch", "workflow_job", "workflow_job.completed", "workflow_job.in_progress", "workflow_job.queued", "workflow_job.started", "workflow_run", "workflow_run.completed", "workflow_run.requested"];
+
+function handleEventHandlers(state, webhookName, handler) {
+  if (!state.hooks[webhookName]) {
+    state.hooks[webhookName] = [];
+  }
+
+  state.hooks[webhookName].push(handler);
+}
+
+function receiverOn(state, webhookNameOrNames, handler) {
+  if (Array.isArray(webhookNameOrNames)) {
+    webhookNameOrNames.forEach(webhookName => receiverOn(state, webhookName, handler));
+    return;
+  }
+
+  if (["*", "error"].includes(webhookNameOrNames)) {
+    const webhookName = webhookNameOrNames === "*" ? "any" : webhookNameOrNames;
+    const message = `Using the "${webhookNameOrNames}" event with the regular Webhooks.on() function is not supported. Please use the Webhooks.on${webhookName.charAt(0).toUpperCase() + webhookName.slice(1)}() method instead`;
+    throw new Error(message);
+  }
+
+  if (!emitterEventNames.includes(webhookNameOrNames)) {
+    state.log.warn(`"${webhookNameOrNames}" is not a known webhook name (https://developer.github.com/v3/activity/events/types/)`);
+  }
+
+  handleEventHandlers(state, webhookNameOrNames, handler);
+}
+function receiverOnAny(state, handler) {
+  handleEventHandlers(state, "*", handler);
+}
+function receiverOnError(state, handler) {
+  handleEventHandlers(state, "error", handler);
+}
+
+// Errors thrown or rejected Promises in "error" event handlers are not handled
+// as they are in the webhook event handlers. If errors occur, we log a
+// "Fatal: Error occurred" message to stdout
+function wrapErrorHandler(handler, error) {
+  let returnValue;
+
+  try {
+    returnValue = handler(error);
+  } catch (error) {
+    console.log('FATAL: Error occurred in "error" event handler');
+    console.log(error);
+  }
+
+  if (returnValue && returnValue.catch) {
+    returnValue.catch(error => {
+      console.log('FATAL: Error occurred in "error" event handler');
+      console.log(error);
+    });
+  }
+}
+
+// @ts-ignore to address #245
+
+function getHooks(state, eventPayloadAction, eventName) {
+  const hooks = [state.hooks[eventName], state.hooks["*"]];
+
+  if (eventPayloadAction) {
+    hooks.unshift(state.hooks[`${eventName}.${eventPayloadAction}`]);
+  }
+
+  return [].concat(...hooks.filter(Boolean));
+} // main handler function
+
+
+function receiverHandle(state, event) {
+  const errorHandlers = state.hooks.error || [];
+
+  if (event instanceof Error) {
+    const error = Object.assign(new AggregateError([event]), {
+      event,
+      errors: [event]
+    });
+    errorHandlers.forEach(handler => wrapErrorHandler(handler, error));
+    return Promise.reject(error);
+  }
+
+  if (!event || !event.name) {
+    throw new AggregateError(["Event name not passed"]);
+  }
+
+  if (!event.payload) {
+    throw new AggregateError(["Event payload not passed"]);
+  } // flatten arrays of event listeners and remove undefined values
+
+
+  const hooks = getHooks(state, "action" in event.payload ? event.payload.action : null, event.name);
+
+  if (hooks.length === 0) {
+    return Promise.resolve();
+  }
+
+  const errors = [];
+  const promises = hooks.map(handler => {
+    let promise = Promise.resolve(event);
+
+    if (state.transform) {
+      promise = promise.then(state.transform);
+    }
+
+    return promise.then(event => {
+      return handler(event);
+    }).catch(error => errors.push(Object.assign(error, {
+      event
+    })));
+  });
+  return Promise.all(promises).then(() => {
+    if (errors.length === 0) {
+      return;
+    }
+
+    const error = new AggregateError(errors);
+    Object.assign(error, {
+      event,
+      errors
+    });
+    errorHandlers.forEach(handler => wrapErrorHandler(handler, error));
+    throw error;
+  });
+}
+
+function removeListener(state, webhookNameOrNames, handler) {
+  if (Array.isArray(webhookNameOrNames)) {
+    webhookNameOrNames.forEach(webhookName => removeListener(state, webhookName, handler));
+    return;
+  }
+
+  if (!state.hooks[webhookNameOrNames]) {
+    return;
+  } // remove last hook that has been added, that way
+  // it behaves the same as removeListener
+
+
+  for (let i = state.hooks[webhookNameOrNames].length - 1; i >= 0; i--) {
+    if (state.hooks[webhookNameOrNames][i] === handler) {
+      state.hooks[webhookNameOrNames].splice(i, 1);
+      return;
+    }
+  }
+}
+
+function createEventHandler(options) {
+  const state = {
+    hooks: {},
+    log: createLogger(options && options.log)
+  };
+
+  if (options && options.transform) {
+    state.transform = options.transform;
+  }
+
+  return {
+    on: receiverOn.bind(null, state),
+    onAny: receiverOnAny.bind(null, state),
+    onError: receiverOnError.bind(null, state),
+    removeListener: removeListener.bind(null, state),
+    receive: receiverHandle.bind(null, state)
+  };
+}
+
+/**
+ * GitHub sends its JSON with an indentation of 2 spaces and a line break at the end
+ */
+function toNormalizedJsonString(payload) {
+  const payloadString = JSON.stringify(payload);
+  return payloadString.replace(/[^\\]\\u[\da-f]{4}/g, s => {
+    return s.substr(0, 3) + s.substr(3).toUpperCase();
+  });
+}
+
+async function sign(secret, payload) {
+  return webhooksMethods.sign(secret, typeof payload === "string" ? payload : toNormalizedJsonString(payload));
+}
+
+async function verify(secret, payload, signature) {
+  return webhooksMethods.verify(secret, typeof payload === "string" ? payload : toNormalizedJsonString(payload), signature);
+}
+
+async function verifyAndReceive(state, event) {
+  // verify will validate that the secret is not undefined
+  const matchesSignature = await webhooksMethods.verify(state.secret, typeof event.payload === "object" ? toNormalizedJsonString(event.payload) : event.payload, event.signature);
+
+  if (!matchesSignature) {
+    const error = new Error("[@octokit/webhooks] signature does not match event payload and secret");
+    return state.eventHandler.receive(Object.assign(error, {
+      event,
+      status: 400
+    }));
+  }
+
+  return state.eventHandler.receive({
+    id: event.id,
+    name: event.name,
+    payload: typeof event.payload === "string" ? JSON.parse(event.payload) : event.payload
+  });
+}
+
+const WEBHOOK_HEADERS = ["x-github-event", "x-hub-signature-256", "x-github-delivery"]; // https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads#delivery-headers
+
+function getMissingHeaders(request) {
+  return WEBHOOK_HEADERS.filter(header => !(header in request.headers));
+}
+
+// @ts-ignore to address #245
+function getPayload(request) {
+  // If request.body already exists we can stop here
+  // See https://github.com/octokit/webhooks.js/pull/23
+  if (request.body) return Promise.resolve(request.body);
+  return new Promise((resolve, reject) => {
+    let data = "";
+    request.setEncoding("utf8"); // istanbul ignore next
+
+    request.on("error", error => reject(new AggregateError([error])));
+    request.on("data", chunk => data += chunk);
+    request.on("end", () => {
+      try {
+        resolve(JSON.parse(data));
+      } catch (error) {
+        error.message = "Invalid JSON";
+        error.status = 400;
+        reject(new AggregateError([error]));
+      }
+    });
+  });
+}
+
+async function middleware(webhooks, options, request, response, next) {
+  let pathname;
+
+  try {
+    pathname = new URL(request.url, "http://localhost").pathname;
+  } catch (error) {
+    response.writeHead(422, {
+      "content-type": "application/json"
+    });
+    response.end(JSON.stringify({
+      error: `Request URL could not be parsed: ${request.url}`
+    }));
+    return;
+  }
+
+  const isUnknownRoute = request.method !== "POST" || pathname !== options.path;
+  const isExpressMiddleware = typeof next === "function";
+
+  if (isUnknownRoute) {
+    if (isExpressMiddleware) {
+      return next();
+    } else {
+      return options.onUnhandledRequest(request, response);
+    }
+  }
+
+  const missingHeaders = getMissingHeaders(request).join(", ");
+
+  if (missingHeaders) {
+    response.writeHead(400, {
+      "content-type": "application/json"
+    });
+    response.end(JSON.stringify({
+      error: `Required headers missing: ${missingHeaders}`
+    }));
+    return;
+  }
+
+  const eventName = request.headers["x-github-event"];
+  const signatureSHA256 = request.headers["x-hub-signature-256"];
+  const id = request.headers["x-github-delivery"];
+  options.log.debug(`${eventName} event received (id: ${id})`); // GitHub will abort the request if it does not receive a response within 10s
+  // See https://github.com/octokit/webhooks.js/issues/185
+
+  let didTimeout = false;
+  const timeout = setTimeout(() => {
+    didTimeout = true;
+    response.statusCode = 202;
+    response.end("still processing\n");
+  }, 9000).unref();
+
+  try {
+    const payload = await getPayload(request);
+    await webhooks.verifyAndReceive({
+      id: id,
+      name: eventName,
+      payload: payload,
+      signature: signatureSHA256
+    });
+    clearTimeout(timeout);
+    if (didTimeout) return;
+    response.end("ok\n");
+  } catch (error) {
+    clearTimeout(timeout);
+    if (didTimeout) return;
+    const statusCode = Array.from(error)[0].status;
+    response.statusCode = typeof statusCode !== "undefined" ? statusCode : 500;
+    response.end(String(error));
+  }
+}
+
+function onUnhandledRequestDefault(request, response) {
+  response.writeHead(404, {
+    "content-type": "application/json"
+  });
+  response.end(JSON.stringify({
+    error: `Unknown route: ${request.method} ${request.url}`
+  }));
+}
+
+function createNodeMiddleware(webhooks, {
+  path = "/api/github/webhooks",
+  onUnhandledRequest = onUnhandledRequestDefault,
+  log = createLogger()
+} = {}) {
+  return middleware.bind(null, webhooks, {
+    path,
+    onUnhandledRequest,
+    log
+  });
+}
+
+class Webhooks {
+  constructor(options) {
+    if (!options || !options.secret) {
+      throw new Error("[@octokit/webhooks] options.secret required");
+    }
+
+    const state = {
+      eventHandler: createEventHandler(options),
+      secret: options.secret,
+      hooks: {},
+      log: createLogger(options.log)
+    };
+    this.sign = sign.bind(null, options.secret);
+    this.verify = verify.bind(null, options.secret);
+    this.on = state.eventHandler.on;
+    this.onAny = state.eventHandler.onAny;
+    this.onError = state.eventHandler.onError;
+    this.removeListener = state.eventHandler.removeListener;
+    this.receive = state.eventHandler.receive;
+    this.verifyAndReceive = verifyAndReceive.bind(null, state);
+  }
+
+}
+
+exports.Webhooks = Webhooks;
+exports.createEventHandler = createEventHandler;
+exports.createNodeMiddleware = createNodeMiddleware;
+exports.emitterEventNames = emitterEventNames;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 6394:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+const indentString = __nccwpck_require__(9162);
+const cleanStack = __nccwpck_require__(9819);
+
+const cleanInternalStack = stack => stack.replace(/\s+at .*aggregate-error\/index.js:\d+:\d+\)?/g, '');
+
+class AggregateError extends Error {
+	constructor(errors) {
+		if (!Array.isArray(errors)) {
+			throw new TypeError(`Expected input to be an Array, got ${typeof errors}`);
+		}
+
+		errors = [...errors].map(error => {
+			if (error instanceof Error) {
+				return error;
+			}
+
+			if (error !== null && typeof error === 'object') {
+				// Handle plain error objects with message property and/or possibly other metadata
+				return Object.assign(new Error(error.message), error);
+			}
+
+			return new Error(error);
+		});
+
+		let message = errors
+			.map(error => {
+				// The `stack` property is not standardized, so we can't assume it exists
+				return typeof error.stack === 'string' ? cleanInternalStack(cleanStack(error.stack)) : String(error);
+			})
+			.join('\n');
+		message = '\n' + indentString(message, 4);
+		super(message);
+
+		this.name = 'AggregateError';
+
+		Object.defineProperty(this, '_errors', {value: errors});
+	}
+
+	* [Symbol.iterator]() {
+		for (const error of this._errors) {
+			yield error;
+		}
+	}
+}
+
+module.exports = AggregateError;
+
+
+/***/ }),
+
+/***/ 7654:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var register = __nccwpck_require__(6367)
+var addHook = __nccwpck_require__(8840)
+var removeHook = __nccwpck_require__(7381)
+
+// bind with array of arguments: https://stackoverflow.com/a/21792913
+var bind = Function.bind
+var bindable = bind.bind(bind)
+
+function bindApi (hook, state, name) {
+  var removeHookRef = bindable(removeHook, null).apply(null, name ? [state, name] : [state])
+  hook.api = { remove: removeHookRef }
+  hook.remove = removeHookRef
+
+  ;['before', 'error', 'after', 'wrap'].forEach(function (kind) {
+    var args = name ? [state, kind, name] : [state, kind]
+    hook[kind] = hook.api[kind] = bindable(addHook, null).apply(null, args)
+  })
+}
+
+function HookSingular () {
+  var singularHookName = 'h'
+  var singularHookState = {
+    registry: {}
+  }
+  var singularHook = register.bind(null, singularHookState, singularHookName)
+  bindApi(singularHook, singularHookState, singularHookName)
+  return singularHook
+}
+
+function HookCollection () {
+  var state = {
+    registry: {}
+  }
+
+  var hook = register.bind(null, state)
+  bindApi(hook, state)
+
+  return hook
+}
+
+var collectionHookDeprecationMessageDisplayed = false
+function Hook () {
+  if (!collectionHookDeprecationMessageDisplayed) {
+    console.warn('[before-after-hook]: "Hook()" repurposing warning, use "Hook.Collection()". Read more: https://git.io/upgrade-before-after-hook-to-1.4')
+    collectionHookDeprecationMessageDisplayed = true
+  }
+  return HookCollection()
+}
+
+Hook.Singular = HookSingular.bind()
+Hook.Collection = HookCollection.bind()
+
+module.exports = Hook
+// expose constructors as a named property for TypeScript
+module.exports.Hook = Hook
+module.exports.Singular = Hook.Singular
+module.exports.Collection = Hook.Collection
+
+
+/***/ }),
+
+/***/ 8840:
+/***/ ((module) => {
+
+module.exports = addHook;
+
+function addHook(state, kind, name, hook) {
+  var orig = hook;
+  if (!state.registry[name]) {
+    state.registry[name] = [];
+  }
+
+  if (kind === "before") {
+    hook = function (method, options) {
+      return Promise.resolve()
+        .then(orig.bind(null, options))
+        .then(method.bind(null, options));
+    };
+  }
+
+  if (kind === "after") {
+    hook = function (method, options) {
+      var result;
+      return Promise.resolve()
+        .then(method.bind(null, options))
+        .then(function (result_) {
+          result = result_;
+          return orig(result, options);
+        })
+        .then(function () {
+          return result;
+        });
+    };
+  }
+
+  if (kind === "error") {
+    hook = function (method, options) {
+      return Promise.resolve()
+        .then(method.bind(null, options))
+        .catch(function (error) {
+          return orig(error, options);
+        });
+    };
+  }
+
+  state.registry[name].push({
+    hook: hook,
+    orig: orig,
+  });
+}
+
+
+/***/ }),
+
+/***/ 6367:
+/***/ ((module) => {
+
+module.exports = register;
+
+function register(state, name, method, options) {
+  if (typeof method !== "function") {
+    throw new Error("method for before hook must be a function");
+  }
+
+  if (!options) {
+    options = {};
+  }
+
+  if (Array.isArray(name)) {
+    return name.reverse().reduce(function (callback, name) {
+      return register.bind(null, state, name, callback, options);
+    }, method)();
+  }
+
+  return Promise.resolve().then(function () {
+    if (!state.registry[name]) {
+      return method(options);
+    }
+
+    return state.registry[name].reduce(function (method, registered) {
+      return registered.hook.bind(null, method, options);
+    }, method)();
+  });
+}
+
+
+/***/ }),
+
+/***/ 7381:
+/***/ ((module) => {
+
+module.exports = removeHook;
+
+function removeHook(state, name, method) {
+  if (!state.registry[name]) {
+    return;
+  }
+
+  var index = state.registry[name]
+    .map(function (registered) {
+      return registered.orig;
+    })
+    .indexOf(method);
+
+  if (index === -1) {
+    return;
+  }
+
+  state.registry[name].splice(index, 1);
+}
+
+
+/***/ }),
+
+/***/ 4025:
+/***/ (function(module) {
+
+/**
+  * This file contains the Bottleneck library (MIT), compiled to ES2017, and without Clustering support.
+  * https://github.com/SGrondin/bottleneck
+  */
+(function (global, factory) {
+	 true ? module.exports = factory() :
+	0;
+}(this, (function () { 'use strict';
+
+	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+	function getCjsExportFromNamespace (n) {
+		return n && n['default'] || n;
+	}
+
+	var load = function(received, defaults, onto = {}) {
+	  var k, ref, v;
+	  for (k in defaults) {
+	    v = defaults[k];
+	    onto[k] = (ref = received[k]) != null ? ref : v;
+	  }
+	  return onto;
+	};
+
+	var overwrite = function(received, defaults, onto = {}) {
+	  var k, v;
+	  for (k in received) {
+	    v = received[k];
+	    if (defaults[k] !== void 0) {
+	      onto[k] = v;
+	    }
+	  }
+	  return onto;
+	};
+
+	var parser = {
+		load: load,
+		overwrite: overwrite
+	};
+
+	var DLList;
+
+	DLList = class DLList {
+	  constructor(incr, decr) {
+	    this.incr = incr;
+	    this.decr = decr;
+	    this._first = null;
+	    this._last = null;
+	    this.length = 0;
+	  }
+
+	  push(value) {
+	    var node;
+	    this.length++;
+	    if (typeof this.incr === "function") {
+	      this.incr();
+	    }
+	    node = {
+	      value,
+	      prev: this._last,
+	      next: null
+	    };
+	    if (this._last != null) {
+	      this._last.next = node;
+	      this._last = node;
+	    } else {
+	      this._first = this._last = node;
+	    }
+	    return void 0;
+	  }
+
+	  shift() {
+	    var value;
+	    if (this._first == null) {
+	      return;
+	    } else {
+	      this.length--;
+	      if (typeof this.decr === "function") {
+	        this.decr();
+	      }
+	    }
+	    value = this._first.value;
+	    if ((this._first = this._first.next) != null) {
+	      this._first.prev = null;
+	    } else {
+	      this._last = null;
+	    }
+	    return value;
+	  }
+
+	  first() {
+	    if (this._first != null) {
+	      return this._first.value;
+	    }
+	  }
+
+	  getArray() {
+	    var node, ref, results;
+	    node = this._first;
+	    results = [];
+	    while (node != null) {
+	      results.push((ref = node, node = node.next, ref.value));
+	    }
+	    return results;
+	  }
+
+	  forEachShift(cb) {
+	    var node;
+	    node = this.shift();
+	    while (node != null) {
+	      (cb(node), node = this.shift());
+	    }
+	    return void 0;
+	  }
+
+	  debug() {
+	    var node, ref, ref1, ref2, results;
+	    node = this._first;
+	    results = [];
+	    while (node != null) {
+	      results.push((ref = node, node = node.next, {
+	        value: ref.value,
+	        prev: (ref1 = ref.prev) != null ? ref1.value : void 0,
+	        next: (ref2 = ref.next) != null ? ref2.value : void 0
+	      }));
+	    }
+	    return results;
+	  }
+
+	};
+
+	var DLList_1 = DLList;
+
+	var Events;
+
+	Events = class Events {
+	  constructor(instance) {
+	    this.instance = instance;
+	    this._events = {};
+	    if ((this.instance.on != null) || (this.instance.once != null) || (this.instance.removeAllListeners != null)) {
+	      throw new Error("An Emitter already exists for this object");
+	    }
+	    this.instance.on = (name, cb) => {
+	      return this._addListener(name, "many", cb);
+	    };
+	    this.instance.once = (name, cb) => {
+	      return this._addListener(name, "once", cb);
+	    };
+	    this.instance.removeAllListeners = (name = null) => {
+	      if (name != null) {
+	        return delete this._events[name];
+	      } else {
+	        return this._events = {};
+	      }
+	    };
+	  }
+
+	  _addListener(name, status, cb) {
+	    var base;
+	    if ((base = this._events)[name] == null) {
+	      base[name] = [];
+	    }
+	    this._events[name].push({cb, status});
+	    return this.instance;
+	  }
+
+	  listenerCount(name) {
+	    if (this._events[name] != null) {
+	      return this._events[name].length;
+	    } else {
+	      return 0;
+	    }
+	  }
+
+	  async trigger(name, ...args) {
+	    var e, promises;
+	    try {
+	      if (name !== "debug") {
+	        this.trigger("debug", `Event triggered: ${name}`, args);
+	      }
+	      if (this._events[name] == null) {
+	        return;
+	      }
+	      this._events[name] = this._events[name].filter(function(listener) {
+	        return listener.status !== "none";
+	      });
+	      promises = this._events[name].map(async(listener) => {
+	        var e, returned;
+	        if (listener.status === "none") {
+	          return;
+	        }
+	        if (listener.status === "once") {
+	          listener.status = "none";
+	        }
+	        try {
+	          returned = typeof listener.cb === "function" ? listener.cb(...args) : void 0;
+	          if (typeof (returned != null ? returned.then : void 0) === "function") {
+	            return (await returned);
+	          } else {
+	            return returned;
+	          }
+	        } catch (error) {
+	          e = error;
+	          {
+	            this.trigger("error", e);
+	          }
+	          return null;
+	        }
+	      });
+	      return ((await Promise.all(promises))).find(function(x) {
+	        return x != null;
+	      });
+	    } catch (error) {
+	      e = error;
+	      {
+	        this.trigger("error", e);
+	      }
+	      return null;
+	    }
+	  }
+
+	};
+
+	var Events_1 = Events;
+
+	var DLList$1, Events$1, Queues;
+
+	DLList$1 = DLList_1;
+
+	Events$1 = Events_1;
+
+	Queues = class Queues {
+	  constructor(num_priorities) {
+	    var i;
+	    this.Events = new Events$1(this);
+	    this._length = 0;
+	    this._lists = (function() {
+	      var j, ref, results;
+	      results = [];
+	      for (i = j = 1, ref = num_priorities; (1 <= ref ? j <= ref : j >= ref); i = 1 <= ref ? ++j : --j) {
+	        results.push(new DLList$1((() => {
+	          return this.incr();
+	        }), (() => {
+	          return this.decr();
+	        })));
+	      }
+	      return results;
+	    }).call(this);
+	  }
+
+	  incr() {
+	    if (this._length++ === 0) {
+	      return this.Events.trigger("leftzero");
+	    }
+	  }
+
+	  decr() {
+	    if (--this._length === 0) {
+	      return this.Events.trigger("zero");
+	    }
+	  }
+
+	  push(job) {
+	    return this._lists[job.options.priority].push(job);
+	  }
+
+	  queued(priority) {
+	    if (priority != null) {
+	      return this._lists[priority].length;
+	    } else {
+	      return this._length;
+	    }
+	  }
+
+	  shiftAll(fn) {
+	    return this._lists.forEach(function(list) {
+	      return list.forEachShift(fn);
+	    });
+	  }
+
+	  getFirst(arr = this._lists) {
+	    var j, len, list;
+	    for (j = 0, len = arr.length; j < len; j++) {
+	      list = arr[j];
+	      if (list.length > 0) {
+	        return list;
+	      }
+	    }
+	    return [];
+	  }
+
+	  shiftLastFrom(priority) {
+	    return this.getFirst(this._lists.slice(priority).reverse()).shift();
+	  }
+
+	};
+
+	var Queues_1 = Queues;
+
+	var BottleneckError;
+
+	BottleneckError = class BottleneckError extends Error {};
+
+	var BottleneckError_1 = BottleneckError;
+
+	var BottleneckError$1, DEFAULT_PRIORITY, Job, NUM_PRIORITIES, parser$1;
+
+	NUM_PRIORITIES = 10;
+
+	DEFAULT_PRIORITY = 5;
+
+	parser$1 = parser;
+
+	BottleneckError$1 = BottleneckError_1;
+
+	Job = class Job {
+	  constructor(task, args, options, jobDefaults, rejectOnDrop, Events, _states, Promise) {
+	    this.task = task;
+	    this.args = args;
+	    this.rejectOnDrop = rejectOnDrop;
+	    this.Events = Events;
+	    this._states = _states;
+	    this.Promise = Promise;
+	    this.options = parser$1.load(options, jobDefaults);
+	    this.options.priority = this._sanitizePriority(this.options.priority);
+	    if (this.options.id === jobDefaults.id) {
+	      this.options.id = `${this.options.id}-${this._randomIndex()}`;
+	    }
+	    this.promise = new this.Promise((_resolve, _reject) => {
+	      this._resolve = _resolve;
+	      this._reject = _reject;
+	    });
+	    this.retryCount = 0;
+	  }
+
+	  _sanitizePriority(priority) {
+	    var sProperty;
+	    sProperty = ~~priority !== priority ? DEFAULT_PRIORITY : priority;
+	    if (sProperty < 0) {
+	      return 0;
+	    } else if (sProperty > NUM_PRIORITIES - 1) {
+	      return NUM_PRIORITIES - 1;
+	    } else {
+	      return sProperty;
+	    }
+	  }
+
+	  _randomIndex() {
+	    return Math.random().toString(36).slice(2);
+	  }
+
+	  doDrop({error, message = "This job has been dropped by Bottleneck"} = {}) {
+	    if (this._states.remove(this.options.id)) {
+	      if (this.rejectOnDrop) {
+	        this._reject(error != null ? error : new BottleneckError$1(message));
+	      }
+	      this.Events.trigger("dropped", {args: this.args, options: this.options, task: this.task, promise: this.promise});
+	      return true;
+	    } else {
+	      return false;
+	    }
+	  }
+
+	  _assertStatus(expected) {
+	    var status;
+	    status = this._states.jobStatus(this.options.id);
+	    if (!(status === expected || (expected === "DONE" && status === null))) {
+	      throw new BottleneckError$1(`Invalid job status ${status}, expected ${expected}. Please open an issue at https://github.com/SGrondin/bottleneck/issues`);
+	    }
+	  }
+
+	  doReceive() {
+	    this._states.start(this.options.id);
+	    return this.Events.trigger("received", {args: this.args, options: this.options});
+	  }
+
+	  doQueue(reachedHWM, blocked) {
+	    this._assertStatus("RECEIVED");
+	    this._states.next(this.options.id);
+	    return this.Events.trigger("queued", {args: this.args, options: this.options, reachedHWM, blocked});
+	  }
+
+	  doRun() {
+	    if (this.retryCount === 0) {
+	      this._assertStatus("QUEUED");
+	      this._states.next(this.options.id);
+	    } else {
+	      this._assertStatus("EXECUTING");
+	    }
+	    return this.Events.trigger("scheduled", {args: this.args, options: this.options});
+	  }
+
+	  async doExecute(chained, clearGlobalState, run, free) {
+	    var error, eventInfo, passed;
+	    if (this.retryCount === 0) {
+	      this._assertStatus("RUNNING");
+	      this._states.next(this.options.id);
+	    } else {
+	      this._assertStatus("EXECUTING");
+	    }
+	    eventInfo = {args: this.args, options: this.options, retryCount: this.retryCount};
+	    this.Events.trigger("executing", eventInfo);
+	    try {
+	      passed = (await (chained != null ? chained.schedule(this.options, this.task, ...this.args) : this.task(...this.args)));
+	      if (clearGlobalState()) {
+	        this.doDone(eventInfo);
+	        await free(this.options, eventInfo);
+	        this._assertStatus("DONE");
+	        return this._resolve(passed);
+	      }
+	    } catch (error1) {
+	      error = error1;
+	      return this._onFailure(error, eventInfo, clearGlobalState, run, free);
+	    }
+	  }
+
+	  doExpire(clearGlobalState, run, free) {
+	    var error, eventInfo;
+	    if (this._states.jobStatus(this.options.id === "RUNNING")) {
+	      this._states.next(this.options.id);
+	    }
+	    this._assertStatus("EXECUTING");
+	    eventInfo = {args: this.args, options: this.options, retryCount: this.retryCount};
+	    error = new BottleneckError$1(`This job timed out after ${this.options.expiration} ms.`);
+	    return this._onFailure(error, eventInfo, clearGlobalState, run, free);
+	  }
+
+	  async _onFailure(error, eventInfo, clearGlobalState, run, free) {
+	    var retry, retryAfter;
+	    if (clearGlobalState()) {
+	      retry = (await this.Events.trigger("failed", error, eventInfo));
+	      if (retry != null) {
+	        retryAfter = ~~retry;
+	        this.Events.trigger("retry", `Retrying ${this.options.id} after ${retryAfter} ms`, eventInfo);
+	        this.retryCount++;
+	        return run(retryAfter);
+	      } else {
+	        this.doDone(eventInfo);
+	        await free(this.options, eventInfo);
+	        this._assertStatus("DONE");
+	        return this._reject(error);
+	      }
+	    }
+	  }
+
+	  doDone(eventInfo) {
+	    this._assertStatus("EXECUTING");
+	    this._states.next(this.options.id);
+	    return this.Events.trigger("done", eventInfo);
+	  }
+
+	};
+
+	var Job_1 = Job;
+
+	var BottleneckError$2, LocalDatastore, parser$2;
+
+	parser$2 = parser;
+
+	BottleneckError$2 = BottleneckError_1;
+
+	LocalDatastore = class LocalDatastore {
+	  constructor(instance, storeOptions, storeInstanceOptions) {
+	    this.instance = instance;
+	    this.storeOptions = storeOptions;
+	    this.clientId = this.instance._randomIndex();
+	    parser$2.load(storeInstanceOptions, storeInstanceOptions, this);
+	    this._nextRequest = this._lastReservoirRefresh = this._lastReservoirIncrease = Date.now();
+	    this._running = 0;
+	    this._done = 0;
+	    this._unblockTime = 0;
+	    this.ready = this.Promise.resolve();
+	    this.clients = {};
+	    this._startHeartbeat();
+	  }
+
+	  _startHeartbeat() {
+	    var base;
+	    if ((this.heartbeat == null) && (((this.storeOptions.reservoirRefreshInterval != null) && (this.storeOptions.reservoirRefreshAmount != null)) || ((this.storeOptions.reservoirIncreaseInterval != null) && (this.storeOptions.reservoirIncreaseAmount != null)))) {
+	      return typeof (base = (this.heartbeat = setInterval(() => {
+	        var amount, incr, maximum, now, reservoir;
+	        now = Date.now();
+	        if ((this.storeOptions.reservoirRefreshInterval != null) && now >= this._lastReservoirRefresh + this.storeOptions.reservoirRefreshInterval) {
+	          this._lastReservoirRefresh = now;
+	          this.storeOptions.reservoir = this.storeOptions.reservoirRefreshAmount;
+	          this.instance._drainAll(this.computeCapacity());
+	        }
+	        if ((this.storeOptions.reservoirIncreaseInterval != null) && now >= this._lastReservoirIncrease + this.storeOptions.reservoirIncreaseInterval) {
+	          ({
+	            reservoirIncreaseAmount: amount,
+	            reservoirIncreaseMaximum: maximum,
+	            reservoir
+	          } = this.storeOptions);
+	          this._lastReservoirIncrease = now;
+	          incr = maximum != null ? Math.min(amount, maximum - reservoir) : amount;
+	          if (incr > 0) {
+	            this.storeOptions.reservoir += incr;
+	            return this.instance._drainAll(this.computeCapacity());
+	          }
+	        }
+	      }, this.heartbeatInterval))).unref === "function" ? base.unref() : void 0;
+	    } else {
+	      return clearInterval(this.heartbeat);
+	    }
+	  }
+
+	  async __publish__(message) {
+	    await this.yieldLoop();
+	    return this.instance.Events.trigger("message", message.toString());
+	  }
+
+	  async __disconnect__(flush) {
+	    await this.yieldLoop();
+	    clearInterval(this.heartbeat);
+	    return this.Promise.resolve();
+	  }
+
+	  yieldLoop(t = 0) {
+	    return new this.Promise(function(resolve, reject) {
+	      return setTimeout(resolve, t);
+	    });
+	  }
+
+	  computePenalty() {
+	    var ref;
+	    return (ref = this.storeOptions.penalty) != null ? ref : (15 * this.storeOptions.minTime) || 5000;
+	  }
+
+	  async __updateSettings__(options) {
+	    await this.yieldLoop();
+	    parser$2.overwrite(options, options, this.storeOptions);
+	    this._startHeartbeat();
+	    this.instance._drainAll(this.computeCapacity());
+	    return true;
+	  }
+
+	  async __running__() {
+	    await this.yieldLoop();
+	    return this._running;
+	  }
+
+	  async __queued__() {
+	    await this.yieldLoop();
+	    return this.instance.queued();
+	  }
+
+	  async __done__() {
+	    await this.yieldLoop();
+	    return this._done;
+	  }
+
+	  async __groupCheck__(time) {
+	    await this.yieldLoop();
+	    return (this._nextRequest + this.timeout) < time;
+	  }
+
+	  computeCapacity() {
+	    var maxConcurrent, reservoir;
+	    ({maxConcurrent, reservoir} = this.storeOptions);
+	    if ((maxConcurrent != null) && (reservoir != null)) {
+	      return Math.min(maxConcurrent - this._running, reservoir);
+	    } else if (maxConcurrent != null) {
+	      return maxConcurrent - this._running;
+	    } else if (reservoir != null) {
+	      return reservoir;
+	    } else {
+	      return null;
+	    }
+	  }
+
+	  conditionsCheck(weight) {
+	    var capacity;
+	    capacity = this.computeCapacity();
+	    return (capacity == null) || weight <= capacity;
+	  }
+
+	  async __incrementReservoir__(incr) {
+	    var reservoir;
+	    await this.yieldLoop();
+	    reservoir = this.storeOptions.reservoir += incr;
+	    this.instance._drainAll(this.computeCapacity());
+	    return reservoir;
+	  }
+
+	  async __currentReservoir__() {
+	    await this.yieldLoop();
+	    return this.storeOptions.reservoir;
+	  }
+
+	  isBlocked(now) {
+	    return this._unblockTime >= now;
+	  }
+
+	  check(weight, now) {
+	    return this.conditionsCheck(weight) && (this._nextRequest - now) <= 0;
+	  }
+
+	  async __check__(weight) {
+	    var now;
+	    await this.yieldLoop();
+	    now = Date.now();
+	    return this.check(weight, now);
+	  }
+
+	  async __register__(index, weight, expiration) {
+	    var now, wait;
+	    await this.yieldLoop();
+	    now = Date.now();
+	    if (this.conditionsCheck(weight)) {
+	      this._running += weight;
+	      if (this.storeOptions.reservoir != null) {
+	        this.storeOptions.reservoir -= weight;
+	      }
+	      wait = Math.max(this._nextRequest - now, 0);
+	      this._nextRequest = now + wait + this.storeOptions.minTime;
+	      return {
+	        success: true,
+	        wait,
+	        reservoir: this.storeOptions.reservoir
+	      };
+	    } else {
+	      return {
+	        success: false
+	      };
+	    }
+	  }
+
+	  strategyIsBlock() {
+	    return this.storeOptions.strategy === 3;
+	  }
+
+	  async __submit__(queueLength, weight) {
+	    var blocked, now, reachedHWM;
+	    await this.yieldLoop();
+	    if ((this.storeOptions.maxConcurrent != null) && weight > this.storeOptions.maxConcurrent) {
+	      throw new BottleneckError$2(`Impossible to add a job having a weight of ${weight} to a limiter having a maxConcurrent setting of ${this.storeOptions.maxConcurrent}`);
+	    }
+	    now = Date.now();
+	    reachedHWM = (this.storeOptions.highWater != null) && queueLength === this.storeOptions.highWater && !this.check(weight, now);
+	    blocked = this.strategyIsBlock() && (reachedHWM || this.isBlocked(now));
+	    if (blocked) {
+	      this._unblockTime = now + this.computePenalty();
+	      this._nextRequest = this._unblockTime + this.storeOptions.minTime;
+	      this.instance._dropAllQueued();
+	    }
+	    return {
+	      reachedHWM,
+	      blocked,
+	      strategy: this.storeOptions.strategy
+	    };
+	  }
+
+	  async __free__(index, weight) {
+	    await this.yieldLoop();
+	    this._running -= weight;
+	    this._done += weight;
+	    this.instance._drainAll(this.computeCapacity());
+	    return {
+	      running: this._running
+	    };
+	  }
+
+	};
+
+	var LocalDatastore_1 = LocalDatastore;
+
+	var BottleneckError$3, States;
+
+	BottleneckError$3 = BottleneckError_1;
+
+	States = class States {
+	  constructor(status1) {
+	    this.status = status1;
+	    this._jobs = {};
+	    this.counts = this.status.map(function() {
+	      return 0;
+	    });
+	  }
+
+	  next(id) {
+	    var current, next;
+	    current = this._jobs[id];
+	    next = current + 1;
+	    if ((current != null) && next < this.status.length) {
+	      this.counts[current]--;
+	      this.counts[next]++;
+	      return this._jobs[id]++;
+	    } else if (current != null) {
+	      this.counts[current]--;
+	      return delete this._jobs[id];
+	    }
+	  }
+
+	  start(id) {
+	    var initial;
+	    initial = 0;
+	    this._jobs[id] = initial;
+	    return this.counts[initial]++;
+	  }
+
+	  remove(id) {
+	    var current;
+	    current = this._jobs[id];
+	    if (current != null) {
+	      this.counts[current]--;
+	      delete this._jobs[id];
+	    }
+	    return current != null;
+	  }
+
+	  jobStatus(id) {
+	    var ref;
+	    return (ref = this.status[this._jobs[id]]) != null ? ref : null;
+	  }
+
+	  statusJobs(status) {
+	    var k, pos, ref, results, v;
+	    if (status != null) {
+	      pos = this.status.indexOf(status);
+	      if (pos < 0) {
+	        throw new BottleneckError$3(`status must be one of ${this.status.join(', ')}`);
+	      }
+	      ref = this._jobs;
+	      results = [];
+	      for (k in ref) {
+	        v = ref[k];
+	        if (v === pos) {
+	          results.push(k);
+	        }
+	      }
+	      return results;
+	    } else {
+	      return Object.keys(this._jobs);
+	    }
+	  }
+
+	  statusCounts() {
+	    return this.counts.reduce(((acc, v, i) => {
+	      acc[this.status[i]] = v;
+	      return acc;
+	    }), {});
+	  }
+
+	};
+
+	var States_1 = States;
+
+	var DLList$2, Sync;
+
+	DLList$2 = DLList_1;
+
+	Sync = class Sync {
+	  constructor(name, Promise) {
+	    this.schedule = this.schedule.bind(this);
+	    this.name = name;
+	    this.Promise = Promise;
+	    this._running = 0;
+	    this._queue = new DLList$2();
+	  }
+
+	  isEmpty() {
+	    return this._queue.length === 0;
+	  }
+
+	  async _tryToRun() {
+	    var args, cb, error, reject, resolve, returned, task;
+	    if ((this._running < 1) && this._queue.length > 0) {
+	      this._running++;
+	      ({task, args, resolve, reject} = this._queue.shift());
+	      cb = (await (async function() {
+	        try {
+	          returned = (await task(...args));
+	          return function() {
+	            return resolve(returned);
+	          };
+	        } catch (error1) {
+	          error = error1;
+	          return function() {
+	            return reject(error);
+	          };
+	        }
+	      })());
+	      this._running--;
+	      this._tryToRun();
+	      return cb();
+	    }
+	  }
+
+	  schedule(task, ...args) {
+	    var promise, reject, resolve;
+	    resolve = reject = null;
+	    promise = new this.Promise(function(_resolve, _reject) {
+	      resolve = _resolve;
+	      return reject = _reject;
+	    });
+	    this._queue.push({task, args, resolve, reject});
+	    this._tryToRun();
+	    return promise;
+	  }
+
+	};
+
+	var Sync_1 = Sync;
+
+	var version = "2.19.5";
+	var version$1 = {
+		version: version
+	};
+
+	var version$2 = /*#__PURE__*/Object.freeze({
+		version: version,
+		default: version$1
+	});
+
+	var require$$2 = () => console.log('You must import the full version of Bottleneck in order to use this feature.');
+
+	var require$$3 = () => console.log('You must import the full version of Bottleneck in order to use this feature.');
+
+	var require$$4 = () => console.log('You must import the full version of Bottleneck in order to use this feature.');
+
+	var Events$2, Group, IORedisConnection$1, RedisConnection$1, Scripts$1, parser$3;
+
+	parser$3 = parser;
+
+	Events$2 = Events_1;
+
+	RedisConnection$1 = require$$2;
+
+	IORedisConnection$1 = require$$3;
+
+	Scripts$1 = require$$4;
+
+	Group = (function() {
+	  class Group {
+	    constructor(limiterOptions = {}) {
+	      this.deleteKey = this.deleteKey.bind(this);
+	      this.limiterOptions = limiterOptions;
+	      parser$3.load(this.limiterOptions, this.defaults, this);
+	      this.Events = new Events$2(this);
+	      this.instances = {};
+	      this.Bottleneck = Bottleneck_1;
+	      this._startAutoCleanup();
+	      this.sharedConnection = this.connection != null;
+	      if (this.connection == null) {
+	        if (this.limiterOptions.datastore === "redis") {
+	          this.connection = new RedisConnection$1(Object.assign({}, this.limiterOptions, {Events: this.Events}));
+	        } else if (this.limiterOptions.datastore === "ioredis") {
+	          this.connection = new IORedisConnection$1(Object.assign({}, this.limiterOptions, {Events: this.Events}));
+	        }
+	      }
+	    }
+
+	    key(key = "") {
+	      var ref;
+	      return (ref = this.instances[key]) != null ? ref : (() => {
+	        var limiter;
+	        limiter = this.instances[key] = new this.Bottleneck(Object.assign(this.limiterOptions, {
+	          id: `${this.id}-${key}`,
+	          timeout: this.timeout,
+	          connection: this.connection
+	        }));
+	        this.Events.trigger("created", limiter, key);
+	        return limiter;
+	      })();
+	    }
+
+	    async deleteKey(key = "") {
+	      var deleted, instance;
+	      instance = this.instances[key];
+	      if (this.connection) {
+	        deleted = (await this.connection.__runCommand__(['del', ...Scripts$1.allKeys(`${this.id}-${key}`)]));
+	      }
+	      if (instance != null) {
+	        delete this.instances[key];
+	        await instance.disconnect();
+	      }
+	      return (instance != null) || deleted > 0;
+	    }
+
+	    limiters() {
+	      var k, ref, results, v;
+	      ref = this.instances;
+	      results = [];
+	      for (k in ref) {
+	        v = ref[k];
+	        results.push({
+	          key: k,
+	          limiter: v
+	        });
+	      }
+	      return results;
+	    }
+
+	    keys() {
+	      return Object.keys(this.instances);
+	    }
+
+	    async clusterKeys() {
+	      var cursor, end, found, i, k, keys, len, next, start;
+	      if (this.connection == null) {
+	        return this.Promise.resolve(this.keys());
+	      }
+	      keys = [];
+	      cursor = null;
+	      start = `b_${this.id}-`.length;
+	      end = "_settings".length;
+	      while (cursor !== 0) {
+	        [next, found] = (await this.connection.__runCommand__(["scan", cursor != null ? cursor : 0, "match", `b_${this.id}-*_settings`, "count", 10000]));
+	        cursor = ~~next;
+	        for (i = 0, len = found.length; i < len; i++) {
+	          k = found[i];
+	          keys.push(k.slice(start, -end));
+	        }
+	      }
+	      return keys;
+	    }
+
+	    _startAutoCleanup() {
+	      var base;
+	      clearInterval(this.interval);
+	      return typeof (base = (this.interval = setInterval(async() => {
+	        var e, k, ref, results, time, v;
+	        time = Date.now();
+	        ref = this.instances;
+	        results = [];
+	        for (k in ref) {
+	          v = ref[k];
+	          try {
+	            if ((await v._store.__groupCheck__(time))) {
+	              results.push(this.deleteKey(k));
+	            } else {
+	              results.push(void 0);
+	            }
+	          } catch (error) {
+	            e = error;
+	            results.push(v.Events.trigger("error", e));
+	          }
+	        }
+	        return results;
+	      }, this.timeout / 2))).unref === "function" ? base.unref() : void 0;
+	    }
+
+	    updateSettings(options = {}) {
+	      parser$3.overwrite(options, this.defaults, this);
+	      parser$3.overwrite(options, options, this.limiterOptions);
+	      if (options.timeout != null) {
+	        return this._startAutoCleanup();
+	      }
+	    }
+
+	    disconnect(flush = true) {
+	      var ref;
+	      if (!this.sharedConnection) {
+	        return (ref = this.connection) != null ? ref.disconnect(flush) : void 0;
+	      }
+	    }
+
+	  }
+	  Group.prototype.defaults = {
+	    timeout: 1000 * 60 * 5,
+	    connection: null,
+	    Promise: Promise,
+	    id: "group-key"
+	  };
+
+	  return Group;
+
+	}).call(commonjsGlobal);
+
+	var Group_1 = Group;
+
+	var Batcher, Events$3, parser$4;
+
+	parser$4 = parser;
+
+	Events$3 = Events_1;
+
+	Batcher = (function() {
+	  class Batcher {
+	    constructor(options = {}) {
+	      this.options = options;
+	      parser$4.load(this.options, this.defaults, this);
+	      this.Events = new Events$3(this);
+	      this._arr = [];
+	      this._resetPromise();
+	      this._lastFlush = Date.now();
+	    }
+
+	    _resetPromise() {
+	      return this._promise = new this.Promise((res, rej) => {
+	        return this._resolve = res;
+	      });
+	    }
+
+	    _flush() {
+	      clearTimeout(this._timeout);
+	      this._lastFlush = Date.now();
+	      this._resolve();
+	      this.Events.trigger("batch", this._arr);
+	      this._arr = [];
+	      return this._resetPromise();
+	    }
+
+	    add(data) {
+	      var ret;
+	      this._arr.push(data);
+	      ret = this._promise;
+	      if (this._arr.length === this.maxSize) {
+	        this._flush();
+	      } else if ((this.maxTime != null) && this._arr.length === 1) {
+	        this._timeout = setTimeout(() => {
+	          return this._flush();
+	        }, this.maxTime);
+	      }
+	      return ret;
+	    }
+
+	  }
+	  Batcher.prototype.defaults = {
+	    maxTime: null,
+	    maxSize: null,
+	    Promise: Promise
+	  };
+
+	  return Batcher;
+
+	}).call(commonjsGlobal);
+
+	var Batcher_1 = Batcher;
+
+	var require$$4$1 = () => console.log('You must import the full version of Bottleneck in order to use this feature.');
+
+	var require$$8 = getCjsExportFromNamespace(version$2);
+
+	var Bottleneck, DEFAULT_PRIORITY$1, Events$4, Job$1, LocalDatastore$1, NUM_PRIORITIES$1, Queues$1, RedisDatastore$1, States$1, Sync$1, parser$5,
+	  splice = [].splice;
+
+	NUM_PRIORITIES$1 = 10;
+
+	DEFAULT_PRIORITY$1 = 5;
+
+	parser$5 = parser;
+
+	Queues$1 = Queues_1;
+
+	Job$1 = Job_1;
+
+	LocalDatastore$1 = LocalDatastore_1;
+
+	RedisDatastore$1 = require$$4$1;
+
+	Events$4 = Events_1;
+
+	States$1 = States_1;
+
+	Sync$1 = Sync_1;
+
+	Bottleneck = (function() {
+	  class Bottleneck {
+	    constructor(options = {}, ...invalid) {
+	      var storeInstanceOptions, storeOptions;
+	      this._addToQueue = this._addToQueue.bind(this);
+	      this._validateOptions(options, invalid);
+	      parser$5.load(options, this.instanceDefaults, this);
+	      this._queues = new Queues$1(NUM_PRIORITIES$1);
+	      this._scheduled = {};
+	      this._states = new States$1(["RECEIVED", "QUEUED", "RUNNING", "EXECUTING"].concat(this.trackDoneStatus ? ["DONE"] : []));
+	      this._limiter = null;
+	      this.Events = new Events$4(this);
+	      this._submitLock = new Sync$1("submit", this.Promise);
+	      this._registerLock = new Sync$1("register", this.Promise);
+	      storeOptions = parser$5.load(options, this.storeDefaults, {});
+	      this._store = (function() {
+	        if (this.datastore === "redis" || this.datastore === "ioredis" || (this.connection != null)) {
+	          storeInstanceOptions = parser$5.load(options, this.redisStoreDefaults, {});
+	          return new RedisDatastore$1(this, storeOptions, storeInstanceOptions);
+	        } else if (this.datastore === "local") {
+	          storeInstanceOptions = parser$5.load(options, this.localStoreDefaults, {});
+	          return new LocalDatastore$1(this, storeOptions, storeInstanceOptions);
+	        } else {
+	          throw new Bottleneck.prototype.BottleneckError(`Invalid datastore type: ${this.datastore}`);
+	        }
+	      }).call(this);
+	      this._queues.on("leftzero", () => {
+	        var ref;
+	        return (ref = this._store.heartbeat) != null ? typeof ref.ref === "function" ? ref.ref() : void 0 : void 0;
+	      });
+	      this._queues.on("zero", () => {
+	        var ref;
+	        return (ref = this._store.heartbeat) != null ? typeof ref.unref === "function" ? ref.unref() : void 0 : void 0;
+	      });
+	    }
+
+	    _validateOptions(options, invalid) {
+	      if (!((options != null) && typeof options === "object" && invalid.length === 0)) {
+	        throw new Bottleneck.prototype.BottleneckError("Bottleneck v2 takes a single object argument. Refer to https://github.com/SGrondin/bottleneck#upgrading-to-v2 if you're upgrading from Bottleneck v1.");
+	      }
+	    }
+
+	    ready() {
+	      return this._store.ready;
+	    }
+
+	    clients() {
+	      return this._store.clients;
+	    }
+
+	    channel() {
+	      return `b_${this.id}`;
+	    }
+
+	    channel_client() {
+	      return `b_${this.id}_${this._store.clientId}`;
+	    }
+
+	    publish(message) {
+	      return this._store.__publish__(message);
+	    }
+
+	    disconnect(flush = true) {
+	      return this._store.__disconnect__(flush);
+	    }
+
+	    chain(_limiter) {
+	      this._limiter = _limiter;
+	      return this;
+	    }
+
+	    queued(priority) {
+	      return this._queues.queued(priority);
+	    }
+
+	    clusterQueued() {
+	      return this._store.__queued__();
+	    }
+
+	    empty() {
+	      return this.queued() === 0 && this._submitLock.isEmpty();
+	    }
+
+	    running() {
+	      return this._store.__running__();
+	    }
+
+	    done() {
+	      return this._store.__done__();
+	    }
+
+	    jobStatus(id) {
+	      return this._states.jobStatus(id);
+	    }
+
+	    jobs(status) {
+	      return this._states.statusJobs(status);
+	    }
+
+	    counts() {
+	      return this._states.statusCounts();
+	    }
+
+	    _randomIndex() {
+	      return Math.random().toString(36).slice(2);
+	    }
+
+	    check(weight = 1) {
+	      return this._store.__check__(weight);
+	    }
+
+	    _clearGlobalState(index) {
+	      if (this._scheduled[index] != null) {
+	        clearTimeout(this._scheduled[index].expiration);
+	        delete this._scheduled[index];
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    }
+
+	    async _free(index, job, options, eventInfo) {
+	      var e, running;
+	      try {
+	        ({running} = (await this._store.__free__(index, options.weight)));
+	        this.Events.trigger("debug", `Freed ${options.id}`, eventInfo);
+	        if (running === 0 && this.empty()) {
+	          return this.Events.trigger("idle");
+	        }
+	      } catch (error1) {
+	        e = error1;
+	        return this.Events.trigger("error", e);
+	      }
+	    }
+
+	    _run(index, job, wait) {
+	      var clearGlobalState, free, run;
+	      job.doRun();
+	      clearGlobalState = this._clearGlobalState.bind(this, index);
+	      run = this._run.bind(this, index, job);
+	      free = this._free.bind(this, index, job);
+	      return this._scheduled[index] = {
+	        timeout: setTimeout(() => {
+	          return job.doExecute(this._limiter, clearGlobalState, run, free);
+	        }, wait),
+	        expiration: job.options.expiration != null ? setTimeout(function() {
+	          return job.doExpire(clearGlobalState, run, free);
+	        }, wait + job.options.expiration) : void 0,
+	        job: job
+	      };
+	    }
+
+	    _drainOne(capacity) {
+	      return this._registerLock.schedule(() => {
+	        var args, index, next, options, queue;
+	        if (this.queued() === 0) {
+	          return this.Promise.resolve(null);
+	        }
+	        queue = this._queues.getFirst();
+	        ({options, args} = next = queue.first());
+	        if ((capacity != null) && options.weight > capacity) {
+	          return this.Promise.resolve(null);
+	        }
+	        this.Events.trigger("debug", `Draining ${options.id}`, {args, options});
+	        index = this._randomIndex();
+	        return this._store.__register__(index, options.weight, options.expiration).then(({success, wait, reservoir}) => {
+	          var empty;
+	          this.Events.trigger("debug", `Drained ${options.id}`, {success, args, options});
+	          if (success) {
+	            queue.shift();
+	            empty = this.empty();
+	            if (empty) {
+	              this.Events.trigger("empty");
+	            }
+	            if (reservoir === 0) {
+	              this.Events.trigger("depleted", empty);
+	            }
+	            this._run(index, next, wait);
+	            return this.Promise.resolve(options.weight);
+	          } else {
+	            return this.Promise.resolve(null);
+	          }
+	        });
+	      });
+	    }
+
+	    _drainAll(capacity, total = 0) {
+	      return this._drainOne(capacity).then((drained) => {
+	        var newCapacity;
+	        if (drained != null) {
+	          newCapacity = capacity != null ? capacity - drained : capacity;
+	          return this._drainAll(newCapacity, total + drained);
+	        } else {
+	          return this.Promise.resolve(total);
+	        }
+	      }).catch((e) => {
+	        return this.Events.trigger("error", e);
+	      });
+	    }
+
+	    _dropAllQueued(message) {
+	      return this._queues.shiftAll(function(job) {
+	        return job.doDrop({message});
+	      });
+	    }
+
+	    stop(options = {}) {
+	      var done, waitForExecuting;
+	      options = parser$5.load(options, this.stopDefaults);
+	      waitForExecuting = (at) => {
+	        var finished;
+	        finished = () => {
+	          var counts;
+	          counts = this._states.counts;
+	          return (counts[0] + counts[1] + counts[2] + counts[3]) === at;
+	        };
+	        return new this.Promise((resolve, reject) => {
+	          if (finished()) {
+	            return resolve();
+	          } else {
+	            return this.on("done", () => {
+	              if (finished()) {
+	                this.removeAllListeners("done");
+	                return resolve();
+	              }
+	            });
+	          }
+	        });
+	      };
+	      done = options.dropWaitingJobs ? (this._run = function(index, next) {
+	        return next.doDrop({
+	          message: options.dropErrorMessage
+	        });
+	      }, this._drainOne = () => {
+	        return this.Promise.resolve(null);
+	      }, this._registerLock.schedule(() => {
+	        return this._submitLock.schedule(() => {
+	          var k, ref, v;
+	          ref = this._scheduled;
+	          for (k in ref) {
+	            v = ref[k];
+	            if (this.jobStatus(v.job.options.id) === "RUNNING") {
+	              clearTimeout(v.timeout);
+	              clearTimeout(v.expiration);
+	              v.job.doDrop({
+	                message: options.dropErrorMessage
+	              });
+	            }
+	          }
+	          this._dropAllQueued(options.dropErrorMessage);
+	          return waitForExecuting(0);
+	        });
+	      })) : this.schedule({
+	        priority: NUM_PRIORITIES$1 - 1,
+	        weight: 0
+	      }, () => {
+	        return waitForExecuting(1);
+	      });
+	      this._receive = function(job) {
+	        return job._reject(new Bottleneck.prototype.BottleneckError(options.enqueueErrorMessage));
+	      };
+	      this.stop = () => {
+	        return this.Promise.reject(new Bottleneck.prototype.BottleneckError("stop() has already been called"));
+	      };
+	      return done;
+	    }
+
+	    async _addToQueue(job) {
+	      var args, blocked, error, options, reachedHWM, shifted, strategy;
+	      ({args, options} = job);
+	      try {
+	        ({reachedHWM, blocked, strategy} = (await this._store.__submit__(this.queued(), options.weight)));
+	      } catch (error1) {
+	        error = error1;
+	        this.Events.trigger("debug", `Could not queue ${options.id}`, {args, options, error});
+	        job.doDrop({error});
+	        return false;
+	      }
+	      if (blocked) {
+	        job.doDrop();
+	        return true;
+	      } else if (reachedHWM) {
+	        shifted = strategy === Bottleneck.prototype.strategy.LEAK ? this._queues.shiftLastFrom(options.priority) : strategy === Bottleneck.prototype.strategy.OVERFLOW_PRIORITY ? this._queues.shiftLastFrom(options.priority + 1) : strategy === Bottleneck.prototype.strategy.OVERFLOW ? job : void 0;
+	        if (shifted != null) {
+	          shifted.doDrop();
+	        }
+	        if ((shifted == null) || strategy === Bottleneck.prototype.strategy.OVERFLOW) {
+	          if (shifted == null) {
+	            job.doDrop();
+	          }
+	          return reachedHWM;
+	        }
+	      }
+	      job.doQueue(reachedHWM, blocked);
+	      this._queues.push(job);
+	      await this._drainAll();
+	      return reachedHWM;
+	    }
+
+	    _receive(job) {
+	      if (this._states.jobStatus(job.options.id) != null) {
+	        job._reject(new Bottleneck.prototype.BottleneckError(`A job with the same id already exists (id=${job.options.id})`));
+	        return false;
+	      } else {
+	        job.doReceive();
+	        return this._submitLock.schedule(this._addToQueue, job);
+	      }
+	    }
+
+	    submit(...args) {
+	      var cb, fn, job, options, ref, ref1, task;
+	      if (typeof args[0] === "function") {
+	        ref = args, [fn, ...args] = ref, [cb] = splice.call(args, -1);
+	        options = parser$5.load({}, this.jobDefaults);
+	      } else {
+	        ref1 = args, [options, fn, ...args] = ref1, [cb] = splice.call(args, -1);
+	        options = parser$5.load(options, this.jobDefaults);
+	      }
+	      task = (...args) => {
+	        return new this.Promise(function(resolve, reject) {
+	          return fn(...args, function(...args) {
+	            return (args[0] != null ? reject : resolve)(args);
+	          });
+	        });
+	      };
+	      job = new Job$1(task, args, options, this.jobDefaults, this.rejectOnDrop, this.Events, this._states, this.Promise);
+	      job.promise.then(function(args) {
+	        return typeof cb === "function" ? cb(...args) : void 0;
+	      }).catch(function(args) {
+	        if (Array.isArray(args)) {
+	          return typeof cb === "function" ? cb(...args) : void 0;
+	        } else {
+	          return typeof cb === "function" ? cb(args) : void 0;
+	        }
+	      });
+	      return this._receive(job);
+	    }
+
+	    schedule(...args) {
+	      var job, options, task;
+	      if (typeof args[0] === "function") {
+	        [task, ...args] = args;
+	        options = {};
+	      } else {
+	        [options, task, ...args] = args;
+	      }
+	      job = new Job$1(task, args, options, this.jobDefaults, this.rejectOnDrop, this.Events, this._states, this.Promise);
+	      this._receive(job);
+	      return job.promise;
+	    }
+
+	    wrap(fn) {
+	      var schedule, wrapped;
+	      schedule = this.schedule.bind(this);
+	      wrapped = function(...args) {
+	        return schedule(fn.bind(this), ...args);
+	      };
+	      wrapped.withOptions = function(options, ...args) {
+	        return schedule(options, fn, ...args);
+	      };
+	      return wrapped;
+	    }
+
+	    async updateSettings(options = {}) {
+	      await this._store.__updateSettings__(parser$5.overwrite(options, this.storeDefaults));
+	      parser$5.overwrite(options, this.instanceDefaults, this);
+	      return this;
+	    }
+
+	    currentReservoir() {
+	      return this._store.__currentReservoir__();
+	    }
+
+	    incrementReservoir(incr = 0) {
+	      return this._store.__incrementReservoir__(incr);
+	    }
+
+	  }
+	  Bottleneck.default = Bottleneck;
+
+	  Bottleneck.Events = Events$4;
+
+	  Bottleneck.version = Bottleneck.prototype.version = require$$8.version;
+
+	  Bottleneck.strategy = Bottleneck.prototype.strategy = {
+	    LEAK: 1,
+	    OVERFLOW: 2,
+	    OVERFLOW_PRIORITY: 4,
+	    BLOCK: 3
+	  };
+
+	  Bottleneck.BottleneckError = Bottleneck.prototype.BottleneckError = BottleneckError_1;
+
+	  Bottleneck.Group = Bottleneck.prototype.Group = Group_1;
+
+	  Bottleneck.RedisConnection = Bottleneck.prototype.RedisConnection = require$$2;
+
+	  Bottleneck.IORedisConnection = Bottleneck.prototype.IORedisConnection = require$$3;
+
+	  Bottleneck.Batcher = Bottleneck.prototype.Batcher = Batcher_1;
+
+	  Bottleneck.prototype.jobDefaults = {
+	    priority: DEFAULT_PRIORITY$1,
+	    weight: 1,
+	    expiration: null,
+	    id: "<no-id>"
+	  };
+
+	  Bottleneck.prototype.storeDefaults = {
+	    maxConcurrent: null,
+	    minTime: 0,
+	    highWater: null,
+	    strategy: Bottleneck.prototype.strategy.LEAK,
+	    penalty: null,
+	    reservoir: null,
+	    reservoirRefreshInterval: null,
+	    reservoirRefreshAmount: null,
+	    reservoirIncreaseInterval: null,
+	    reservoirIncreaseAmount: null,
+	    reservoirIncreaseMaximum: null
+	  };
+
+	  Bottleneck.prototype.localStoreDefaults = {
+	    Promise: Promise,
+	    timeout: null,
+	    heartbeatInterval: 250
+	  };
+
+	  Bottleneck.prototype.redisStoreDefaults = {
+	    Promise: Promise,
+	    timeout: null,
+	    heartbeatInterval: 5000,
+	    clientTimeout: 10000,
+	    Redis: null,
+	    clientOptions: {},
+	    clusterNodes: null,
+	    clearDatastore: false,
+	    connection: null
+	  };
+
+	  Bottleneck.prototype.instanceDefaults = {
+	    datastore: "local",
+	    connection: null,
+	    id: "<no-id>",
+	    rejectOnDrop: true,
+	    trackDoneStatus: false,
+	    Promise: Promise
+	  };
+
+	  Bottleneck.prototype.stopDefaults = {
+	    enqueueErrorMessage: "This limiter has been stopped and cannot accept new jobs.",
+	    dropWaitingJobs: true,
+	    dropErrorMessage: "This limiter has been stopped."
+	  };
+
+	  return Bottleneck;
+
+	}).call(commonjsGlobal);
+
+	var Bottleneck_1 = Bottleneck;
+
+	var lib = Bottleneck_1;
+
+	return lib;
+
+})));
+
+
+/***/ }),
+
+/***/ 2241:
+/***/ ((module) => {
+
+module.exports = function btoa(str) {
+  return new Buffer(str).toString('base64')
+}
+
+
+/***/ }),
+
+/***/ 6645:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+/*jshint node:true */
+
+var Buffer = (__nccwpck_require__(4300).Buffer); // browserify
+var SlowBuffer = (__nccwpck_require__(4300).SlowBuffer);
+
+module.exports = bufferEq;
+
+function bufferEq(a, b) {
+
+  // shortcutting on type is necessary for correctness
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    return false;
+  }
+
+  // buffer sizes should be well-known information, so despite this
+  // shortcutting, it doesn't leak any information about the *contents* of the
+  // buffers.
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  var c = 0;
+  for (var i = 0; i < a.length; i++) {
+    /*jshint bitwise:false */
+    c |= a[i] ^ b[i]; // XOR
+  }
+  return c === 0;
+}
+
+bufferEq.install = function() {
+  Buffer.prototype.equal = SlowBuffer.prototype.equal = function equal(that) {
+    return bufferEq(this, that);
+  };
+};
+
+var origBufEqual = Buffer.prototype.equal;
+var origSlowBufEqual = SlowBuffer.prototype.equal;
+bufferEq.restore = function() {
+  Buffer.prototype.equal = origBufEqual;
+  SlowBuffer.prototype.equal = origSlowBufEqual;
+};
+
+
+/***/ }),
+
+/***/ 9819:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+const os = __nccwpck_require__(2037);
+
+const extractPathRegex = /\s+at.*(?:\(|\s)(.*)\)?/;
+const pathRegex = /^(?:(?:(?:node|(?:internal\/[\w/]*|.*node_modules\/(?:babel-polyfill|pirates)\/.*)?\w+)\.js:\d+:\d+)|native)/;
+const homeDir = typeof os.homedir === 'undefined' ? '' : os.homedir();
+
+module.exports = (stack, options) => {
+	options = Object.assign({pretty: false}, options);
+
+	return stack.replace(/\\/g, '/')
+		.split('\n')
+		.filter(line => {
+			const pathMatches = line.match(extractPathRegex);
+			if (pathMatches === null || !pathMatches[1]) {
+				return true;
+			}
+
+			const match = pathMatches[1];
+
+			// Electron
+			if (
+				match.includes('.app/Contents/Resources/electron.asar') ||
+				match.includes('.app/Contents/Resources/default_app.asar')
+			) {
+				return false;
+			}
+
+			return !pathRegex.test(match);
+		})
+		.filter(line => line.trim() !== '')
+		.map(line => {
+			if (options.pretty) {
+				return line.replace(extractPathRegex, (m, p1) => m.replace(p1, p1.replace(homeDir, '~')));
+			}
+
+			return line;
+		})
+		.join('\n');
+};
+
+
+/***/ }),
+
+/***/ 6962:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+class Deprecation extends Error {
+  constructor(message) {
+    super(message); // Maintains proper stack trace (only available on V8)
+
+    /* istanbul ignore next */
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    this.name = 'Deprecation';
+  }
+
+}
+
+exports.Deprecation = Deprecation;
+
+
+/***/ }),
+
+/***/ 7944:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var Buffer = (__nccwpck_require__(2824).Buffer);
+
+var getParamBytesForAlg = __nccwpck_require__(1360);
+
+var MAX_OCTET = 0x80,
+	CLASS_UNIVERSAL = 0,
+	PRIMITIVE_BIT = 0x20,
+	TAG_SEQ = 0x10,
+	TAG_INT = 0x02,
+	ENCODED_TAG_SEQ = (TAG_SEQ | PRIMITIVE_BIT) | (CLASS_UNIVERSAL << 6),
+	ENCODED_TAG_INT = TAG_INT | (CLASS_UNIVERSAL << 6);
+
+function base64Url(base64) {
+	return base64
+		.replace(/=/g, '')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_');
+}
+
+function signatureAsBuffer(signature) {
+	if (Buffer.isBuffer(signature)) {
+		return signature;
+	} else if ('string' === typeof signature) {
+		return Buffer.from(signature, 'base64');
+	}
+
+	throw new TypeError('ECDSA signature must be a Base64 string or a Buffer');
+}
+
+function derToJose(signature, alg) {
+	signature = signatureAsBuffer(signature);
+	var paramBytes = getParamBytesForAlg(alg);
+
+	// the DER encoded param should at most be the param size, plus a padding
+	// zero, since due to being a signed integer
+	var maxEncodedParamLength = paramBytes + 1;
+
+	var inputLength = signature.length;
+
+	var offset = 0;
+	if (signature[offset++] !== ENCODED_TAG_SEQ) {
+		throw new Error('Could not find expected "seq"');
+	}
+
+	var seqLength = signature[offset++];
+	if (seqLength === (MAX_OCTET | 1)) {
+		seqLength = signature[offset++];
+	}
+
+	if (inputLength - offset < seqLength) {
+		throw new Error('"seq" specified length of "' + seqLength + '", only "' + (inputLength - offset) + '" remaining');
+	}
+
+	if (signature[offset++] !== ENCODED_TAG_INT) {
+		throw new Error('Could not find expected "int" for "r"');
+	}
+
+	var rLength = signature[offset++];
+
+	if (inputLength - offset - 2 < rLength) {
+		throw new Error('"r" specified length of "' + rLength + '", only "' + (inputLength - offset - 2) + '" available');
+	}
+
+	if (maxEncodedParamLength < rLength) {
+		throw new Error('"r" specified length of "' + rLength + '", max of "' + maxEncodedParamLength + '" is acceptable');
+	}
+
+	var rOffset = offset;
+	offset += rLength;
+
+	if (signature[offset++] !== ENCODED_TAG_INT) {
+		throw new Error('Could not find expected "int" for "s"');
+	}
+
+	var sLength = signature[offset++];
+
+	if (inputLength - offset !== sLength) {
+		throw new Error('"s" specified length of "' + sLength + '", expected "' + (inputLength - offset) + '"');
+	}
+
+	if (maxEncodedParamLength < sLength) {
+		throw new Error('"s" specified length of "' + sLength + '", max of "' + maxEncodedParamLength + '" is acceptable');
+	}
+
+	var sOffset = offset;
+	offset += sLength;
+
+	if (offset !== inputLength) {
+		throw new Error('Expected to consume entire buffer, but "' + (inputLength - offset) + '" bytes remain');
+	}
+
+	var rPadding = paramBytes - rLength,
+		sPadding = paramBytes - sLength;
+
+	var dst = Buffer.allocUnsafe(rPadding + rLength + sPadding + sLength);
+
+	for (offset = 0; offset < rPadding; ++offset) {
+		dst[offset] = 0;
+	}
+	signature.copy(dst, offset, rOffset + Math.max(-rPadding, 0), rOffset + rLength);
+
+	offset = paramBytes;
+
+	for (var o = offset; offset < o + sPadding; ++offset) {
+		dst[offset] = 0;
+	}
+	signature.copy(dst, offset, sOffset + Math.max(-sPadding, 0), sOffset + sLength);
+
+	dst = dst.toString('base64');
+	dst = base64Url(dst);
+
+	return dst;
+}
+
+function countPadding(buf, start, stop) {
+	var padding = 0;
+	while (start + padding < stop && buf[start + padding] === 0) {
+		++padding;
+	}
+
+	var needsSign = buf[start + padding] >= MAX_OCTET;
+	if (needsSign) {
+		--padding;
+	}
+
+	return padding;
+}
+
+function joseToDer(signature, alg) {
+	signature = signatureAsBuffer(signature);
+	var paramBytes = getParamBytesForAlg(alg);
+
+	var signatureBytes = signature.length;
+	if (signatureBytes !== paramBytes * 2) {
+		throw new TypeError('"' + alg + '" signatures must be "' + paramBytes * 2 + '" bytes, saw "' + signatureBytes + '"');
+	}
+
+	var rPadding = countPadding(signature, 0, paramBytes);
+	var sPadding = countPadding(signature, paramBytes, signature.length);
+	var rLength = paramBytes - rPadding;
+	var sLength = paramBytes - sPadding;
+
+	var rsBytes = 1 + 1 + rLength + 1 + 1 + sLength;
+
+	var shortLength = rsBytes < MAX_OCTET;
+
+	var dst = Buffer.allocUnsafe((shortLength ? 2 : 3) + rsBytes);
+
+	var offset = 0;
+	dst[offset++] = ENCODED_TAG_SEQ;
+	if (shortLength) {
+		// Bit 8 has value "0"
+		// bits 7-1 give the length.
+		dst[offset++] = rsBytes;
+	} else {
+		// Bit 8 of first octet has value "1"
+		// bits 7-1 give the number of additional length octets.
+		dst[offset++] = MAX_OCTET	| 1;
+		// length, base 256
+		dst[offset++] = rsBytes & 0xff;
+	}
+	dst[offset++] = ENCODED_TAG_INT;
+	dst[offset++] = rLength;
+	if (rPadding < 0) {
+		dst[offset++] = 0;
+		offset += signature.copy(dst, offset, 0, paramBytes);
+	} else {
+		offset += signature.copy(dst, offset, rPadding, paramBytes);
+	}
+	dst[offset++] = ENCODED_TAG_INT;
+	dst[offset++] = sLength;
+	if (sPadding < 0) {
+		dst[offset++] = 0;
+		signature.copy(dst, offset, paramBytes);
+	} else {
+		signature.copy(dst, offset, paramBytes + sPadding);
+	}
+
+	return dst;
+}
+
+module.exports = {
+	derToJose: derToJose,
+	joseToDer: joseToDer
+};
+
+
+/***/ }),
+
+/***/ 1360:
+/***/ ((module) => {
+
+"use strict";
+
+
+function getParamSize(keySize) {
+	var result = ((keySize / 8) | 0) + (keySize % 8 === 0 ? 0 : 1);
+	return result;
+}
+
+var paramBytesForAlg = {
+	ES256: getParamSize(256),
+	ES384: getParamSize(384),
+	ES512: getParamSize(521)
+};
+
+function getParamBytesForAlg(alg) {
+	var paramBytes = paramBytesForAlg[alg];
+	if (paramBytes) {
+		return paramBytes;
+	}
+
+	throw new Error('Unknown algorithm "' + alg + '"');
+}
+
+module.exports = getParamBytesForAlg;
+
+
+/***/ }),
+
+/***/ 7108:
+/***/ ((module) => {
+
+/*! fromentries. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
+module.exports = function fromEntries (iterable) {
+  return [...iterable].reduce((obj, [key, val]) => {
+    obj[key] = val
+    return obj
+  }, {})
+}
+
+
+/***/ }),
+
+/***/ 9162:
+/***/ ((module) => {
+
+"use strict";
+
+
+module.exports = (string, count = 1, options) => {
+	options = {
+		indent: ' ',
+		includeEmptyLines: false,
+		...options
+	};
+
+	if (typeof string !== 'string') {
+		throw new TypeError(
+			`Expected \`input\` to be a \`string\`, got \`${typeof string}\``
+		);
+	}
+
+	if (typeof count !== 'number') {
+		throw new TypeError(
+			`Expected \`count\` to be a \`number\`, got \`${typeof count}\``
+		);
+	}
+
+	if (typeof options.indent !== 'string') {
+		throw new TypeError(
+			`Expected \`options.indent\` to be a \`string\`, got \`${typeof options.indent}\``
+		);
+	}
+
+	if (count === 0) {
+		return string;
+	}
+
+	const regex = options.includeEmptyLines ? /^/gm : /^(?!\s*$)/gm;
+
+	return string.replace(regex, options.indent.repeat(count));
+};
+
+
+/***/ }),
+
+/***/ 5349:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(o) {
+  return Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor,prot;
+
+  if (isObject(o) === false) return false;
+
+  // If has modified constructor
+  ctor = o.constructor;
+  if (ctor === undefined) return true;
+
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObject(prot) === false) return false;
+
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+
+  // Most likely a plain Object
+  return true;
+}
+
+exports.isPlainObject = isPlainObject;
+
+
+/***/ }),
+
+/***/ 590:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var jws = __nccwpck_require__(4273);
+
+module.exports = function (jwt, options) {
+  options = options || {};
+  var decoded = jws.decode(jwt, options);
+  if (!decoded) { return null; }
+  var payload = decoded.payload;
+
+  //try parse the payload
+  if(typeof payload === 'string') {
+    try {
+      var obj = JSON.parse(payload);
+      if(obj !== null && typeof obj === 'object') {
+        payload = obj;
+      }
+    } catch (e) { }
+  }
+
+  //return header if `complete` option is enabled.  header includes claims
+  //such as `kid` and `alg` used to select the key within a JWKS needed to
+  //verify the signature
+  if (options.complete === true) {
+    return {
+      header: decoded.header,
+      payload: payload,
+      signature: decoded.signature
+    };
+  }
+  return payload;
+};
+
+
+/***/ }),
+
+/***/ 2917:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = {
+  decode: __nccwpck_require__(590),
+  verify: __nccwpck_require__(6863),
+  sign: __nccwpck_require__(4947),
+  JsonWebTokenError: __nccwpck_require__(3119),
+  NotBeforeError: __nccwpck_require__(6796),
+  TokenExpiredError: __nccwpck_require__(3689),
+};
+
+
+/***/ }),
+
+/***/ 3119:
+/***/ ((module) => {
+
+var JsonWebTokenError = function (message, error) {
+  Error.call(this, message);
+  if(Error.captureStackTrace) {
+    Error.captureStackTrace(this, this.constructor);
+  }
+  this.name = 'JsonWebTokenError';
+  this.message = message;
+  if (error) this.inner = error;
+};
+
+JsonWebTokenError.prototype = Object.create(Error.prototype);
+JsonWebTokenError.prototype.constructor = JsonWebTokenError;
+
+module.exports = JsonWebTokenError;
+
+
+/***/ }),
+
+/***/ 6796:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var JsonWebTokenError = __nccwpck_require__(3119);
+
+var NotBeforeError = function (message, date) {
+  JsonWebTokenError.call(this, message);
+  this.name = 'NotBeforeError';
+  this.date = date;
+};
+
+NotBeforeError.prototype = Object.create(JsonWebTokenError.prototype);
+
+NotBeforeError.prototype.constructor = NotBeforeError;
+
+module.exports = NotBeforeError;
+
+/***/ }),
+
+/***/ 3689:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var JsonWebTokenError = __nccwpck_require__(3119);
+
+var TokenExpiredError = function (message, expiredAt) {
+  JsonWebTokenError.call(this, message);
+  this.name = 'TokenExpiredError';
+  this.expiredAt = expiredAt;
+};
+
+TokenExpiredError.prototype = Object.create(JsonWebTokenError.prototype);
+
+TokenExpiredError.prototype.constructor = TokenExpiredError;
+
+module.exports = TokenExpiredError;
+
+/***/ }),
+
+/***/ 321:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var semver = __nccwpck_require__(8683);
+
+module.exports = semver.satisfies(process.version, '^6.12.0 || >=8.0.0');
+
+
+/***/ }),
+
+/***/ 1842:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var ms = __nccwpck_require__(3815);
+
+module.exports = function (time, iat) {
+  var timestamp = iat || Math.floor(Date.now() / 1000);
+
+  if (typeof time === 'string') {
+    var milliseconds = ms(time);
+    if (typeof milliseconds === 'undefined') {
+      return;
+    }
+    return Math.floor(timestamp + milliseconds / 1000);
+  } else if (typeof time === 'number') {
+    return timestamp + time;
+  } else {
+    return;
+  }
+
+};
+
+/***/ }),
+
+/***/ 8683:
+/***/ ((module, exports) => {
+
+exports = module.exports = SemVer
+
+var debug
+/* istanbul ignore next */
+if (typeof process === 'object' &&
+    process.env &&
+    process.env.NODE_DEBUG &&
+    /\bsemver\b/i.test(process.env.NODE_DEBUG)) {
+  debug = function () {
+    var args = Array.prototype.slice.call(arguments, 0)
+    args.unshift('SEMVER')
+    console.log.apply(console, args)
+  }
+} else {
+  debug = function () {}
+}
+
+// Note: this is the semver.org version of the spec that it implements
+// Not necessarily the package version of this code.
+exports.SEMVER_SPEC_VERSION = '2.0.0'
+
+var MAX_LENGTH = 256
+var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER ||
+  /* istanbul ignore next */ 9007199254740991
+
+// Max safe segment length for coercion.
+var MAX_SAFE_COMPONENT_LENGTH = 16
+
+// The actual regexps go on exports.re
+var re = exports.re = []
+var src = exports.src = []
+var R = 0
+
+// The following Regular Expressions can be used for tokenizing,
+// validating, and parsing SemVer version strings.
+
+// ## Numeric Identifier
+// A single `0`, or a non-zero digit followed by zero or more digits.
+
+var NUMERICIDENTIFIER = R++
+src[NUMERICIDENTIFIER] = '0|[1-9]\\d*'
+var NUMERICIDENTIFIERLOOSE = R++
+src[NUMERICIDENTIFIERLOOSE] = '[0-9]+'
+
+// ## Non-numeric Identifier
+// Zero or more digits, followed by a letter or hyphen, and then zero or
+// more letters, digits, or hyphens.
+
+var NONNUMERICIDENTIFIER = R++
+src[NONNUMERICIDENTIFIER] = '\\d*[a-zA-Z-][a-zA-Z0-9-]*'
+
+// ## Main Version
+// Three dot-separated numeric identifiers.
+
+var MAINVERSION = R++
+src[MAINVERSION] = '(' + src[NUMERICIDENTIFIER] + ')\\.' +
+                   '(' + src[NUMERICIDENTIFIER] + ')\\.' +
+                   '(' + src[NUMERICIDENTIFIER] + ')'
+
+var MAINVERSIONLOOSE = R++
+src[MAINVERSIONLOOSE] = '(' + src[NUMERICIDENTIFIERLOOSE] + ')\\.' +
+                        '(' + src[NUMERICIDENTIFIERLOOSE] + ')\\.' +
+                        '(' + src[NUMERICIDENTIFIERLOOSE] + ')'
+
+// ## Pre-release Version Identifier
+// A numeric identifier, or a non-numeric identifier.
+
+var PRERELEASEIDENTIFIER = R++
+src[PRERELEASEIDENTIFIER] = '(?:' + src[NUMERICIDENTIFIER] +
+                            '|' + src[NONNUMERICIDENTIFIER] + ')'
+
+var PRERELEASEIDENTIFIERLOOSE = R++
+src[PRERELEASEIDENTIFIERLOOSE] = '(?:' + src[NUMERICIDENTIFIERLOOSE] +
+                                 '|' + src[NONNUMERICIDENTIFIER] + ')'
+
+// ## Pre-release Version
+// Hyphen, followed by one or more dot-separated pre-release version
+// identifiers.
+
+var PRERELEASE = R++
+src[PRERELEASE] = '(?:-(' + src[PRERELEASEIDENTIFIER] +
+                  '(?:\\.' + src[PRERELEASEIDENTIFIER] + ')*))'
+
+var PRERELEASELOOSE = R++
+src[PRERELEASELOOSE] = '(?:-?(' + src[PRERELEASEIDENTIFIERLOOSE] +
+                       '(?:\\.' + src[PRERELEASEIDENTIFIERLOOSE] + ')*))'
+
+// ## Build Metadata Identifier
+// Any combination of digits, letters, or hyphens.
+
+var BUILDIDENTIFIER = R++
+src[BUILDIDENTIFIER] = '[0-9A-Za-z-]+'
+
+// ## Build Metadata
+// Plus sign, followed by one or more period-separated build metadata
+// identifiers.
+
+var BUILD = R++
+src[BUILD] = '(?:\\+(' + src[BUILDIDENTIFIER] +
+             '(?:\\.' + src[BUILDIDENTIFIER] + ')*))'
+
+// ## Full Version String
+// A main version, followed optionally by a pre-release version and
+// build metadata.
+
+// Note that the only major, minor, patch, and pre-release sections of
+// the version string are capturing groups.  The build metadata is not a
+// capturing group, because it should not ever be used in version
+// comparison.
+
+var FULL = R++
+var FULLPLAIN = 'v?' + src[MAINVERSION] +
+                src[PRERELEASE] + '?' +
+                src[BUILD] + '?'
+
+src[FULL] = '^' + FULLPLAIN + '$'
+
+// like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
+// also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
+// common in the npm registry.
+var LOOSEPLAIN = '[v=\\s]*' + src[MAINVERSIONLOOSE] +
+                 src[PRERELEASELOOSE] + '?' +
+                 src[BUILD] + '?'
+
+var LOOSE = R++
+src[LOOSE] = '^' + LOOSEPLAIN + '$'
+
+var GTLT = R++
+src[GTLT] = '((?:<|>)?=?)'
+
+// Something like "2.*" or "1.2.x".
+// Note that "x.x" is a valid xRange identifer, meaning "any version"
+// Only the first item is strictly required.
+var XRANGEIDENTIFIERLOOSE = R++
+src[XRANGEIDENTIFIERLOOSE] = src[NUMERICIDENTIFIERLOOSE] + '|x|X|\\*'
+var XRANGEIDENTIFIER = R++
+src[XRANGEIDENTIFIER] = src[NUMERICIDENTIFIER] + '|x|X|\\*'
+
+var XRANGEPLAIN = R++
+src[XRANGEPLAIN] = '[v=\\s]*(' + src[XRANGEIDENTIFIER] + ')' +
+                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
+                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
+                   '(?:' + src[PRERELEASE] + ')?' +
+                   src[BUILD] + '?' +
+                   ')?)?'
+
+var XRANGEPLAINLOOSE = R++
+src[XRANGEPLAINLOOSE] = '[v=\\s]*(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
+                        '(?:\\.(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
+                        '(?:\\.(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
+                        '(?:' + src[PRERELEASELOOSE] + ')?' +
+                        src[BUILD] + '?' +
+                        ')?)?'
+
+var XRANGE = R++
+src[XRANGE] = '^' + src[GTLT] + '\\s*' + src[XRANGEPLAIN] + '$'
+var XRANGELOOSE = R++
+src[XRANGELOOSE] = '^' + src[GTLT] + '\\s*' + src[XRANGEPLAINLOOSE] + '$'
+
+// Coercion.
+// Extract anything that could conceivably be a part of a valid semver
+var COERCE = R++
+src[COERCE] = '(?:^|[^\\d])' +
+              '(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '})' +
+              '(?:\\.(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '}))?' +
+              '(?:\\.(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '}))?' +
+              '(?:$|[^\\d])'
+
+// Tilde ranges.
+// Meaning is "reasonably at or greater than"
+var LONETILDE = R++
+src[LONETILDE] = '(?:~>?)'
+
+var TILDETRIM = R++
+src[TILDETRIM] = '(\\s*)' + src[LONETILDE] + '\\s+'
+re[TILDETRIM] = new RegExp(src[TILDETRIM], 'g')
+var tildeTrimReplace = '$1~'
+
+var TILDE = R++
+src[TILDE] = '^' + src[LONETILDE] + src[XRANGEPLAIN] + '$'
+var TILDELOOSE = R++
+src[TILDELOOSE] = '^' + src[LONETILDE] + src[XRANGEPLAINLOOSE] + '$'
+
+// Caret ranges.
+// Meaning is "at least and backwards compatible with"
+var LONECARET = R++
+src[LONECARET] = '(?:\\^)'
+
+var CARETTRIM = R++
+src[CARETTRIM] = '(\\s*)' + src[LONECARET] + '\\s+'
+re[CARETTRIM] = new RegExp(src[CARETTRIM], 'g')
+var caretTrimReplace = '$1^'
+
+var CARET = R++
+src[CARET] = '^' + src[LONECARET] + src[XRANGEPLAIN] + '$'
+var CARETLOOSE = R++
+src[CARETLOOSE] = '^' + src[LONECARET] + src[XRANGEPLAINLOOSE] + '$'
+
+// A simple gt/lt/eq thing, or just "" to indicate "any version"
+var COMPARATORLOOSE = R++
+src[COMPARATORLOOSE] = '^' + src[GTLT] + '\\s*(' + LOOSEPLAIN + ')$|^$'
+var COMPARATOR = R++
+src[COMPARATOR] = '^' + src[GTLT] + '\\s*(' + FULLPLAIN + ')$|^$'
+
+// An expression to strip any whitespace between the gtlt and the thing
+// it modifies, so that `> 1.2.3` ==> `>1.2.3`
+var COMPARATORTRIM = R++
+src[COMPARATORTRIM] = '(\\s*)' + src[GTLT] +
+                      '\\s*(' + LOOSEPLAIN + '|' + src[XRANGEPLAIN] + ')'
+
+// this one has to use the /g flag
+re[COMPARATORTRIM] = new RegExp(src[COMPARATORTRIM], 'g')
+var comparatorTrimReplace = '$1$2$3'
+
+// Something like `1.2.3 - 1.2.4`
+// Note that these all use the loose form, because they'll be
+// checked against either the strict or loose comparator form
+// later.
+var HYPHENRANGE = R++
+src[HYPHENRANGE] = '^\\s*(' + src[XRANGEPLAIN] + ')' +
+                   '\\s+-\\s+' +
+                   '(' + src[XRANGEPLAIN] + ')' +
+                   '\\s*$'
+
+var HYPHENRANGELOOSE = R++
+src[HYPHENRANGELOOSE] = '^\\s*(' + src[XRANGEPLAINLOOSE] + ')' +
+                        '\\s+-\\s+' +
+                        '(' + src[XRANGEPLAINLOOSE] + ')' +
+                        '\\s*$'
+
+// Star ranges basically just allow anything at all.
+var STAR = R++
+src[STAR] = '(<|>)?=?\\s*\\*'
+
+// Compile to actual regexp objects.
+// All are flag-free, unless they were created above with a flag.
+for (var i = 0; i < R; i++) {
+  debug(i, src[i])
+  if (!re[i]) {
+    re[i] = new RegExp(src[i])
+  }
+}
+
+exports.parse = parse
+function parse (version, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  if (version instanceof SemVer) {
+    return version
+  }
+
+  if (typeof version !== 'string') {
+    return null
+  }
+
+  if (version.length > MAX_LENGTH) {
+    return null
+  }
+
+  var r = options.loose ? re[LOOSE] : re[FULL]
+  if (!r.test(version)) {
+    return null
+  }
+
+  try {
+    return new SemVer(version, options)
+  } catch (er) {
+    return null
+  }
+}
+
+exports.valid = valid
+function valid (version, options) {
+  var v = parse(version, options)
+  return v ? v.version : null
+}
+
+exports.clean = clean
+function clean (version, options) {
+  var s = parse(version.trim().replace(/^[=v]+/, ''), options)
+  return s ? s.version : null
+}
+
+exports.SemVer = SemVer
+
+function SemVer (version, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+  if (version instanceof SemVer) {
+    if (version.loose === options.loose) {
+      return version
+    } else {
+      version = version.version
+    }
+  } else if (typeof version !== 'string') {
+    throw new TypeError('Invalid Version: ' + version)
+  }
+
+  if (version.length > MAX_LENGTH) {
+    throw new TypeError('version is longer than ' + MAX_LENGTH + ' characters')
+  }
+
+  if (!(this instanceof SemVer)) {
+    return new SemVer(version, options)
+  }
+
+  debug('SemVer', version, options)
+  this.options = options
+  this.loose = !!options.loose
+
+  var m = version.trim().match(options.loose ? re[LOOSE] : re[FULL])
+
+  if (!m) {
+    throw new TypeError('Invalid Version: ' + version)
+  }
+
+  this.raw = version
+
+  // these are actually numbers
+  this.major = +m[1]
+  this.minor = +m[2]
+  this.patch = +m[3]
+
+  if (this.major > MAX_SAFE_INTEGER || this.major < 0) {
+    throw new TypeError('Invalid major version')
+  }
+
+  if (this.minor > MAX_SAFE_INTEGER || this.minor < 0) {
+    throw new TypeError('Invalid minor version')
+  }
+
+  if (this.patch > MAX_SAFE_INTEGER || this.patch < 0) {
+    throw new TypeError('Invalid patch version')
+  }
+
+  // numberify any prerelease numeric ids
+  if (!m[4]) {
+    this.prerelease = []
+  } else {
+    this.prerelease = m[4].split('.').map(function (id) {
+      if (/^[0-9]+$/.test(id)) {
+        var num = +id
+        if (num >= 0 && num < MAX_SAFE_INTEGER) {
+          return num
+        }
+      }
+      return id
+    })
+  }
+
+  this.build = m[5] ? m[5].split('.') : []
+  this.format()
+}
+
+SemVer.prototype.format = function () {
+  this.version = this.major + '.' + this.minor + '.' + this.patch
+  if (this.prerelease.length) {
+    this.version += '-' + this.prerelease.join('.')
+  }
+  return this.version
+}
+
+SemVer.prototype.toString = function () {
+  return this.version
+}
+
+SemVer.prototype.compare = function (other) {
+  debug('SemVer.compare', this.version, this.options, other)
+  if (!(other instanceof SemVer)) {
+    other = new SemVer(other, this.options)
+  }
+
+  return this.compareMain(other) || this.comparePre(other)
+}
+
+SemVer.prototype.compareMain = function (other) {
+  if (!(other instanceof SemVer)) {
+    other = new SemVer(other, this.options)
+  }
+
+  return compareIdentifiers(this.major, other.major) ||
+         compareIdentifiers(this.minor, other.minor) ||
+         compareIdentifiers(this.patch, other.patch)
+}
+
+SemVer.prototype.comparePre = function (other) {
+  if (!(other instanceof SemVer)) {
+    other = new SemVer(other, this.options)
+  }
+
+  // NOT having a prerelease is > having one
+  if (this.prerelease.length && !other.prerelease.length) {
+    return -1
+  } else if (!this.prerelease.length && other.prerelease.length) {
+    return 1
+  } else if (!this.prerelease.length && !other.prerelease.length) {
+    return 0
+  }
+
+  var i = 0
+  do {
+    var a = this.prerelease[i]
+    var b = other.prerelease[i]
+    debug('prerelease compare', i, a, b)
+    if (a === undefined && b === undefined) {
+      return 0
+    } else if (b === undefined) {
+      return 1
+    } else if (a === undefined) {
+      return -1
+    } else if (a === b) {
+      continue
+    } else {
+      return compareIdentifiers(a, b)
+    }
+  } while (++i)
+}
+
+// preminor will bump the version up to the next minor release, and immediately
+// down to pre-release. premajor and prepatch work the same way.
+SemVer.prototype.inc = function (release, identifier) {
+  switch (release) {
+    case 'premajor':
+      this.prerelease.length = 0
+      this.patch = 0
+      this.minor = 0
+      this.major++
+      this.inc('pre', identifier)
+      break
+    case 'preminor':
+      this.prerelease.length = 0
+      this.patch = 0
+      this.minor++
+      this.inc('pre', identifier)
+      break
+    case 'prepatch':
+      // If this is already a prerelease, it will bump to the next version
+      // drop any prereleases that might already exist, since they are not
+      // relevant at this point.
+      this.prerelease.length = 0
+      this.inc('patch', identifier)
+      this.inc('pre', identifier)
+      break
+    // If the input is a non-prerelease version, this acts the same as
+    // prepatch.
+    case 'prerelease':
+      if (this.prerelease.length === 0) {
+        this.inc('patch', identifier)
+      }
+      this.inc('pre', identifier)
+      break
+
+    case 'major':
+      // If this is a pre-major version, bump up to the same major version.
+      // Otherwise increment major.
+      // 1.0.0-5 bumps to 1.0.0
+      // 1.1.0 bumps to 2.0.0
+      if (this.minor !== 0 ||
+          this.patch !== 0 ||
+          this.prerelease.length === 0) {
+        this.major++
+      }
+      this.minor = 0
+      this.patch = 0
+      this.prerelease = []
+      break
+    case 'minor':
+      // If this is a pre-minor version, bump up to the same minor version.
+      // Otherwise increment minor.
+      // 1.2.0-5 bumps to 1.2.0
+      // 1.2.1 bumps to 1.3.0
+      if (this.patch !== 0 || this.prerelease.length === 0) {
+        this.minor++
+      }
+      this.patch = 0
+      this.prerelease = []
+      break
+    case 'patch':
+      // If this is not a pre-release version, it will increment the patch.
+      // If it is a pre-release it will bump up to the same patch version.
+      // 1.2.0-5 patches to 1.2.0
+      // 1.2.0 patches to 1.2.1
+      if (this.prerelease.length === 0) {
+        this.patch++
+      }
+      this.prerelease = []
+      break
+    // This probably shouldn't be used publicly.
+    // 1.0.0 "pre" would become 1.0.0-0 which is the wrong direction.
+    case 'pre':
+      if (this.prerelease.length === 0) {
+        this.prerelease = [0]
+      } else {
+        var i = this.prerelease.length
+        while (--i >= 0) {
+          if (typeof this.prerelease[i] === 'number') {
+            this.prerelease[i]++
+            i = -2
+          }
+        }
+        if (i === -1) {
+          // didn't increment anything
+          this.prerelease.push(0)
+        }
+      }
+      if (identifier) {
+        // 1.2.0-beta.1 bumps to 1.2.0-beta.2,
+        // 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
+        if (this.prerelease[0] === identifier) {
+          if (isNaN(this.prerelease[1])) {
+            this.prerelease = [identifier, 0]
+          }
+        } else {
+          this.prerelease = [identifier, 0]
+        }
+      }
+      break
+
+    default:
+      throw new Error('invalid increment argument: ' + release)
+  }
+  this.format()
+  this.raw = this.version
+  return this
+}
+
+exports.inc = inc
+function inc (version, release, loose, identifier) {
+  if (typeof (loose) === 'string') {
+    identifier = loose
+    loose = undefined
+  }
+
+  try {
+    return new SemVer(version, loose).inc(release, identifier).version
+  } catch (er) {
+    return null
+  }
+}
+
+exports.diff = diff
+function diff (version1, version2) {
+  if (eq(version1, version2)) {
+    return null
+  } else {
+    var v1 = parse(version1)
+    var v2 = parse(version2)
+    var prefix = ''
+    if (v1.prerelease.length || v2.prerelease.length) {
+      prefix = 'pre'
+      var defaultResult = 'prerelease'
+    }
+    for (var key in v1) {
+      if (key === 'major' || key === 'minor' || key === 'patch') {
+        if (v1[key] !== v2[key]) {
+          return prefix + key
+        }
+      }
+    }
+    return defaultResult // may be undefined
+  }
+}
+
+exports.compareIdentifiers = compareIdentifiers
+
+var numeric = /^[0-9]+$/
+function compareIdentifiers (a, b) {
+  var anum = numeric.test(a)
+  var bnum = numeric.test(b)
+
+  if (anum && bnum) {
+    a = +a
+    b = +b
+  }
+
+  return a === b ? 0
+    : (anum && !bnum) ? -1
+    : (bnum && !anum) ? 1
+    : a < b ? -1
+    : 1
+}
+
+exports.rcompareIdentifiers = rcompareIdentifiers
+function rcompareIdentifiers (a, b) {
+  return compareIdentifiers(b, a)
+}
+
+exports.major = major
+function major (a, loose) {
+  return new SemVer(a, loose).major
+}
+
+exports.minor = minor
+function minor (a, loose) {
+  return new SemVer(a, loose).minor
+}
+
+exports.patch = patch
+function patch (a, loose) {
+  return new SemVer(a, loose).patch
+}
+
+exports.compare = compare
+function compare (a, b, loose) {
+  return new SemVer(a, loose).compare(new SemVer(b, loose))
+}
+
+exports.compareLoose = compareLoose
+function compareLoose (a, b) {
+  return compare(a, b, true)
+}
+
+exports.rcompare = rcompare
+function rcompare (a, b, loose) {
+  return compare(b, a, loose)
+}
+
+exports.sort = sort
+function sort (list, loose) {
+  return list.sort(function (a, b) {
+    return exports.compare(a, b, loose)
+  })
+}
+
+exports.rsort = rsort
+function rsort (list, loose) {
+  return list.sort(function (a, b) {
+    return exports.rcompare(a, b, loose)
+  })
+}
+
+exports.gt = gt
+function gt (a, b, loose) {
+  return compare(a, b, loose) > 0
+}
+
+exports.lt = lt
+function lt (a, b, loose) {
+  return compare(a, b, loose) < 0
+}
+
+exports.eq = eq
+function eq (a, b, loose) {
+  return compare(a, b, loose) === 0
+}
+
+exports.neq = neq
+function neq (a, b, loose) {
+  return compare(a, b, loose) !== 0
+}
+
+exports.gte = gte
+function gte (a, b, loose) {
+  return compare(a, b, loose) >= 0
+}
+
+exports.lte = lte
+function lte (a, b, loose) {
+  return compare(a, b, loose) <= 0
+}
+
+exports.cmp = cmp
+function cmp (a, op, b, loose) {
+  switch (op) {
+    case '===':
+      if (typeof a === 'object')
+        a = a.version
+      if (typeof b === 'object')
+        b = b.version
+      return a === b
+
+    case '!==':
+      if (typeof a === 'object')
+        a = a.version
+      if (typeof b === 'object')
+        b = b.version
+      return a !== b
+
+    case '':
+    case '=':
+    case '==':
+      return eq(a, b, loose)
+
+    case '!=':
+      return neq(a, b, loose)
+
+    case '>':
+      return gt(a, b, loose)
+
+    case '>=':
+      return gte(a, b, loose)
+
+    case '<':
+      return lt(a, b, loose)
+
+    case '<=':
+      return lte(a, b, loose)
+
+    default:
+      throw new TypeError('Invalid operator: ' + op)
+  }
+}
+
+exports.Comparator = Comparator
+function Comparator (comp, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  if (comp instanceof Comparator) {
+    if (comp.loose === !!options.loose) {
+      return comp
+    } else {
+      comp = comp.value
+    }
+  }
+
+  if (!(this instanceof Comparator)) {
+    return new Comparator(comp, options)
+  }
+
+  debug('comparator', comp, options)
+  this.options = options
+  this.loose = !!options.loose
+  this.parse(comp)
+
+  if (this.semver === ANY) {
+    this.value = ''
+  } else {
+    this.value = this.operator + this.semver.version
+  }
+
+  debug('comp', this)
+}
+
+var ANY = {}
+Comparator.prototype.parse = function (comp) {
+  var r = this.options.loose ? re[COMPARATORLOOSE] : re[COMPARATOR]
+  var m = comp.match(r)
+
+  if (!m) {
+    throw new TypeError('Invalid comparator: ' + comp)
+  }
+
+  this.operator = m[1]
+  if (this.operator === '=') {
+    this.operator = ''
+  }
+
+  // if it literally is just '>' or '' then allow anything.
+  if (!m[2]) {
+    this.semver = ANY
+  } else {
+    this.semver = new SemVer(m[2], this.options.loose)
+  }
+}
+
+Comparator.prototype.toString = function () {
+  return this.value
+}
+
+Comparator.prototype.test = function (version) {
+  debug('Comparator.test', version, this.options.loose)
+
+  if (this.semver === ANY) {
+    return true
+  }
+
+  if (typeof version === 'string') {
+    version = new SemVer(version, this.options)
+  }
+
+  return cmp(version, this.operator, this.semver, this.options)
+}
+
+Comparator.prototype.intersects = function (comp, options) {
+  if (!(comp instanceof Comparator)) {
+    throw new TypeError('a Comparator is required')
+  }
+
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  var rangeTmp
+
+  if (this.operator === '') {
+    rangeTmp = new Range(comp.value, options)
+    return satisfies(this.value, rangeTmp, options)
+  } else if (comp.operator === '') {
+    rangeTmp = new Range(this.value, options)
+    return satisfies(comp.semver, rangeTmp, options)
+  }
+
+  var sameDirectionIncreasing =
+    (this.operator === '>=' || this.operator === '>') &&
+    (comp.operator === '>=' || comp.operator === '>')
+  var sameDirectionDecreasing =
+    (this.operator === '<=' || this.operator === '<') &&
+    (comp.operator === '<=' || comp.operator === '<')
+  var sameSemVer = this.semver.version === comp.semver.version
+  var differentDirectionsInclusive =
+    (this.operator === '>=' || this.operator === '<=') &&
+    (comp.operator === '>=' || comp.operator === '<=')
+  var oppositeDirectionsLessThan =
+    cmp(this.semver, '<', comp.semver, options) &&
+    ((this.operator === '>=' || this.operator === '>') &&
+    (comp.operator === '<=' || comp.operator === '<'))
+  var oppositeDirectionsGreaterThan =
+    cmp(this.semver, '>', comp.semver, options) &&
+    ((this.operator === '<=' || this.operator === '<') &&
+    (comp.operator === '>=' || comp.operator === '>'))
+
+  return sameDirectionIncreasing || sameDirectionDecreasing ||
+    (sameSemVer && differentDirectionsInclusive) ||
+    oppositeDirectionsLessThan || oppositeDirectionsGreaterThan
+}
+
+exports.Range = Range
+function Range (range, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  if (range instanceof Range) {
+    if (range.loose === !!options.loose &&
+        range.includePrerelease === !!options.includePrerelease) {
+      return range
+    } else {
+      return new Range(range.raw, options)
+    }
+  }
+
+  if (range instanceof Comparator) {
+    return new Range(range.value, options)
+  }
+
+  if (!(this instanceof Range)) {
+    return new Range(range, options)
+  }
+
+  this.options = options
+  this.loose = !!options.loose
+  this.includePrerelease = !!options.includePrerelease
+
+  // First, split based on boolean or ||
+  this.raw = range
+  this.set = range.split(/\s*\|\|\s*/).map(function (range) {
+    return this.parseRange(range.trim())
+  }, this).filter(function (c) {
+    // throw out any that are not relevant for whatever reason
+    return c.length
+  })
+
+  if (!this.set.length) {
+    throw new TypeError('Invalid SemVer Range: ' + range)
+  }
+
+  this.format()
+}
+
+Range.prototype.format = function () {
+  this.range = this.set.map(function (comps) {
+    return comps.join(' ').trim()
+  }).join('||').trim()
+  return this.range
+}
+
+Range.prototype.toString = function () {
+  return this.range
+}
+
+Range.prototype.parseRange = function (range) {
+  var loose = this.options.loose
+  range = range.trim()
+  // `1.2.3 - 1.2.4` => `>=1.2.3 <=1.2.4`
+  var hr = loose ? re[HYPHENRANGELOOSE] : re[HYPHENRANGE]
+  range = range.replace(hr, hyphenReplace)
+  debug('hyphen replace', range)
+  // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
+  range = range.replace(re[COMPARATORTRIM], comparatorTrimReplace)
+  debug('comparator trim', range, re[COMPARATORTRIM])
+
+  // `~ 1.2.3` => `~1.2.3`
+  range = range.replace(re[TILDETRIM], tildeTrimReplace)
+
+  // `^ 1.2.3` => `^1.2.3`
+  range = range.replace(re[CARETTRIM], caretTrimReplace)
+
+  // normalize spaces
+  range = range.split(/\s+/).join(' ')
+
+  // At this point, the range is completely trimmed and
+  // ready to be split into comparators.
+
+  var compRe = loose ? re[COMPARATORLOOSE] : re[COMPARATOR]
+  var set = range.split(' ').map(function (comp) {
+    return parseComparator(comp, this.options)
+  }, this).join(' ').split(/\s+/)
+  if (this.options.loose) {
+    // in loose mode, throw out any that are not valid comparators
+    set = set.filter(function (comp) {
+      return !!comp.match(compRe)
+    })
+  }
+  set = set.map(function (comp) {
+    return new Comparator(comp, this.options)
+  }, this)
+
+  return set
+}
+
+Range.prototype.intersects = function (range, options) {
+  if (!(range instanceof Range)) {
+    throw new TypeError('a Range is required')
+  }
+
+  return this.set.some(function (thisComparators) {
+    return thisComparators.every(function (thisComparator) {
+      return range.set.some(function (rangeComparators) {
+        return rangeComparators.every(function (rangeComparator) {
+          return thisComparator.intersects(rangeComparator, options)
+        })
+      })
+    })
+  })
+}
+
+// Mostly just for testing and legacy API reasons
+exports.toComparators = toComparators
+function toComparators (range, options) {
+  return new Range(range, options).set.map(function (comp) {
+    return comp.map(function (c) {
+      return c.value
+    }).join(' ').trim().split(' ')
+  })
+}
+
+// comprised of xranges, tildes, stars, and gtlt's at this point.
+// already replaced the hyphen ranges
+// turn into a set of JUST comparators.
+function parseComparator (comp, options) {
+  debug('comp', comp, options)
+  comp = replaceCarets(comp, options)
+  debug('caret', comp)
+  comp = replaceTildes(comp, options)
+  debug('tildes', comp)
+  comp = replaceXRanges(comp, options)
+  debug('xrange', comp)
+  comp = replaceStars(comp, options)
+  debug('stars', comp)
+  return comp
+}
+
+function isX (id) {
+  return !id || id.toLowerCase() === 'x' || id === '*'
+}
+
+// ~, ~> --> * (any, kinda silly)
+// ~2, ~2.x, ~2.x.x, ~>2, ~>2.x ~>2.x.x --> >=2.0.0 <3.0.0
+// ~2.0, ~2.0.x, ~>2.0, ~>2.0.x --> >=2.0.0 <2.1.0
+// ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0
+// ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0
+// ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0
+function replaceTildes (comp, options) {
+  return comp.trim().split(/\s+/).map(function (comp) {
+    return replaceTilde(comp, options)
+  }).join(' ')
+}
+
+function replaceTilde (comp, options) {
+  var r = options.loose ? re[TILDELOOSE] : re[TILDE]
+  return comp.replace(r, function (_, M, m, p, pr) {
+    debug('tilde', comp, _, M, m, p, pr)
+    var ret
+
+    if (isX(M)) {
+      ret = ''
+    } else if (isX(m)) {
+      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0'
+    } else if (isX(p)) {
+      // ~1.2 == >=1.2.0 <1.3.0
+      ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0'
+    } else if (pr) {
+      debug('replaceTilde pr', pr)
+      ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+            ' <' + M + '.' + (+m + 1) + '.0'
+    } else {
+      // ~1.2.3 == >=1.2.3 <1.3.0
+      ret = '>=' + M + '.' + m + '.' + p +
+            ' <' + M + '.' + (+m + 1) + '.0'
+    }
+
+    debug('tilde return', ret)
+    return ret
+  })
+}
+
+// ^ --> * (any, kinda silly)
+// ^2, ^2.x, ^2.x.x --> >=2.0.0 <3.0.0
+// ^2.0, ^2.0.x --> >=2.0.0 <3.0.0
+// ^1.2, ^1.2.x --> >=1.2.0 <2.0.0
+// ^1.2.3 --> >=1.2.3 <2.0.0
+// ^1.2.0 --> >=1.2.0 <2.0.0
+function replaceCarets (comp, options) {
+  return comp.trim().split(/\s+/).map(function (comp) {
+    return replaceCaret(comp, options)
+  }).join(' ')
+}
+
+function replaceCaret (comp, options) {
+  debug('caret', comp, options)
+  var r = options.loose ? re[CARETLOOSE] : re[CARET]
+  return comp.replace(r, function (_, M, m, p, pr) {
+    debug('caret', comp, _, M, m, p, pr)
+    var ret
+
+    if (isX(M)) {
+      ret = ''
+    } else if (isX(m)) {
+      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0'
+    } else if (isX(p)) {
+      if (M === '0') {
+        ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0'
+      } else {
+        ret = '>=' + M + '.' + m + '.0 <' + (+M + 1) + '.0.0'
+      }
+    } else if (pr) {
+      debug('replaceCaret pr', pr)
+      if (M === '0') {
+        if (m === '0') {
+          ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+                ' <' + M + '.' + m + '.' + (+p + 1)
+        } else {
+          ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+                ' <' + M + '.' + (+m + 1) + '.0'
+        }
+      } else {
+        ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+              ' <' + (+M + 1) + '.0.0'
+      }
+    } else {
+      debug('no pr')
+      if (M === '0') {
+        if (m === '0') {
+          ret = '>=' + M + '.' + m + '.' + p +
+                ' <' + M + '.' + m + '.' + (+p + 1)
+        } else {
+          ret = '>=' + M + '.' + m + '.' + p +
+                ' <' + M + '.' + (+m + 1) + '.0'
+        }
+      } else {
+        ret = '>=' + M + '.' + m + '.' + p +
+              ' <' + (+M + 1) + '.0.0'
+      }
+    }
+
+    debug('caret return', ret)
+    return ret
+  })
+}
+
+function replaceXRanges (comp, options) {
+  debug('replaceXRanges', comp, options)
+  return comp.split(/\s+/).map(function (comp) {
+    return replaceXRange(comp, options)
+  }).join(' ')
+}
+
+function replaceXRange (comp, options) {
+  comp = comp.trim()
+  var r = options.loose ? re[XRANGELOOSE] : re[XRANGE]
+  return comp.replace(r, function (ret, gtlt, M, m, p, pr) {
+    debug('xRange', comp, ret, gtlt, M, m, p, pr)
+    var xM = isX(M)
+    var xm = xM || isX(m)
+    var xp = xm || isX(p)
+    var anyX = xp
+
+    if (gtlt === '=' && anyX) {
+      gtlt = ''
+    }
+
+    if (xM) {
+      if (gtlt === '>' || gtlt === '<') {
+        // nothing is allowed
+        ret = '<0.0.0'
+      } else {
+        // nothing is forbidden
+        ret = '*'
+      }
+    } else if (gtlt && anyX) {
+      // we know patch is an x, because we have any x at all.
+      // replace X with 0
+      if (xm) {
+        m = 0
+      }
+      p = 0
+
+      if (gtlt === '>') {
+        // >1 => >=2.0.0
+        // >1.2 => >=1.3.0
+        // >1.2.3 => >= 1.2.4
+        gtlt = '>='
+        if (xm) {
+          M = +M + 1
+          m = 0
+          p = 0
+        } else {
+          m = +m + 1
+          p = 0
+        }
+      } else if (gtlt === '<=') {
+        // <=0.7.x is actually <0.8.0, since any 0.7.x should
+        // pass.  Similarly, <=7.x is actually <8.0.0, etc.
+        gtlt = '<'
+        if (xm) {
+          M = +M + 1
+        } else {
+          m = +m + 1
+        }
+      }
+
+      ret = gtlt + M + '.' + m + '.' + p
+    } else if (xm) {
+      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0'
+    } else if (xp) {
+      ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0'
+    }
+
+    debug('xRange return', ret)
+
+    return ret
+  })
+}
+
+// Because * is AND-ed with everything else in the comparator,
+// and '' means "any version", just remove the *s entirely.
+function replaceStars (comp, options) {
+  debug('replaceStars', comp, options)
+  // Looseness is ignored here.  star is always as loose as it gets!
+  return comp.trim().replace(re[STAR], '')
+}
+
+// This function is passed to string.replace(re[HYPHENRANGE])
+// M, m, patch, prerelease, build
+// 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
+// 1.2.3 - 3.4 => >=1.2.0 <3.5.0 Any 3.4.x will do
+// 1.2 - 3.4 => >=1.2.0 <3.5.0
+function hyphenReplace ($0,
+  from, fM, fm, fp, fpr, fb,
+  to, tM, tm, tp, tpr, tb) {
+  if (isX(fM)) {
+    from = ''
+  } else if (isX(fm)) {
+    from = '>=' + fM + '.0.0'
+  } else if (isX(fp)) {
+    from = '>=' + fM + '.' + fm + '.0'
+  } else {
+    from = '>=' + from
+  }
+
+  if (isX(tM)) {
+    to = ''
+  } else if (isX(tm)) {
+    to = '<' + (+tM + 1) + '.0.0'
+  } else if (isX(tp)) {
+    to = '<' + tM + '.' + (+tm + 1) + '.0'
+  } else if (tpr) {
+    to = '<=' + tM + '.' + tm + '.' + tp + '-' + tpr
+  } else {
+    to = '<=' + to
+  }
+
+  return (from + ' ' + to).trim()
+}
+
+// if ANY of the sets match ALL of its comparators, then pass
+Range.prototype.test = function (version) {
+  if (!version) {
+    return false
+  }
+
+  if (typeof version === 'string') {
+    version = new SemVer(version, this.options)
+  }
+
+  for (var i = 0; i < this.set.length; i++) {
+    if (testSet(this.set[i], version, this.options)) {
+      return true
+    }
+  }
+  return false
+}
+
+function testSet (set, version, options) {
+  for (var i = 0; i < set.length; i++) {
+    if (!set[i].test(version)) {
+      return false
+    }
+  }
+
+  if (version.prerelease.length && !options.includePrerelease) {
+    // Find the set of versions that are allowed to have prereleases
+    // For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
+    // That should allow `1.2.3-pr.2` to pass.
+    // However, `1.2.4-alpha.notready` should NOT be allowed,
+    // even though it's within the range set by the comparators.
+    for (i = 0; i < set.length; i++) {
+      debug(set[i].semver)
+      if (set[i].semver === ANY) {
+        continue
+      }
+
+      if (set[i].semver.prerelease.length > 0) {
+        var allowed = set[i].semver
+        if (allowed.major === version.major &&
+            allowed.minor === version.minor &&
+            allowed.patch === version.patch) {
+          return true
+        }
+      }
+    }
+
+    // Version has a -pre, but it's not one of the ones we like.
     return false
   }
 
   return true
 }
 
-function splitUrl(url) {
-  var trail = /[!"&'),.:;<>?\]}]+$/.exec(url)
-  var closingParenIndex
-  var openingParens
-  var closingParens
-
-  if (trail) {
-    url = url.slice(0, trail.index)
-    trail = trail[0]
-    closingParenIndex = trail.indexOf(')')
-    openingParens = ccount(url, '(')
-    closingParens = ccount(url, ')')
-
-    while (closingParenIndex !== -1 && openingParens > closingParens) {
-      url += trail.slice(0, closingParenIndex + 1)
-      trail = trail.slice(closingParenIndex + 1)
-      closingParenIndex = trail.indexOf(')')
-      closingParens++
-    }
+exports.satisfies = satisfies
+function satisfies (version, range, options) {
+  try {
+    range = new Range(range, options)
+  } catch (er) {
+    return false
   }
-
-  return [url, trail]
+  return range.test(version)
 }
 
-function previous(match, email) {
-  var code = match.input.charCodeAt(match.index - 1)
-  return (
-    (code !== code || unicodeWhitespace(code) || unicodePunctuation(code)) &&
-    (!email || code !== 47)
-  )
-}
-
-
-/***/ }),
-
-/***/ 3334:
-/***/ ((__unused_webpack_module, exports) => {
-
-var inConstruct = 'phrasing'
-var notInConstruct = ['autolink', 'link', 'image', 'label']
-
-exports.unsafe = [
-  {
-    character: '@',
-    before: '[+\\-.\\w]',
-    after: '[\\-.\\w]',
-    inConstruct: inConstruct,
-    notInConstruct: notInConstruct
-  },
-  {
-    character: '.',
-    before: '[Ww]',
-    after: '[\\-.\\w]',
-    inConstruct: inConstruct,
-    notInConstruct: notInConstruct
-  },
-  {
-    character: ':',
-    before: '[ps]',
-    after: '\\/',
-    inConstruct: inConstruct,
-    notInConstruct: notInConstruct
+exports.maxSatisfying = maxSatisfying
+function maxSatisfying (versions, range, options) {
+  var max = null
+  var maxSV = null
+  try {
+    var rangeObj = new Range(range, options)
+  } catch (er) {
+    return null
   }
-]
-
-
-/***/ }),
-
-/***/ 6960:
-/***/ ((__unused_webpack_module, exports) => {
-
-exports.canContainEols = ['delete']
-exports.enter = {strikethrough: enterStrikethrough}
-exports.exit = {strikethrough: exitStrikethrough}
-
-function enterStrikethrough(token) {
-  this.enter({type: 'delete', children: []}, token)
-}
-
-function exitStrikethrough(token) {
-  this.exit(token)
-}
-
-
-/***/ }),
-
-/***/ 3892:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var phrasing = __nccwpck_require__(4165)
-
-exports.unsafe = [{character: '~', inConstruct: 'phrasing'}]
-exports.handlers = {delete: handleDelete}
-
-handleDelete.peek = peekDelete
-
-function handleDelete(node, _, context) {
-  var exit = context.enter('emphasis')
-  var value = phrasing(node, context, {before: '~', after: '~'})
-  exit()
-  return '~~' + value + '~~'
-}
-
-function peekDelete() {
-  return '~'
-}
-
-
-/***/ }),
-
-/***/ 8742:
-/***/ ((__unused_webpack_module, exports) => {
-
-exports.enter = {
-  table: enterTable,
-  tableData: enterCell,
-  tableHeader: enterCell,
-  tableRow: enterRow
-}
-exports.exit = {
-  codeText: exitCodeText,
-  table: exitTable,
-  tableData: exit,
-  tableHeader: exit,
-  tableRow: exit
-}
-
-function enterTable(token) {
-  this.enter({type: 'table', align: token._align, children: []}, token)
-  this.setData('inTable', true)
-}
-
-function exitTable(token) {
-  this.exit(token)
-  this.setData('inTable')
-}
-
-function enterRow(token) {
-  this.enter({type: 'tableRow', children: []}, token)
-}
-
-function exit(token) {
-  this.exit(token)
-}
-
-function enterCell(token) {
-  this.enter({type: 'tableCell', children: []}, token)
-}
-
-// Overwrite the default code text data handler to unescape escaped pipes when
-// they are in tables.
-function exitCodeText(token) {
-  var value = this.resume()
-
-  if (this.getData('inTable')) {
-    value = value.replace(/\\([\\|])/g, replace)
-  }
-
-  this.stack[this.stack.length - 1].value = value
-  this.exit(token)
-}
-
-function replace($0, $1) {
-  // Pipes work, backslashes don’t (but can’t escape pipes).
-  return $1 === '|' ? $1 : $0
-}
-
-
-/***/ }),
-
-/***/ 9227:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var phrasing = __nccwpck_require__(4165)
-var defaultInlineCode = __nccwpck_require__(3517)
-var markdownTable = __nccwpck_require__(1864)
-
-module.exports = toMarkdown
-
-function toMarkdown(options) {
-  var settings = options || {}
-  var padding = settings.tableCellPadding
-  var alignDelimiters = settings.tablePipeAlign
-  var stringLength = settings.stringLength
-  var around = padding ? ' ' : '|'
-
-  return {
-    unsafe: [
-      {character: '\r', inConstruct: 'tableCell'},
-      {character: '\n', inConstruct: 'tableCell'},
-      // A pipe, when followed by a tab or space (padding), or a dash or colon
-      // (unpadded delimiter row), could result in a table.
-      {atBreak: true, character: '|', after: '[\t :-]'},
-      // A pipe in a cell must be encoded.
-      {character: '|', inConstruct: 'tableCell'},
-      // A colon must be followed by a dash, in which case it could start a
-      // delimiter row.
-      {atBreak: true, character: ':', after: '-'},
-      // A delimiter row can also start with a dash, when followed by more
-      // dashes, a colon, or a pipe.
-      // This is a stricter version than the built in check for lists, thematic
-      // breaks, and setex heading underlines though:
-      // <https://github.com/syntax-tree/mdast-util-to-markdown/blob/51a2038/lib/unsafe.js#L57>
-      {atBreak: true, character: '-', after: '[:|-]'}
-    ],
-    handlers: {
-      table: handleTable,
-      tableRow: handleTableRow,
-      tableCell: handleTableCell,
-      inlineCode: inlineCodeWithTable
-    }
-  }
-
-  function handleTable(node, _, context) {
-    return serializeData(handleTableAsData(node, context), node.align)
-  }
-
-  // This function isn’t really used normally, because we handle rows at the
-  // table level.
-  // But, if someone passes in a table row, this ensures we make somewhat sense.
-  function handleTableRow(node, _, context) {
-    var row = handleTableRowAsData(node, context)
-    // `markdown-table` will always add an align row
-    var value = serializeData([row])
-    return value.slice(0, value.indexOf('\n'))
-  }
-
-  function handleTableCell(node, _, context) {
-    var exit = context.enter('tableCell')
-    var value = phrasing(node, context, {before: around, after: around})
-    exit()
-    return value
-  }
-
-  function serializeData(matrix, align) {
-    return markdownTable(matrix, {
-      align: align,
-      alignDelimiters: alignDelimiters,
-      padding: padding,
-      stringLength: stringLength
-    })
-  }
-
-  function handleTableAsData(node, context) {
-    var children = node.children
-    var index = -1
-    var length = children.length
-    var result = []
-    var subexit = context.enter('table')
-
-    while (++index < length) {
-      result[index] = handleTableRowAsData(children[index], context)
-    }
-
-    subexit()
-
-    return result
-  }
-
-  function handleTableRowAsData(node, context) {
-    var children = node.children
-    var index = -1
-    var length = children.length
-    var result = []
-    var subexit = context.enter('tableRow')
-
-    while (++index < length) {
-      result[index] = handleTableCell(children[index], node, context)
-    }
-
-    subexit()
-
-    return result
-  }
-
-  function inlineCodeWithTable(node, parent, context) {
-    var value = defaultInlineCode(node, parent, context)
-
-    if (context.stack.indexOf('tableCell') !== -1) {
-      value = value.replace(/\|/g, '\\$&')
-    }
-
-    return value
-  }
-}
-
-
-/***/ }),
-
-/***/ 8050:
-/***/ ((__unused_webpack_module, exports) => {
-
-exports.exit = {
-  taskListCheckValueChecked: exitCheck,
-  taskListCheckValueUnchecked: exitCheck,
-  paragraph: exitParagraphWithTaskListItem
-}
-
-function exitCheck(token) {
-  // We’re always in a paragraph, in a list item.
-  this.stack[this.stack.length - 2].checked =
-    token.type === 'taskListCheckValueChecked'
-}
-
-function exitParagraphWithTaskListItem(token) {
-  var parent = this.stack[this.stack.length - 2]
-  var node = this.stack[this.stack.length - 1]
-  var siblings = parent.children
-  var head = node.children[0]
-  var index = -1
-  var firstParaghraph
-
-  if (
-    parent &&
-    parent.type === 'listItem' &&
-    typeof parent.checked === 'boolean' &&
-    head &&
-    head.type === 'text'
-  ) {
-    while (++index < siblings.length) {
-      if (siblings[index].type === 'paragraph') {
-        firstParaghraph = siblings[index]
-        break
+  versions.forEach(function (v) {
+    if (rangeObj.test(v)) {
+      // satisfies(v, range, options)
+      if (!max || maxSV.compare(v) === -1) {
+        // compare(max, v, true)
+        max = v
+        maxSV = new SemVer(max, options)
       }
     }
-
-    if (firstParaghraph === node) {
-      // Must start with a space or a tab.
-      head.value = head.value.slice(1)
-
-      if (head.value.length === 0) {
-        node.children.shift()
-      } else {
-        head.position.start.column++
-        head.position.start.offset++
-        node.position.start = Object.assign({}, head.position.start)
-      }
-    }
-  }
-
-  this.exit(token)
-}
-
-
-/***/ }),
-
-/***/ 4445:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var defaultListItem = __nccwpck_require__(7166)
-
-exports.unsafe = [{atBreak: true, character: '-', after: '[:|-]'}]
-
-exports.handlers = {
-  listItem: listItemWithTaskListItem
-}
-
-function listItemWithTaskListItem(node, parent, context) {
-  var value = defaultListItem(node, parent, context)
-  var head = node.children[0]
-
-  if (typeof node.checked === 'boolean' && head && head.type === 'paragraph') {
-    value = value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, check)
-  }
-
-  return value
-
-  function check($0) {
-    return $0 + '[' + (node.checked ? 'x' : ' ') + '] '
-  }
-}
-
-
-/***/ }),
-
-/***/ 7000:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var autolinkLiteral = __nccwpck_require__(6994)
-var strikethrough = __nccwpck_require__(6960)
-var table = __nccwpck_require__(8742)
-var taskListItem = __nccwpck_require__(8050)
-
-var own = {}.hasOwnProperty
-
-module.exports = configure([
-  autolinkLiteral,
-  strikethrough,
-  table,
-  taskListItem
-])
-
-function configure(extensions) {
-  var config = {transforms: [], canContainEols: []}
-  var length = extensions.length
-  var index = -1
-
-  while (++index < length) {
-    extension(config, extensions[index])
-  }
-
-  return config
-}
-
-function extension(config, extension) {
-  var key
-  var left
-  var right
-
-  for (key in extension) {
-    left = own.call(config, key) ? config[key] : (config[key] = {})
-    right = extension[key]
-
-    if (key === 'canContainEols' || key === 'transforms') {
-      config[key] = [].concat(left, right)
-    } else {
-      Object.assign(left, right)
-    }
-  }
-}
-
-
-/***/ }),
-
-/***/ 8678:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var autolinkLiteral = __nccwpck_require__(3334)
-var strikethrough = __nccwpck_require__(3892)
-var table = __nccwpck_require__(9227)
-var taskListItem = __nccwpck_require__(4445)
-var configure = __nccwpck_require__(5593)
-
-module.exports = toMarkdown
-
-function toMarkdown(options) {
-  var config = configure(
-    {handlers: {}, join: [], unsafe: [], options: {}},
-    {
-      extensions: [autolinkLiteral, strikethrough, table(options), taskListItem]
-    }
-  )
-
-  return Object.assign(config.options, {
-    handlers: config.handlers,
-    join: config.join,
-    unsafe: config.unsafe
   })
+  return max
 }
 
-
-/***/ }),
-
-/***/ 5593:
-/***/ ((module) => {
-
-module.exports = configure
-
-function configure(base, extension) {
-  var index = -1
-  var key
-
-  // First do subextensions.
-  if (extension.extensions) {
-    while (++index < extension.extensions.length) {
-      configure(base, extension.extensions[index])
-    }
+exports.minSatisfying = minSatisfying
+function minSatisfying (versions, range, options) {
+  var min = null
+  var minSV = null
+  try {
+    var rangeObj = new Range(range, options)
+  } catch (er) {
+    return null
   }
-
-  for (key in extension) {
-    if (key === 'extensions') {
-      // Empty.
-    } else if (key === 'unsafe' || key === 'join') {
-      base[key] = base[key].concat(extension[key] || [])
-    } else if (key === 'handlers') {
-      base[key] = Object.assign(base[key], extension[key] || {})
-    } else {
-      base.options[key] = extension[key]
-    }
-  }
-
-  return base
-}
-
-
-/***/ }),
-
-/***/ 3517:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = inlineCode
-inlineCode.peek = inlineCodePeek
-
-var patternCompile = __nccwpck_require__(2896)
-
-function inlineCode(node, parent, context) {
-  var value = node.value || ''
-  var sequence = '`'
-  var index = -1
-  var pattern
-  var expression
-  var match
-  var position
-
-  // If there is a single grave accent on its own in the code, use a fence of
-  // two.
-  // If there are two in a row, use one.
-  while (new RegExp('(^|[^`])' + sequence + '([^`]|$)').test(value)) {
-    sequence += '`'
-  }
-
-  // If this is not just spaces or eols (tabs don’t count), and either the
-  // first or last character are a space, eol, or tick, then pad with spaces.
-  if (
-    /[^ \r\n]/.test(value) &&
-    (/[ \r\n`]/.test(value.charAt(0)) ||
-      /[ \r\n`]/.test(value.charAt(value.length - 1)))
-  ) {
-    value = ' ' + value + ' '
-  }
-
-  // We have a potential problem: certain characters after eols could result in
-  // blocks being seen.
-  // For example, if someone injected the string `'\n# b'`, then that would
-  // result in an ATX heading.
-  // We can’t escape characters in `inlineCode`, but because eols are
-  // transformed to spaces when going from markdown to HTML anyway, we can swap
-  // them out.
-  while (++index < context.unsafe.length) {
-    pattern = context.unsafe[index]
-
-    // Only look for `atBreak`s.
-    // Btw: note that `atBreak` patterns will always start the regex at LF or
-    // CR.
-    if (!pattern.atBreak) continue
-
-    expression = patternCompile(pattern)
-
-    while ((match = expression.exec(value))) {
-      position = match.index
-
-      // Support CRLF (patterns only look for one of the characters).
-      if (
-        value.charCodeAt(position) === 10 /* `\n` */ &&
-        value.charCodeAt(position - 1) === 13 /* `\r` */
-      ) {
-        position--
-      }
-
-      value = value.slice(0, position) + ' ' + value.slice(match.index + 1)
-    }
-  }
-
-  return sequence + value + sequence
-}
-
-function inlineCodePeek() {
-  return '`'
-}
-
-
-/***/ }),
-
-/***/ 7166:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = listItem
-
-var repeat = __nccwpck_require__(8381)
-var checkBullet = __nccwpck_require__(2626)
-var checkListItemIndent = __nccwpck_require__(1556)
-var flow = __nccwpck_require__(3488)
-var indentLines = __nccwpck_require__(1237)
-
-function listItem(node, parent, context) {
-  var bullet = checkBullet(context)
-  var listItemIndent = checkListItemIndent(context)
-  var size
-  var value
-  var exit
-
-  if (parent && parent.ordered) {
-    bullet =
-      (parent.start > -1 ? parent.start : 1) +
-      (context.options.incrementListMarker === false
-        ? 0
-        : parent.children.indexOf(node)) +
-      '.'
-  }
-
-  size = bullet.length + 1
-
-  if (
-    listItemIndent === 'tab' ||
-    (listItemIndent === 'mixed' && ((parent && parent.spread) || node.spread))
-  ) {
-    size = Math.ceil(size / 4) * 4
-  }
-
-  exit = context.enter('listItem')
-  value = indentLines(flow(node, context), map)
-  exit()
-
-  return value
-
-  function map(line, index, blank) {
-    if (index) {
-      return (blank ? '' : repeat(' ', size)) + line
-    }
-
-    return (blank ? bullet : bullet + repeat(' ', size - bullet.length)) + line
-  }
-}
-
-
-/***/ }),
-
-/***/ 2626:
-/***/ ((module) => {
-
-module.exports = checkBullet
-
-function checkBullet(context) {
-  var marker = context.options.bullet || '*'
-
-  if (marker !== '*' && marker !== '+' && marker !== '-') {
-    throw new Error(
-      'Cannot serialize items with `' +
-        marker +
-        '` for `options.bullet`, expected `*`, `+`, or `-`'
-    )
-  }
-
-  return marker
-}
-
-
-/***/ }),
-
-/***/ 1556:
-/***/ ((module) => {
-
-module.exports = checkListItemIndent
-
-function checkListItemIndent(context) {
-  var style = context.options.listItemIndent || 'tab'
-
-  if (style === 1 || style === '1') {
-    return 'one'
-  }
-
-  if (style !== 'tab' && style !== 'one' && style !== 'mixed') {
-    throw new Error(
-      'Cannot serialize items with `' +
-        style +
-        '` for `options.listItemIndent`, expected `tab`, `one`, or `mixed`'
-    )
-  }
-
-  return style
-}
-
-
-/***/ }),
-
-/***/ 3488:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = flow
-
-var repeat = __nccwpck_require__(8381)
-
-function flow(parent, context) {
-  var children = parent.children || []
-  var results = []
-  var index = -1
-  var child
-
-  while (++index < children.length) {
-    child = children[index]
-
-    results.push(
-      context.handle(child, parent, context, {before: '\n', after: '\n'})
-    )
-
-    if (index + 1 < children.length) {
-      results.push(between(child, children[index + 1]))
-    }
-  }
-
-  return results.join('')
-
-  function between(left, right) {
-    var index = -1
-    var result
-
-    while (++index < context.join.length) {
-      result = context.join[index](left, right, parent, context)
-
-      if (result === true || result === 1) {
-        break
-      }
-
-      if (typeof result === 'number') {
-        return repeat('\n', 1 + Number(result))
-      }
-
-      if (result === false) {
-        return '\n\n<!---->\n\n'
+  versions.forEach(function (v) {
+    if (rangeObj.test(v)) {
+      // satisfies(v, range, options)
+      if (!min || minSV.compare(v) === 1) {
+        // compare(min, v, true)
+        min = v
+        minSV = new SemVer(min, options)
       }
     }
-
-    return '\n\n'
-  }
+  })
+  return min
 }
 
+exports.minVersion = minVersion
+function minVersion (range, loose) {
+  range = new Range(range, loose)
 
-/***/ }),
-
-/***/ 4165:
-/***/ ((module) => {
-
-module.exports = phrasing
-
-function phrasing(parent, context, safeOptions) {
-  var children = parent.children || []
-  var results = []
-  var index = -1
-  var before = safeOptions.before
-  var after
-  var handle
-  var child
-
-  while (++index < children.length) {
-    child = children[index]
-
-    if (index + 1 < children.length) {
-      handle = context.handle.handlers[children[index + 1].type]
-      if (handle && handle.peek) handle = handle.peek
-      after = handle
-        ? handle(children[index + 1], parent, context, {
-            before: '',
-            after: ''
-          }).charAt(0)
-        : ''
-    } else {
-      after = safeOptions.after
-    }
-
-    // In some cases, html (text) can be found in phrasing right after an eol.
-    // When we’d serialize that, in most cases that would be seen as html
-    // (flow).
-    // As we can’t escape or so to prevent it from happening, we take a somewhat
-    // reasonable approach: replace that eol with a space.
-    // See: <https://github.com/syntax-tree/mdast-util-to-markdown/issues/15>
-    if (
-      results.length > 0 &&
-      (before === '\r' || before === '\n') &&
-      child.type === 'html'
-    ) {
-      results[results.length - 1] = results[results.length - 1].replace(
-        /(\r?\n|\r)$/,
-        ' '
-      )
-      before = ' '
-    }
-
-    results.push(
-      context.handle(child, parent, context, {
-        before: before,
-        after: after
-      })
-    )
-
-    before = results[results.length - 1].slice(-1)
+  var minver = new SemVer('0.0.0')
+  if (range.test(minver)) {
+    return minver
   }
 
-  return results.join('')
-}
-
-
-/***/ }),
-
-/***/ 1237:
-/***/ ((module) => {
-
-module.exports = indentLines
-
-var eol = /\r?\n|\r/g
-
-function indentLines(value, map) {
-  var result = []
-  var start = 0
-  var line = 0
-  var match
-
-  while ((match = eol.exec(value))) {
-    one(value.slice(start, match.index))
-    result.push(match[0])
-    start = match.index + match[0].length
-    line++
+  minver = new SemVer('0.0.0-0')
+  if (range.test(minver)) {
+    return minver
   }
 
-  one(value.slice(start))
-
-  return result.join('')
-
-  function one(value) {
-    result.push(map(value, line, !value))
-  }
-}
-
-
-/***/ }),
-
-/***/ 2896:
-/***/ ((module) => {
-
-module.exports = patternCompile
-
-function patternCompile(pattern) {
-  var before
-  var after
-
-  if (!pattern._compiled) {
-    before = pattern.before ? '(?:' + pattern.before + ')' : ''
-    after = pattern.after ? '(?:' + pattern.after + ')' : ''
-
-    if (pattern.atBreak) {
-      before = '[\\r\\n][\\t ]*' + before
-    }
-
-    pattern._compiled = new RegExp(
-      (before ? '(' + before + ')' : '') +
-        (/[|\\{}()[\]^$+*?.-]/.test(pattern.character) ? '\\' : '') +
-        pattern.character +
-        (after || ''),
-      'g'
-    )
-  }
-
-  return pattern._compiled
-}
-
-
-/***/ }),
-
-/***/ 9821:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = toString
-
-// Get the text content of a node.
-// Prefer the node’s plain-text fields, otherwise serialize its children,
-// and if the given value is an array, serialize the nodes in it.
-function toString(node) {
-  return (
-    (node &&
-      (node.value ||
-        node.alt ||
-        node.title ||
-        ('children' in node && all(node.children)) ||
-        ('length' in node && all(node)))) ||
-    ''
-  )
-}
-
-function all(values) {
-  var result = []
-  var index = -1
-
-  while (++index < values.length) {
-    result[index] = toString(values[index])
-  }
-
-  return result.join('')
-}
-
-
-/***/ }),
-
-/***/ 5184:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = __nccwpck_require__(3300)
-
-
-/***/ }),
-
-/***/ 3300:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var asciiAlpha = __nccwpck_require__(8229)
-var asciiAlphanumeric = __nccwpck_require__(209)
-var asciiControl = __nccwpck_require__(7759)
-var markdownLineEnding = __nccwpck_require__(4196)
-var unicodePunctuation = __nccwpck_require__(4409)
-var unicodeWhitespace = __nccwpck_require__(3284)
-
-var www = {tokenize: tokenizeWww, partial: true}
-var domain = {tokenize: tokenizeDomain, partial: true}
-var path = {tokenize: tokenizePath, partial: true}
-var punctuation = {tokenize: tokenizePunctuation, partial: true}
-var namedCharacterReference = {
-  tokenize: tokenizeNamedCharacterReference,
-  partial: true
-}
-
-var wwwAutolink = {tokenize: tokenizeWwwAutolink, previous: previousWww}
-var httpAutolink = {tokenize: tokenizeHttpAutolink, previous: previousHttp}
-var emailAutolink = {tokenize: tokenizeEmailAutolink, previous: previousEmail}
-
-var text = {}
-
-// Export hooked constructs.
-exports.text = text
-
-// `0`
-var code = 48
-
-// While the code is smaller than `{`.
-while (code < 123) {
-  text[code] = emailAutolink
-  code++
-  // Jump from `:` -> `A`
-  if (code === 58) code = 65
-  // Jump from `[` -> `a`
-  else if (code === 91) code = 97
-}
-
-// `+`
-text[43] = emailAutolink
-// `-`
-text[45] = emailAutolink
-// `.`
-text[46] = emailAutolink
-// `_`
-text[95] = emailAutolink
-// `h`.
-text[72] = [emailAutolink, httpAutolink]
-text[104] = [emailAutolink, httpAutolink]
-// `w`.
-text[87] = [emailAutolink, wwwAutolink]
-text[119] = [emailAutolink, wwwAutolink]
-
-function tokenizeEmailAutolink(effects, ok, nok) {
-  var self = this
-  var hasDot
-
-  return start
-
-  function start(code) {
-    /* istanbul ignore next - hooks. */
-    if (
-      !gfmAtext(code) ||
-      !previousEmail(self.previous) ||
-      previous(self.events)
-    ) {
-      return nok(code)
-    }
-
-    effects.enter('literalAutolink')
-    effects.enter('literalAutolinkEmail')
-    return atext(code)
-  }
-
-  function atext(code) {
-    if (gfmAtext(code)) {
-      effects.consume(code)
-      return atext
-    }
-
-    // `@`
-    if (code === 64) {
-      effects.consume(code)
-      return label
-    }
-
-    return nok(code)
-  }
-
-  function label(code) {
-    // `.`
-    if (code === 46) {
-      return effects.check(punctuation, done, dotContinuation)(code)
-    }
-
-    if (
-      // `-`
-      code === 45 ||
-      // `_`
-      code === 95
-    ) {
-      return effects.check(punctuation, nok, dashOrUnderscoreContinuation)(code)
-    }
-
-    if (asciiAlphanumeric(code)) {
-      effects.consume(code)
-      return label
-    }
-
-    return done(code)
-  }
-
-  function dotContinuation(code) {
-    effects.consume(code)
-    hasDot = true
-    return label
-  }
-
-  function dashOrUnderscoreContinuation(code) {
-    effects.consume(code)
-    return afterDashOrUnderscore
-  }
-
-  function afterDashOrUnderscore(code) {
-    // `.`
-    if (code === 46) {
-      return effects.check(punctuation, nok, dotContinuation)(code)
-    }
-
-    return label(code)
-  }
-
-  function done(code) {
-    if (hasDot) {
-      effects.exit('literalAutolinkEmail')
-      effects.exit('literalAutolink')
-      return ok(code)
-    }
-
-    return nok(code)
-  }
-}
-
-function tokenizeWwwAutolink(effects, ok, nok) {
-  var self = this
-
-  return start
-
-  function start(code) {
-    /* istanbul ignore next - hooks. */
-    if (
-      (code !== 87 && code - 32 !== 87) ||
-      !previousWww(self.previous) ||
-      previous(self.events)
-    ) {
-      return nok(code)
-    }
-
-    effects.enter('literalAutolink')
-    effects.enter('literalAutolinkWww')
-    // For `www.` we check instead of attempt, because when it matches, GH
-    // treats it as part of a domain (yes, it says a valid domain must come
-    // after `www.`, but that’s not how it’s implemented by them).
-    return effects.check(
-      www,
-      effects.attempt(domain, effects.attempt(path, done), nok),
-      nok
-    )(code)
-  }
-
-  function done(code) {
-    effects.exit('literalAutolinkWww')
-    effects.exit('literalAutolink')
-    return ok(code)
-  }
-}
-
-function tokenizeHttpAutolink(effects, ok, nok) {
-  var self = this
-
-  return start
-
-  function start(code) {
-    /* istanbul ignore next - hooks. */
-    if (
-      (code !== 72 && code - 32 !== 72) ||
-      !previousHttp(self.previous) ||
-      previous(self.events)
-    ) {
-      return nok(code)
-    }
-
-    effects.enter('literalAutolink')
-    effects.enter('literalAutolinkHttp')
-    effects.consume(code)
-    return t1
-  }
-
-  function t1(code) {
-    // `t`
-    if (code === 84 || code - 32 === 84) {
-      effects.consume(code)
-      return t2
-    }
-
-    return nok(code)
-  }
-
-  function t2(code) {
-    // `t`
-    if (code === 84 || code - 32 === 84) {
-      effects.consume(code)
-      return p
-    }
-
-    return nok(code)
-  }
-
-  function p(code) {
-    // `p`
-    if (code === 80 || code - 32 === 80) {
-      effects.consume(code)
-      return s
-    }
-
-    return nok(code)
-  }
-
-  function s(code) {
-    // `s`
-    if (code === 83 || code - 32 === 83) {
-      effects.consume(code)
-      return colon
-    }
-
-    return colon(code)
-  }
-
-  function colon(code) {
-    // `:`
-    if (code === 58) {
-      effects.consume(code)
-      return slash1
-    }
-
-    return nok(code)
-  }
-
-  function slash1(code) {
-    // `/`
-    if (code === 47) {
-      effects.consume(code)
-      return slash2
-    }
-
-    return nok(code)
-  }
-
-  function slash2(code) {
-    // `/`
-    if (code === 47) {
-      effects.consume(code)
-      return after
-    }
-
-    return nok(code)
-  }
-
-  function after(code) {
-    return asciiControl(code) ||
-      unicodeWhitespace(code) ||
-      unicodePunctuation(code)
-      ? nok(code)
-      : effects.attempt(domain, effects.attempt(path, done), nok)(code)
-  }
-
-  function done(code) {
-    effects.exit('literalAutolinkHttp')
-    effects.exit('literalAutolink')
-    return ok(code)
-  }
-}
-
-function tokenizeWww(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    // Assume a `w`.
-    effects.consume(code)
-    return w2
-  }
-
-  function w2(code) {
-    // `w`
-    if (code === 87 || code - 32 === 87) {
-      effects.consume(code)
-      return w3
-    }
-
-    return nok(code)
-  }
-
-  function w3(code) {
-    // `w`
-    if (code === 87 || code - 32 === 87) {
-      effects.consume(code)
-      return dot
-    }
-
-    return nok(code)
-  }
-
-  function dot(code) {
-    // `.`
-    if (code === 46) {
-      effects.consume(code)
-      return after
-    }
-
-    return nok(code)
-  }
-
-  function after(code) {
-    return code === null || markdownLineEnding(code) ? nok(code) : ok(code)
-  }
-}
-
-function tokenizeDomain(effects, ok, nok) {
-  var hasUnderscoreInLastSegment
-  var hasUnderscoreInLastLastSegment
-
-  return domain
-
-  function domain(code) {
-    // `&`
-    if (code === 38) {
-      return effects.check(
-        namedCharacterReference,
-        done,
-        punctuationContinuation
-      )(code)
-    }
-
-    if (code === 46 /* `.` */ || code === 95 /* `_` */) {
-      return effects.check(punctuation, done, punctuationContinuation)(code)
-    }
-
-    // GH documents that only alphanumerics (other than `-`, `.`, and `_`) can
-    // occur, which sounds like ASCII only, but they also support `www.點看.com`,
-    // so that’s Unicode.
-    // Instead of some new production for Unicode alphanumerics, markdown
-    // already has that for Unicode punctuation and whitespace, so use those.
-    if (
-      asciiControl(code) ||
-      unicodeWhitespace(code) ||
-      (code !== 45 /* `-` */ && unicodePunctuation(code))
-    ) {
-      return done(code)
-    }
-
-    effects.consume(code)
-    return domain
-  }
-
-  function punctuationContinuation(code) {
-    // `.`
-    if (code === 46) {
-      hasUnderscoreInLastLastSegment = hasUnderscoreInLastSegment
-      hasUnderscoreInLastSegment = undefined
-      effects.consume(code)
-      return domain
-    }
-
-    // `_`
-    if (code === 95) hasUnderscoreInLastSegment = true
-
-    effects.consume(code)
-    return domain
-  }
-
-  function done(code) {
-    if (!hasUnderscoreInLastLastSegment && !hasUnderscoreInLastSegment) {
-      return ok(code)
-    }
-
-    return nok(code)
-  }
-}
-
-function tokenizePath(effects, ok) {
-  var balance = 0
-
-  return inPath
-
-  function inPath(code) {
-    // `&`
-    if (code === 38) {
-      return effects.check(
-        namedCharacterReference,
-        ok,
-        continuedPunctuation
-      )(code)
-    }
-
-    // `(`
-    if (code === 40) {
-      balance++
-    }
-
-    // `)`
-    if (code === 41) {
-      return effects.check(
-        punctuation,
-        parenAtPathEnd,
-        continuedPunctuation
-      )(code)
-    }
-
-    if (pathEnd(code)) {
-      return ok(code)
-    }
-
-    if (trailingPunctuation(code)) {
-      return effects.check(punctuation, ok, continuedPunctuation)(code)
-    }
-
-    effects.consume(code)
-    return inPath
-  }
-
-  function continuedPunctuation(code) {
-    effects.consume(code)
-    return inPath
-  }
-
-  function parenAtPathEnd(code) {
-    balance--
-    return balance < 0 ? ok(code) : continuedPunctuation(code)
-  }
-}
-
-function tokenizeNamedCharacterReference(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    // Assume an ampersand.
-    effects.consume(code)
-    return inside
-  }
-
-  function inside(code) {
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      return inside
-    }
-
-    // `;`
-    if (code === 59) {
-      effects.consume(code)
-      return after
-    }
-
-    return nok(code)
-  }
-
-  function after(code) {
-    // If the named character reference is followed by the end of the path, it’s
-    // not continued punctuation.
-    return pathEnd(code) ? ok(code) : nok(code)
-  }
-}
-
-function tokenizePunctuation(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    // Always a valid trailing punctuation marker.
-    effects.consume(code)
-    return after
-  }
-
-  function after(code) {
-    // Check the next.
-    if (trailingPunctuation(code)) {
-      effects.consume(code)
-      return after
-    }
-
-    // If the punctuation marker is followed by the end of the path, it’s not
-    // continued punctuation.
-    return pathEnd(code) ? ok(code) : nok(code)
-  }
-}
-
-function trailingPunctuation(code) {
-  return (
-    // `!`
-    code === 33 ||
-    // `"`
-    code === 34 ||
-    // `'`
-    code === 39 ||
-    // `)`
-    code === 41 ||
-    // `*`
-    code === 42 ||
-    // `,`
-    code === 44 ||
-    // `.`
-    code === 46 ||
-    // `:`
-    code === 58 ||
-    // `;`
-    code === 59 ||
-    // `<`
-    code === 60 ||
-    // `?`
-    code === 63 ||
-    // `_`.
-    code === 95 ||
-    // `~`
-    code === 126
-  )
-}
-
-function pathEnd(code) {
-  return (
-    // EOF.
-    code === null ||
-    // CR, LF, CRLF, HT, VS.
-    code < 0 ||
-    // Space.
-    code === 32 ||
-    // `<`
-    code === 60
-  )
-}
-
-function gfmAtext(code) {
-  return (
-    code === 43 /* `+` */ ||
-    code === 45 /* `-` */ ||
-    code === 46 /* `.` */ ||
-    code === 95 /* `_` */ ||
-    asciiAlphanumeric(code)
-  )
-}
-
-function previousWww(code) {
-  return (
-    code === null ||
-    code < 0 ||
-    code === 32 /* ` ` */ ||
-    code === 40 /* `(` */ ||
-    code === 42 /* `*` */ ||
-    code === 95 /* `_` */ ||
-    code === 126 /* `~` */
-  )
-}
-
-function previousHttp(code) {
-  return code === null || !asciiAlpha(code)
-}
-
-function previousEmail(code) {
-  return code !== 47 /* `/` */ && previousHttp(code)
-}
-
-function previous(events) {
-  var index = events.length
-
-  while (index--) {
-    if (
-      (events[index][1].type === 'labelLink' ||
-        events[index][1].type === 'labelImage') &&
-      !events[index][1]._balanced
-    ) {
-      return true
-    }
-  }
-}
-
-
-/***/ }),
-
-/***/ 759:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = create
-
-var classifyCharacter = __nccwpck_require__(8086)
-var chunkedSplice = __nccwpck_require__(5810)
-var resolveAll = __nccwpck_require__(3418)
-var shallow = __nccwpck_require__(7766)
-
-function create(options) {
-  var settings = options || {}
-  var single = settings.singleTilde
-  var tokenizer = {
-    tokenize: tokenizeStrikethrough,
-    resolveAll: resolveAllStrikethrough
-  }
-
-  if (single === null || single === undefined) {
-    single = true
-  }
-
-  return {text: {126: tokenizer}, insideSpan: {null: tokenizer}}
-
-  // Take events and resolve strikethrough.
-  function resolveAllStrikethrough(events, context) {
-    var index = -1
-    var strikethrough
-    var text
-    var open
-    var nextEvents
-
-    // Walk through all events.
-    while (++index < events.length) {
-      // Find a token that can close.
-      if (
-        events[index][0] === 'enter' &&
-        events[index][1].type === 'strikethroughSequenceTemporary' &&
-        events[index][1]._close
-      ) {
-        open = index
-
-        // Now walk back to find an opener.
-        while (open--) {
-          // Find a token that can open the closer.
-          if (
-            events[open][0] === 'exit' &&
-            events[open][1].type === 'strikethroughSequenceTemporary' &&
-            events[open][1]._open &&
-            // If the sizes are the same:
-            events[index][1].end.offset - events[index][1].start.offset ===
-              events[open][1].end.offset - events[open][1].start.offset
-          ) {
-            events[index][1].type = 'strikethroughSequence'
-            events[open][1].type = 'strikethroughSequence'
-
-            strikethrough = {
-              type: 'strikethrough',
-              start: shallow(events[open][1].start),
-              end: shallow(events[index][1].end)
-            }
-
-            text = {
-              type: 'strikethroughText',
-              start: shallow(events[open][1].end),
-              end: shallow(events[index][1].start)
-            }
-
-            // Opening.
-            nextEvents = [
-              ['enter', strikethrough, context],
-              ['enter', events[open][1], context],
-              ['exit', events[open][1], context],
-              ['enter', text, context]
-            ]
-
-            // Between.
-            chunkedSplice(
-              nextEvents,
-              nextEvents.length,
-              0,
-              resolveAll(
-                context.parser.constructs.insideSpan.null,
-                events.slice(open + 1, index),
-                context
-              )
-            )
-
-            // Closing.
-            chunkedSplice(nextEvents, nextEvents.length, 0, [
-              ['exit', text, context],
-              ['enter', events[index][1], context],
-              ['exit', events[index][1], context],
-              ['exit', strikethrough, context]
-            ])
-
-            chunkedSplice(events, open - 1, index - open + 3, nextEvents)
-
-            index = open + nextEvents.length - 2
-            break
+  minver = null
+  for (var i = 0; i < range.set.length; ++i) {
+    var comparators = range.set[i]
+
+    comparators.forEach(function (comparator) {
+      // Clone to avoid manipulating the comparator's semver object.
+      var compver = new SemVer(comparator.semver.version)
+      switch (comparator.operator) {
+        case '>':
+          if (compver.prerelease.length === 0) {
+            compver.patch++
+          } else {
+            compver.prerelease.push(0)
           }
-        }
-      }
-    }
-
-    return removeRemainingSequences(events)
-  }
-
-  function removeRemainingSequences(events) {
-    var index = -1
-    var length = events.length
-
-    while (++index < length) {
-      if (events[index][1].type === 'strikethroughSequenceTemporary') {
-        events[index][1].type = 'data'
-      }
-    }
-
-    return events
-  }
-
-  function tokenizeStrikethrough(effects, ok, nok) {
-    var previous = this.previous
-    var events = this.events
-    var size = 0
-
-    return start
-
-    function start(code) {
-      if (
-        code !== 126 ||
-        (previous === 126 &&
-          events[events.length - 1][1].type !== 'characterEscape')
-      ) {
-        return nok(code)
-      }
-
-      effects.enter('strikethroughSequenceTemporary')
-      return more(code)
-    }
-
-    function more(code) {
-      var before = classifyCharacter(previous)
-      var token
-      var after
-
-      if (code === 126) {
-        // If this is the third marker, exit.
-        if (size > 1) return nok(code)
-        effects.consume(code)
-        size++
-        return more
-      }
-
-      if (size < 2 && !single) return nok(code)
-      token = effects.exit('strikethroughSequenceTemporary')
-      after = classifyCharacter(code)
-      token._open = !after || (after === 2 && before)
-      token._close = !before || (before === 2 && after)
-      return ok(code)
-    }
-  }
-}
-
-
-/***/ }),
-
-/***/ 4740:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = __nccwpck_require__(1)
-
-
-/***/ }),
-
-/***/ 1:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-exports.flow = {
-  null: {tokenize: tokenizeTable, resolve: resolveTable, interruptible: true}
-}
-
-var createSpace = __nccwpck_require__(556)
-
-var setextUnderlineMini = {tokenize: tokenizeSetextUnderlineMini, partial: true}
-var nextPrefixedOrBlank = {tokenize: tokenizeNextPrefixedOrBlank, partial: true}
-
-function resolveTable(events, context) {
-  var length = events.length
-  var index = -1
-  var token
-  var inHead
-  var inDelimiterRow
-  var inRow
-  var cell
-  var content
-  var text
-  var contentStart
-  var contentEnd
-  var cellStart
-
-  while (++index < length) {
-    token = events[index][1]
-
-    if (inRow) {
-      if (token.type === 'temporaryTableCellContent') {
-        contentStart = contentStart || index
-        contentEnd = index
-      }
-
-      if (
-        // Combine separate content parts into one.
-        (token.type === 'tableCellDivider' || token.type === 'tableRow') &&
-        contentEnd
-      ) {
-        content = {
-          type: 'tableContent',
-          start: events[contentStart][1].start,
-          end: events[contentEnd][1].end
-        }
-        text = {
-          type: 'chunkText',
-          start: content.start,
-          end: content.end,
-          contentType: 'text'
-        }
-
-        events.splice(
-          contentStart,
-          contentEnd - contentStart + 1,
-          ['enter', content, context],
-          ['enter', text, context],
-          ['exit', text, context],
-          ['exit', content, context]
-        )
-        index -= contentEnd - contentStart - 3
-        length = events.length
-        contentStart = undefined
-        contentEnd = undefined
-      }
-    }
-
-    if (
-      events[index][0] === 'exit' &&
-      cellStart &&
-      cellStart + 1 < index &&
-      (token.type === 'tableCellDivider' ||
-        (token.type === 'tableRow' &&
-          (cellStart + 3 < index ||
-            events[cellStart][1].type !== 'whitespace')))
-    ) {
-      cell = {
-        type: inDelimiterRow
-          ? 'tableDelimiter'
-          : inHead
-          ? 'tableHeader'
-          : 'tableData',
-        start: events[cellStart][1].start,
-        end: events[index][1].end
-      }
-      events.splice(index + (token.type === 'tableCellDivider' ? 1 : 0), 0, [
-        'exit',
-        cell,
-        context
-      ])
-      events.splice(cellStart, 0, ['enter', cell, context])
-      index += 2
-      length = events.length
-      cellStart = index + 1
-    }
-
-    if (token.type === 'tableRow') {
-      inRow = events[index][0] === 'enter'
-
-      if (inRow) {
-        cellStart = index + 1
-      }
-    }
-
-    if (token.type === 'tableDelimiterRow') {
-      inDelimiterRow = events[index][0] === 'enter'
-
-      if (inDelimiterRow) {
-        cellStart = index + 1
-      }
-    }
-
-    if (token.type === 'tableHead') {
-      inHead = events[index][0] === 'enter'
-    }
-  }
-
-  return events
-}
-
-function tokenizeTable(effects, ok, nok) {
-  var align = []
-  var tableHeaderCount = 0
-  var seenDelimiter
-  var hasDash
-
-  return start
-
-  function start(code) {
-    /* istanbul ignore if - used to be passed in beta micromark versions. */
-    if (code === null || code === -5 || code === -4 || code === -3) {
-      return nok(code)
-    }
-
-    effects.enter('table')._align = align
-    effects.enter('tableHead')
-    effects.enter('tableRow')
-
-    // If we start with a pipe, we open a cell marker.
-    if (code === 124) {
-      return cellDividerHead(code)
-    }
-
-    tableHeaderCount++
-    effects.enter('temporaryTableCellContent')
-    // Can’t be space or eols at the start of a construct, so we’re in a cell.
-    return inCellContentHead(code)
-  }
-
-  function cellDividerHead(code) {
-    // Always a pipe.
-    effects.enter('tableCellDivider')
-    effects.consume(code)
-    effects.exit('tableCellDivider')
-    seenDelimiter = true
-    return cellBreakHead
-  }
-
-  function cellBreakHead(code) {
-    // EOF, CR, LF, CRLF.
-    if (code === null || code === -5 || code === -4 || code === -3) {
-      return atRowEndHead(code)
-    }
-
-    // HT, VS, SP.
-    if (code === -2 || code === -1 || code === 32) {
-      effects.enter('whitespace')
-      effects.consume(code)
-      return inWhitespaceHead
-    }
-
-    if (seenDelimiter) {
-      seenDelimiter = undefined
-      tableHeaderCount++
-    }
-
-    // `|`
-    if (code === 124) {
-      return cellDividerHead(code)
-    }
-
-    // Anything else is cell content.
-    effects.enter('temporaryTableCellContent')
-    return inCellContentHead(code)
-  }
-
-  function inWhitespaceHead(code) {
-    // HT, VS, SP.
-    if (code === -2 || code === -1 || code === 32) {
-      effects.consume(code)
-      return inWhitespaceHead
-    }
-
-    effects.exit('whitespace')
-    return cellBreakHead(code)
-  }
-
-  function inCellContentHead(code) {
-    // EOF, whitespace, pipe
-    if (code === null || code < 0 || code === 32 || code === 124) {
-      effects.exit('temporaryTableCellContent')
-      return cellBreakHead(code)
-    }
-
-    effects.consume(code)
-    // `\`
-    return code === 92 ? inCellContentEscapeHead : inCellContentHead
-  }
-
-  function inCellContentEscapeHead(code) {
-    // `\` or `|`
-    if (code === 92 || code === 124) {
-      effects.consume(code)
-      return inCellContentHead
-    }
-
-    // Anything else.
-    return inCellContentHead(code)
-  }
-
-  function atRowEndHead(code) {
-    if (code === null) {
-      return nok(code)
-    }
-
-    effects.exit('tableRow')
-    effects.exit('tableHead')
-
-    // Always a line ending.
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-
-    // If a setext heading, exit.
-    return effects.check(
-      setextUnderlineMini,
-      nok,
-      // Support an indent before the delimiter row.
-      createSpace(effects, rowStartDelimiter, 'linePrefix', 4)
-    )
-  }
-
-  function rowStartDelimiter(code) {
-    // If there’s another space, or we’re at the EOL/EOF, exit.
-    if (code === null || code < 0 || code === 32) {
-      return nok(code)
-    }
-
-    effects.enter('tableDelimiterRow')
-    return atDelimiterRowBreak(code)
-  }
-
-  function atDelimiterRowBreak(code) {
-    // EOF, CR, LF, CRLF.
-    if (code === null || code === -5 || code === -4 || code === -3) {
-      return rowEndDelimiter(code)
-    }
-
-    // HT, VS, SP.
-    if (code === -2 || code === -1 || code === 32) {
-      effects.enter('whitespace')
-      effects.consume(code)
-      return inWhitespaceDelimiter
-    }
-
-    // `-`
-    if (code === 45) {
-      effects.enter('tableDelimiterFiller')
-      effects.consume(code)
-      hasDash = true
-      align.push(null)
-      return inFillerDelimiter
-    }
-
-    // `:`
-    if (code === 58) {
-      effects.enter('tableDelimiterAlignment')
-      effects.consume(code)
-      effects.exit('tableDelimiterAlignment')
-      align.push('left')
-      return afterLeftAlignment
-    }
-
-    // If we start with a pipe, we open a cell marker.
-    if (code === 124) {
-      effects.enter('tableCellDivider')
-      effects.consume(code)
-      effects.exit('tableCellDivider')
-      return atDelimiterRowBreak
-    }
-
-    return nok(code)
-  }
-
-  function inWhitespaceDelimiter(code) {
-    // HT, VS, SP.
-    if (code === -2 || code === -1 || code === 32) {
-      effects.consume(code)
-      return inWhitespaceDelimiter
-    }
-
-    effects.exit('whitespace')
-    return atDelimiterRowBreak(code)
-  }
-
-  function inFillerDelimiter(code) {
-    // `-`
-    if (code === 45) {
-      effects.consume(code)
-      return inFillerDelimiter
-    }
-
-    effects.exit('tableDelimiterFiller')
-
-    // `:`
-    if (code === 58) {
-      effects.enter('tableDelimiterAlignment')
-      effects.consume(code)
-      effects.exit('tableDelimiterAlignment')
-
-      align[align.length - 1] =
-        align[align.length - 1] === 'left' ? 'center' : 'right'
-
-      return afterRightAlignment
-    }
-
-    return atDelimiterRowBreak(code)
-  }
-
-  function afterLeftAlignment(code) {
-    // `-`
-    if (code === 45) {
-      effects.enter('tableDelimiterFiller')
-      effects.consume(code)
-      hasDash = true
-      return inFillerDelimiter
-    }
-
-    // Anything else is not ok.
-    return nok(code)
-  }
-
-  function afterRightAlignment(code) {
-    // EOF, CR, LF, CRLF.
-    if (code === null || code === -5 || code === -4 || code === -3) {
-      return rowEndDelimiter(code)
-    }
-
-    // HT, VS, SP.
-    if (code === -2 || code === -1 || code === 32) {
-      effects.enter('whitespace')
-      effects.consume(code)
-      return inWhitespaceDelimiter
-    }
-
-    // `|`
-    if (code === 124) {
-      effects.enter('tableCellDivider')
-      effects.consume(code)
-      effects.exit('tableCellDivider')
-      return atDelimiterRowBreak
-    }
-
-    return nok(code)
-  }
-
-  function rowEndDelimiter(code) {
-    effects.exit('tableDelimiterRow')
-
-    // Exit if there was no dash at all, or if the header cell count is not the
-    // delimiter cell count.
-    if (!hasDash || tableHeaderCount !== align.length) {
-      return nok(code)
-    }
-
-    if (code === null) {
-      return tableClose(code)
-    }
-
-    return effects.check(nextPrefixedOrBlank, tableClose, tableContinue)(code)
-  }
-
-  function tableClose(code) {
-    effects.exit('table')
-    return ok(code)
-  }
-
-  function tableContinue(code) {
-    // Always a line ending.
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-    // We checked that it’s not a prefixed or blank line, so we’re certain a
-    // body is coming, though it may be indented.
-    return createSpace(effects, bodyStart, 'linePrefix', 4)
-  }
-
-  function bodyStart(code) {
-    effects.enter('tableBody')
-    return rowStartBody(code)
-  }
-
-  function rowStartBody(code) {
-    effects.enter('tableRow')
-
-    // If we start with a pipe, we open a cell marker.
-    if (code === 124) {
-      return cellDividerBody(code)
-    }
-
-    effects.enter('temporaryTableCellContent')
-    // Can’t be space or eols at the start of a construct, so we’re in a cell.
-    return inCellContentBody(code)
-  }
-
-  function cellDividerBody(code) {
-    // Always a pipe.
-    effects.enter('tableCellDivider')
-    effects.consume(code)
-    effects.exit('tableCellDivider')
-    return cellBreakBody
-  }
-
-  function cellBreakBody(code) {
-    // EOF, CR, LF, CRLF.
-    if (code === null || code === -5 || code === -4 || code === -3) {
-      return atRowEndBody(code)
-    }
-
-    // HT, VS, SP.
-    if (code === -2 || code === -1 || code === 32) {
-      effects.enter('whitespace')
-      effects.consume(code)
-      return inWhitespaceBody
-    }
-
-    // `|`
-    if (code === 124) {
-      return cellDividerBody(code)
-    }
-
-    // Anything else is cell content.
-    effects.enter('temporaryTableCellContent')
-    return inCellContentBody(code)
-  }
-
-  function inWhitespaceBody(code) {
-    // HT, VS, SP.
-    if (code === -2 || code === -1 || code === 32) {
-      effects.consume(code)
-      return inWhitespaceBody
-    }
-
-    effects.exit('whitespace')
-    return cellBreakBody(code)
-  }
-
-  function inCellContentBody(code) {
-    // EOF, whitespace, pipe
-    if (code === null || code < 0 || code === 32 || code === 124) {
-      effects.exit('temporaryTableCellContent')
-      return cellBreakBody(code)
-    }
-
-    effects.consume(code)
-    // `\`
-    return code === 92 ? inCellContentEscapeBody : inCellContentBody
-  }
-
-  function inCellContentEscapeBody(code) {
-    // `\` or `|`
-    if (code === 92 || code === 124) {
-      effects.consume(code)
-      return inCellContentBody
-    }
-
-    // Anything else.
-    return inCellContentBody(code)
-  }
-
-  function atRowEndBody(code) {
-    effects.exit('tableRow')
-
-    if (code === null) {
-      return tableBodyClose(code)
-    }
-
-    return effects.check(
-      nextPrefixedOrBlank,
-      tableBodyClose,
-      tableBodyContinue
-    )(code)
-  }
-
-  function tableBodyClose(code) {
-    effects.exit('tableBody')
-    return tableClose(code)
-  }
-
-  function tableBodyContinue(code) {
-    // Always a line ending.
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-    // Support an optional prefix, then start a body row.
-    return createSpace(effects, rowStartBody, 'linePrefix', 4)
-  }
-}
-
-// Based on micromark, but that won’t work as we’re in a table, and that expects
-// content.
-// <https://github.com/micromark/micromark/blob/main/lib/tokenize/setext-underline.js>
-function tokenizeSetextUnderlineMini(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    // `-`
-    if (code !== 45) {
-      return nok(code)
-    }
-
-    effects.enter('setextUnderline')
-    return sequence(code)
-  }
-
-  function sequence(code) {
-    if (code === 45) {
-      effects.consume(code)
-      return sequence
-    }
-
-    return whitespace(code)
-  }
-
-  function whitespace(code) {
-    if (code === -2 || code === -1 || code === 32) {
-      effects.consume(code)
-      return whitespace
-    }
-
-    if (code === null || code === -5 || code === -4 || code === -3) {
-      return ok(code)
-    }
-
-    return nok(code)
-  }
-}
-
-function tokenizeNextPrefixedOrBlank(effects, ok, nok) {
-  var size = 0
-
-  return start
-
-  function start(code) {
-    // This is a check, so we don’t care about tokens, but we open a bogus one
-    // so we’re valid.
-    effects.enter('check')
-    // EOL.
-    effects.consume(code)
-    return whitespace
-  }
-
-  function whitespace(code) {
-    // VS or SP.
-    if (code === -1 || code === 32) {
-      effects.consume(code)
-      size++
-      return size === 4 ? ok : whitespace
-    }
-
-    // EOF or whitespace
-    if (code === null || code < 0) {
-      return ok(code)
-    }
-
-    // Anything else.
-    return nok(code)
-  }
-}
-
-
-/***/ }),
-
-/***/ 9655:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = __nccwpck_require__(7593)
-
-
-/***/ }),
-
-/***/ 7593:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var spaceFactory = __nccwpck_require__(556)
-var prefixSize = __nccwpck_require__(7208)
-
-var tasklistCheck = {tokenize: tokenizeTasklistCheck}
-
-exports.text = {91: tasklistCheck}
-
-function tokenizeTasklistCheck(effects, ok, nok) {
-  var self = this
-
-  return open
-
-  function open(code) {
-    if (
-      // Exit if not `[`.
-      code !== 91 ||
-      // Exit if there’s stuff before.
-      self.previous !== null ||
-      // Exit if not in the first content that is the first child of a list
-      // item.
-      !self._gfmTasklistFirstContentOfListItem
-    ) {
-      return nok(code)
-    }
-
-    effects.enter('taskListCheck')
-    effects.enter('taskListCheckMarker')
-    effects.consume(code)
-    effects.exit('taskListCheckMarker')
-    return inside
-  }
-
-  function inside(code) {
-    // Tab or space.
-    if (code === -2 || code === 32) {
-      effects.enter('taskListCheckValueUnchecked')
-      effects.consume(code)
-      effects.exit('taskListCheckValueUnchecked')
-      return close
-    }
-
-    // Upper- and lower `x`.
-    if (code === 88 || code === 120) {
-      effects.enter('taskListCheckValueChecked')
-      effects.consume(code)
-      effects.exit('taskListCheckValueChecked')
-      return close
-    }
-
-    return nok(code)
-  }
-
-  function close(code) {
-    // `]`
-    if (code === 93) {
-      effects.enter('taskListCheckMarker')
-      effects.consume(code)
-      effects.exit('taskListCheckMarker')
-      effects.exit('taskListCheck')
-      return effects.check({tokenize: spaceThenNonSpace}, ok, nok)
-    }
-
-    return nok(code)
-  }
-}
-
-function spaceThenNonSpace(effects, ok, nok) {
-  var self = this
-
-  return spaceFactory(effects, after, 'whitespace')
-
-  function after(code) {
-    return prefixSize(self.events, 'whitespace') &&
-      code !== null &&
-      !markdownLineEndingOrSpace(code)
-      ? ok(code)
-      : nok(code)
-  }
-}
-
-
-/***/ }),
-
-/***/ 578:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = __nccwpck_require__(3405)
-
-
-/***/ }),
-
-/***/ 3405:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var combine = __nccwpck_require__(3390)
-var autolink = __nccwpck_require__(5184)
-var strikethrough = __nccwpck_require__(759)
-var table = __nccwpck_require__(4740)
-var tasklist = __nccwpck_require__(9655)
-
-module.exports = create
-
-function create(options) {
-  return combine([autolink, strikethrough(options), table, tasklist])
-}
-
-
-/***/ }),
-
-/***/ 8229:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var regexCheck = __nccwpck_require__(2180)
-
-var asciiAlpha = regexCheck(/[A-Za-z]/)
-
-module.exports = asciiAlpha
-
-
-/***/ }),
-
-/***/ 209:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var regexCheck = __nccwpck_require__(2180)
-
-var asciiAlphanumeric = regexCheck(/[\dA-Za-z]/)
-
-module.exports = asciiAlphanumeric
-
-
-/***/ }),
-
-/***/ 4783:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var regexCheck = __nccwpck_require__(2180)
-
-var asciiAtext = regexCheck(/[#-'*+\--9=?A-Z^-~]/)
-
-module.exports = asciiAtext
-
-
-/***/ }),
-
-/***/ 7759:
-/***/ ((module) => {
-
-"use strict";
-
-
-// Note: EOF is seen as ASCII control here, because `null < 32 == true`.
-function asciiControl(code) {
-  return (
-    // Special whitespace codes (which have negative values), C0 and Control
-    // character DEL
-    code < 32 || code === 127
-  )
-}
-
-module.exports = asciiControl
-
-
-/***/ }),
-
-/***/ 2090:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var regexCheck = __nccwpck_require__(2180)
-
-var asciiDigit = regexCheck(/\d/)
-
-module.exports = asciiDigit
-
-
-/***/ }),
-
-/***/ 5094:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var regexCheck = __nccwpck_require__(2180)
-
-var asciiHexDigit = regexCheck(/[\dA-Fa-f]/)
-
-module.exports = asciiHexDigit
-
-
-/***/ }),
-
-/***/ 8507:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var regexCheck = __nccwpck_require__(2180)
-
-var asciiPunctuation = regexCheck(/[!-/:-@[-`{-~]/)
-
-module.exports = asciiPunctuation
-
-
-/***/ }),
-
-/***/ 416:
-/***/ ((module) => {
-
-"use strict";
-
-
-function markdownLineEndingOrSpace(code) {
-  return code < 0 || code === 32
-}
-
-module.exports = markdownLineEndingOrSpace
-
-
-/***/ }),
-
-/***/ 4196:
-/***/ ((module) => {
-
-"use strict";
-
-
-function markdownLineEnding(code) {
-  return code < -2
-}
-
-module.exports = markdownLineEnding
-
-
-/***/ }),
-
-/***/ 3155:
-/***/ ((module) => {
-
-"use strict";
-
-
-function markdownSpace(code) {
-  return code === -2 || code === -1 || code === 32
-}
-
-module.exports = markdownSpace
-
-
-/***/ }),
-
-/***/ 4409:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var unicodePunctuationRegex = __nccwpck_require__(693)
-var regexCheck = __nccwpck_require__(2180)
-
-// In fact adds to the bundle size.
-
-var unicodePunctuation = regexCheck(unicodePunctuationRegex)
-
-module.exports = unicodePunctuation
-
-
-/***/ }),
-
-/***/ 3284:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var regexCheck = __nccwpck_require__(2180)
-
-var unicodeWhitespace = regexCheck(/\s/)
-
-module.exports = unicodeWhitespace
-
-
-/***/ }),
-
-/***/ 9045:
-/***/ ((module) => {
-
-"use strict";
-
-
-var assign = Object.assign
-
-module.exports = assign
-
-
-/***/ }),
-
-/***/ 54:
-/***/ ((module) => {
-
-"use strict";
-
-
-var fromCharCode = String.fromCharCode
-
-module.exports = fromCharCode
-
-
-/***/ }),
-
-/***/ 4396:
-/***/ ((module) => {
-
-"use strict";
-
-
-var own = {}.hasOwnProperty
-
-module.exports = own
-
-
-/***/ }),
-
-/***/ 2069:
-/***/ ((module) => {
-
-"use strict";
-
-
-// This module is copied from <https://spec.commonmark.org/0.29/#html-blocks>.
-var basics = [
-  'address',
-  'article',
-  'aside',
-  'base',
-  'basefont',
-  'blockquote',
-  'body',
-  'caption',
-  'center',
-  'col',
-  'colgroup',
-  'dd',
-  'details',
-  'dialog',
-  'dir',
-  'div',
-  'dl',
-  'dt',
-  'fieldset',
-  'figcaption',
-  'figure',
-  'footer',
-  'form',
-  'frame',
-  'frameset',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'head',
-  'header',
-  'hr',
-  'html',
-  'iframe',
-  'legend',
-  'li',
-  'link',
-  'main',
-  'menu',
-  'menuitem',
-  'nav',
-  'noframes',
-  'ol',
-  'optgroup',
-  'option',
-  'p',
-  'param',
-  'section',
-  'source',
-  'summary',
-  'table',
-  'tbody',
-  'td',
-  'tfoot',
-  'th',
-  'thead',
-  'title',
-  'tr',
-  'track',
-  'ul'
-]
-
-module.exports = basics
-
-
-/***/ }),
-
-/***/ 9429:
-/***/ ((module) => {
-
-"use strict";
-
-
-// This module is copied from <https://spec.commonmark.org/0.29/#html-blocks>.
-var raws = ['pre', 'script', 'style', 'textarea']
-
-module.exports = raws
-
-
-/***/ }),
-
-/***/ 4593:
-/***/ ((module) => {
-
-"use strict";
-
-
-var splice = [].splice
-
-module.exports = splice
-
-
-/***/ }),
-
-/***/ 693:
-/***/ ((module) => {
-
-"use strict";
-
-
-// This module is generated by `script/`.
-//
-// CommonMark handles attention (emphasis, strong) markers based on what comes
-// before or after them.
-// One such difference is if those characters are Unicode punctuation.
-// This script is generated from the Unicode data.
-var unicodePunctuation = /[!-\/:-@\[-`\{-~\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C77\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E4F\u2E52\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]/
-
-module.exports = unicodePunctuation
-
-
-/***/ }),
-
-/***/ 333:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({value: true}))
-
-var text$1 = __nccwpck_require__(5394)
-var attention = __nccwpck_require__(3691)
-var autolink = __nccwpck_require__(7321)
-var blockQuote = __nccwpck_require__(8823)
-var characterEscape = __nccwpck_require__(1306)
-var characterReference = __nccwpck_require__(3815)
-var codeFenced = __nccwpck_require__(212)
-var codeIndented = __nccwpck_require__(1388)
-var codeText = __nccwpck_require__(3246)
-var definition = __nccwpck_require__(6865)
-var hardBreakEscape = __nccwpck_require__(4408)
-var headingAtx = __nccwpck_require__(7523)
-var htmlFlow = __nccwpck_require__(1341)
-var htmlText = __nccwpck_require__(7411)
-var labelEnd = __nccwpck_require__(2546)
-var labelStartImage = __nccwpck_require__(7634)
-var labelStartLink = __nccwpck_require__(449)
-var lineEnding = __nccwpck_require__(4044)
-var list = __nccwpck_require__(1208)
-var setextUnderline = __nccwpck_require__(1079)
-var thematicBreak = __nccwpck_require__(6318)
-
-var document = {
-  42: list,
-  // Asterisk
-  43: list,
-  // Plus sign
-  45: list,
-  // Dash
-  48: list,
-  // 0
-  49: list,
-  // 1
-  50: list,
-  // 2
-  51: list,
-  // 3
-  52: list,
-  // 4
-  53: list,
-  // 5
-  54: list,
-  // 6
-  55: list,
-  // 7
-  56: list,
-  // 8
-  57: list,
-  // 9
-  62: blockQuote // Greater than
-}
-var contentInitial = {
-  91: definition // Left square bracket
-}
-var flowInitial = {
-  '-2': codeIndented,
-  // Horizontal tab
-  '-1': codeIndented,
-  // Virtual space
-  32: codeIndented // Space
-}
-var flow = {
-  35: headingAtx,
-  // Number sign
-  42: thematicBreak,
-  // Asterisk
-  45: [setextUnderline, thematicBreak],
-  // Dash
-  60: htmlFlow,
-  // Less than
-  61: setextUnderline,
-  // Equals to
-  95: thematicBreak,
-  // Underscore
-  96: codeFenced,
-  // Grave accent
-  126: codeFenced // Tilde
-}
-var string = {
-  38: characterReference,
-  // Ampersand
-  92: characterEscape // Backslash
-}
-var text = {
-  '-5': lineEnding,
-  // Carriage return
-  '-4': lineEnding,
-  // Line feed
-  '-3': lineEnding,
-  // Carriage return + line feed
-  33: labelStartImage,
-  // Exclamation mark
-  38: characterReference,
-  // Ampersand
-  42: attention,
-  // Asterisk
-  60: [autolink, htmlText],
-  // Less than
-  91: labelStartLink,
-  // Left square bracket
-  92: [hardBreakEscape, characterEscape],
-  // Backslash
-  93: labelEnd,
-  // Right square bracket
-  95: attention,
-  // Underscore
-  96: codeText // Grave accent
-}
-var insideSpan = {
-  null: [attention, text$1.resolver]
-}
-var disable = {
-  null: []
-}
-
-exports.contentInitial = contentInitial
-exports.disable = disable
-exports.document = document
-exports.flow = flow
-exports.flowInitial = flowInitial
-exports.insideSpan = insideSpan
-exports.string = string
-exports.text = text
-
-
-/***/ }),
-
-/***/ 2455:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({value: true}))
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var factorySpace = __nccwpck_require__(556)
-
-var tokenize = initializeContent
-
-function initializeContent(effects) {
-  var contentStart = effects.attempt(
-    this.parser.constructs.contentInitial,
-    afterContentStartConstruct,
-    paragraphInitial
-  )
-  var previous
-  return contentStart
-
-  function afterContentStartConstruct(code) {
-    if (code === null) {
-      effects.consume(code)
-      return
-    }
-
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-    return factorySpace(effects, contentStart, 'linePrefix')
-  }
-
-  function paragraphInitial(code) {
-    effects.enter('paragraph')
-    return lineStart(code)
-  }
-
-  function lineStart(code) {
-    var token = effects.enter('chunkText', {
-      contentType: 'text',
-      previous: previous
-    })
-
-    if (previous) {
-      previous.next = token
-    }
-
-    previous = token
-    return data(code)
-  }
-
-  function data(code) {
-    if (code === null) {
-      effects.exit('chunkText')
-      effects.exit('paragraph')
-      effects.consume(code)
-      return
-    }
-
-    if (markdownLineEnding(code)) {
-      effects.consume(code)
-      effects.exit('chunkText')
-      return lineStart
-    } // Data.
-
-    effects.consume(code)
-    return data
-  }
-}
-
-exports.tokenize = tokenize
-
-
-/***/ }),
-
-/***/ 2075:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({value: true}))
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var factorySpace = __nccwpck_require__(556)
-var partialBlankLine = __nccwpck_require__(5719)
-
-var tokenize = initializeDocument
-var containerConstruct = {
-  tokenize: tokenizeContainer
-}
-var lazyFlowConstruct = {
-  tokenize: tokenizeLazyFlow
-}
-
-function initializeDocument(effects) {
-  var self = this
-  var stack = []
-  var continued = 0
-  var inspectConstruct = {
-    tokenize: tokenizeInspect,
-    partial: true
-  }
-  var inspectResult
-  var childFlow
-  var childToken
-  return start
-
-  function start(code) {
-    if (continued < stack.length) {
-      self.containerState = stack[continued][1]
-      return effects.attempt(
-        stack[continued][0].continuation,
-        documentContinue,
-        documentContinued
-      )(code)
-    }
-
-    return documentContinued(code)
-  }
-
-  function documentContinue(code) {
-    continued++
-    return start(code)
-  }
-
-  function documentContinued(code) {
-    // If we’re in a concrete construct (such as when expecting another line of
-    // HTML, or we resulted in lazy content), we can immediately start flow.
-    if (inspectResult && inspectResult.flowContinue) {
-      return flowStart(code)
-    }
-
-    self.interrupt =
-      childFlow &&
-      childFlow.currentConstruct &&
-      childFlow.currentConstruct.interruptible
-    self.containerState = {}
-    return effects.attempt(
-      containerConstruct,
-      containerContinue,
-      flowStart
-    )(code)
-  }
-
-  function containerContinue(code) {
-    stack.push([self.currentConstruct, self.containerState])
-    self.containerState = undefined
-    return documentContinued(code)
-  }
-
-  function flowStart(code) {
-    if (code === null) {
-      exitContainers(0, true)
-      effects.consume(code)
-      return
-    }
-
-    childFlow = childFlow || self.parser.flow(self.now())
-    effects.enter('chunkFlow', {
-      contentType: 'flow',
-      previous: childToken,
-      _tokenizer: childFlow
-    })
-    return flowContinue(code)
-  }
-
-  function flowContinue(code) {
-    if (code === null) {
-      continueFlow(effects.exit('chunkFlow'))
-      return flowStart(code)
-    }
-
-    if (markdownLineEnding(code)) {
-      effects.consume(code)
-      continueFlow(effects.exit('chunkFlow'))
-      return effects.check(inspectConstruct, documentAfterPeek)
-    }
-
-    effects.consume(code)
-    return flowContinue
-  }
-
-  function documentAfterPeek(code) {
-    exitContainers(
-      inspectResult.continued,
-      inspectResult && inspectResult.flowEnd
-    )
-    continued = 0
-    return start(code)
-  }
-
-  function continueFlow(token) {
-    if (childToken) childToken.next = token
-    childToken = token
-    childFlow.lazy = inspectResult && inspectResult.lazy
-    childFlow.defineSkip(token.start)
-    childFlow.write(self.sliceStream(token))
-  }
-
-  function exitContainers(size, end) {
-    var index = stack.length // Close the flow.
-
-    if (childFlow && end) {
-      childFlow.write([null])
-      childToken = childFlow = undefined
-    } // Exit open containers.
-
-    while (index-- > size) {
-      self.containerState = stack[index][1]
-      stack[index][0].exit.call(self, effects)
-    }
-
-    stack.length = size
-  }
-
-  function tokenizeInspect(effects, ok) {
-    var subcontinued = 0
-    inspectResult = {}
-    return inspectStart
-
-    function inspectStart(code) {
-      if (subcontinued < stack.length) {
-        self.containerState = stack[subcontinued][1]
-        return effects.attempt(
-          stack[subcontinued][0].continuation,
-          inspectContinue,
-          inspectLess
-        )(code)
-      } // If we’re continued but in a concrete flow, we can’t have more
-      // containers.
-
-      if (childFlow.currentConstruct && childFlow.currentConstruct.concrete) {
-        inspectResult.flowContinue = true
-        return inspectDone(code)
-      }
-
-      self.interrupt =
-        childFlow.currentConstruct && childFlow.currentConstruct.interruptible
-      self.containerState = {}
-      return effects.attempt(
-        containerConstruct,
-        inspectFlowEnd,
-        inspectDone
-      )(code)
-    }
-
-    function inspectContinue(code) {
-      subcontinued++
-      return self.containerState._closeFlow
-        ? inspectFlowEnd(code)
-        : inspectStart(code)
-    }
-
-    function inspectLess(code) {
-      if (childFlow.currentConstruct && childFlow.currentConstruct.lazy) {
-        // Maybe another container?
-        self.containerState = {}
-        return effects.attempt(
-          containerConstruct,
-          inspectFlowEnd, // Maybe flow, or a blank line?
-          effects.attempt(
-            lazyFlowConstruct,
-            inspectFlowEnd,
-            effects.check(partialBlankLine, inspectFlowEnd, inspectLazy)
-          )
-        )(code)
-      } // Otherwise we’re interrupting.
-
-      return inspectFlowEnd(code)
-    }
-
-    function inspectLazy(code) {
-      // Act as if all containers are continued.
-      subcontinued = stack.length
-      inspectResult.lazy = true
-      inspectResult.flowContinue = true
-      return inspectDone(code)
-    } // We’re done with flow if we have more containers, or an interruption.
-
-    function inspectFlowEnd(code) {
-      inspectResult.flowEnd = true
-      return inspectDone(code)
-    }
-
-    function inspectDone(code) {
-      inspectResult.continued = subcontinued
-      self.interrupt = self.containerState = undefined
-      return ok(code)
-    }
-  }
-}
-
-function tokenizeContainer(effects, ok, nok) {
-  return factorySpace(
-    effects,
-    effects.attempt(this.parser.constructs.document, ok, nok),
-    'linePrefix',
-    this.parser.constructs.disable.null.indexOf('codeIndented') > -1
-      ? undefined
-      : 4
-  )
-}
-
-function tokenizeLazyFlow(effects, ok, nok) {
-  return factorySpace(
-    effects,
-    effects.lazy(this.parser.constructs.flow, ok, nok),
-    'linePrefix',
-    this.parser.constructs.disable.null.indexOf('codeIndented') > -1
-      ? undefined
-      : 4
-  )
-}
-
-exports.tokenize = tokenize
-
-
-/***/ }),
-
-/***/ 8871:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({value: true}))
-
-var content = __nccwpck_require__(6442)
-var factorySpace = __nccwpck_require__(556)
-var partialBlankLine = __nccwpck_require__(5719)
-
-var tokenize = initializeFlow
-
-function initializeFlow(effects) {
-  var self = this
-  var initial = effects.attempt(
-    // Try to parse a blank line.
-    partialBlankLine,
-    atBlankEnding, // Try to parse initial flow (essentially, only code).
-    effects.attempt(
-      this.parser.constructs.flowInitial,
-      afterConstruct,
-      factorySpace(
-        effects,
-        effects.attempt(
-          this.parser.constructs.flow,
-          afterConstruct,
-          effects.attempt(content, afterConstruct)
-        ),
-        'linePrefix'
-      )
-    )
-  )
-  return initial
-
-  function atBlankEnding(code) {
-    if (code === null) {
-      effects.consume(code)
-      return
-    }
-
-    effects.enter('lineEndingBlank')
-    effects.consume(code)
-    effects.exit('lineEndingBlank')
-    self.currentConstruct = undefined
-    return initial
-  }
-
-  function afterConstruct(code) {
-    if (code === null) {
-      effects.consume(code)
-      return
-    }
-
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-    self.currentConstruct = undefined
-    return initial
-  }
-}
-
-exports.tokenize = tokenize
-
-
-/***/ }),
-
-/***/ 5394:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({value: true}))
-
-var assign = __nccwpck_require__(9045)
-var shallow = __nccwpck_require__(7766)
-
-var text = initializeFactory('text')
-var string = initializeFactory('string')
-var resolver = {
-  resolveAll: createResolver()
-}
-
-function initializeFactory(field) {
-  return {
-    tokenize: initializeText,
-    resolveAll: createResolver(
-      field === 'text' ? resolveAllLineSuffixes : undefined
-    )
-  }
-
-  function initializeText(effects) {
-    var self = this
-    var constructs = this.parser.constructs[field]
-    var text = effects.attempt(constructs, start, notText)
-    return start
-
-    function start(code) {
-      return atBreak(code) ? text(code) : notText(code)
-    }
-
-    function notText(code) {
-      if (code === null) {
-        effects.consume(code)
-        return
-      }
-
-      effects.enter('data')
-      effects.consume(code)
-      return data
-    }
-
-    function data(code) {
-      if (atBreak(code)) {
-        effects.exit('data')
-        return text(code)
-      } // Data.
-
-      effects.consume(code)
-      return data
-    }
-
-    function atBreak(code) {
-      var list = constructs[code]
-      var index = -1
-
-      if (code === null) {
-        return true
-      }
-
-      if (list) {
-        while (++index < list.length) {
-          if (
-            !list[index].previous ||
-            list[index].previous.call(self, self.previous)
-          ) {
-            return true
+          compver.raw = compver.format()
+          /* fallthrough */
+        case '':
+        case '>=':
+          if (!minver || gt(minver, compver)) {
+            minver = compver
           }
-        }
-      }
-    }
-  }
-}
-
-function createResolver(extraResolver) {
-  return resolveAllText
-
-  function resolveAllText(events, context) {
-    var index = -1
-    var enter // A rather boring computation (to merge adjacent `data` events) which
-    // improves mm performance by 29%.
-
-    while (++index <= events.length) {
-      if (enter === undefined) {
-        if (events[index] && events[index][1].type === 'data') {
-          enter = index
-          index++
-        }
-      } else if (!events[index] || events[index][1].type !== 'data') {
-        // Don’t do anything if there is one data token.
-        if (index !== enter + 2) {
-          events[enter][1].end = events[index - 1][1].end
-          events.splice(enter + 2, index - enter - 2)
-          index = enter + 2
-        }
-
-        enter = undefined
-      }
-    }
-
-    return extraResolver ? extraResolver(events, context) : events
-  }
-} // A rather ugly set of instructions which again looks at chunks in the input
-// stream.
-// The reason to do this here is that it is *much* faster to parse in reverse.
-// And that we can’t hook into `null` to split the line suffix before an EOF.
-// To do: figure out if we can make this into a clean utility, or even in core.
-// As it will be useful for GFMs literal autolink extension (and maybe even
-// tables?)
-
-function resolveAllLineSuffixes(events, context) {
-  var eventIndex = -1
-  var chunks
-  var data
-  var chunk
-  var index
-  var bufferIndex
-  var size
-  var tabs
-  var token
-
-  while (++eventIndex <= events.length) {
-    if (
-      (eventIndex === events.length ||
-        events[eventIndex][1].type === 'lineEnding') &&
-      events[eventIndex - 1][1].type === 'data'
-    ) {
-      data = events[eventIndex - 1][1]
-      chunks = context.sliceStream(data)
-      index = chunks.length
-      bufferIndex = -1
-      size = 0
-      tabs = undefined
-
-      while (index--) {
-        chunk = chunks[index]
-
-        if (typeof chunk === 'string') {
-          bufferIndex = chunk.length
-
-          while (chunk.charCodeAt(bufferIndex - 1) === 32) {
-            size++
-            bufferIndex--
-          }
-
-          if (bufferIndex) break
-          bufferIndex = -1
-        } // Number
-        else if (chunk === -2) {
-          tabs = true
-          size++
-        } else if (chunk === -1);
-        else {
-          // Replacement character, exit.
-          index++
           break
-        }
+        case '<':
+        case '<=':
+          /* Ignore maximum versions */
+          break
+        /* istanbul ignore next */
+        default:
+          throw new Error('Unexpected operation: ' + comparator.operator)
       }
-
-      if (size) {
-        token = {
-          type:
-            eventIndex === events.length || tabs || size < 2
-              ? 'lineSuffix'
-              : 'hardBreakTrailing',
-          start: {
-            line: data.end.line,
-            column: data.end.column - size,
-            offset: data.end.offset - size,
-            _index: data.start._index + index,
-            _bufferIndex: index
-              ? bufferIndex
-              : data.start._bufferIndex + bufferIndex
-          },
-          end: shallow(data.end)
-        }
-        data.end = shallow(token.start)
-
-        if (data.start.offset === data.end.offset) {
-          assign(data, token)
-        } else {
-          events.splice(
-            eventIndex,
-            0,
-            ['enter', token, context],
-            ['exit', token, context]
-          )
-          eventIndex += 2
-        }
-      }
-
-      eventIndex++
-    }
+    })
   }
 
-  return events
+  if (minver && range.test(minver)) {
+    return minver
+  }
+
+  return null
 }
 
-exports.resolver = resolver
-exports.string = string
-exports.text = text
+exports.validRange = validRange
+function validRange (range, options) {
+  try {
+    // Return '*' instead of '' so that truthiness works.
+    // This will throw if it's invalid anyway
+    return new Range(range, options).range || '*'
+  } catch (er) {
+    return null
+  }
+}
+
+// Determine if version is less than all the versions possible in the range
+exports.ltr = ltr
+function ltr (version, range, options) {
+  return outside(version, range, '<', options)
+}
+
+// Determine if version is greater than all the versions possible in the range.
+exports.gtr = gtr
+function gtr (version, range, options) {
+  return outside(version, range, '>', options)
+}
+
+exports.outside = outside
+function outside (version, range, hilo, options) {
+  version = new SemVer(version, options)
+  range = new Range(range, options)
+
+  var gtfn, ltefn, ltfn, comp, ecomp
+  switch (hilo) {
+    case '>':
+      gtfn = gt
+      ltefn = lte
+      ltfn = lt
+      comp = '>'
+      ecomp = '>='
+      break
+    case '<':
+      gtfn = lt
+      ltefn = gte
+      ltfn = gt
+      comp = '<'
+      ecomp = '<='
+      break
+    default:
+      throw new TypeError('Must provide a hilo val of "<" or ">"')
+  }
+
+  // If it satisifes the range it is not outside
+  if (satisfies(version, range, options)) {
+    return false
+  }
+
+  // From now on, variable terms are as if we're in "gtr" mode.
+  // but note that everything is flipped for the "ltr" function.
+
+  for (var i = 0; i < range.set.length; ++i) {
+    var comparators = range.set[i]
+
+    var high = null
+    var low = null
+
+    comparators.forEach(function (comparator) {
+      if (comparator.semver === ANY) {
+        comparator = new Comparator('>=0.0.0')
+      }
+      high = high || comparator
+      low = low || comparator
+      if (gtfn(comparator.semver, high.semver, options)) {
+        high = comparator
+      } else if (ltfn(comparator.semver, low.semver, options)) {
+        low = comparator
+      }
+    })
+
+    // If the edge version comparator has a operator then our version
+    // isn't outside it
+    if (high.operator === comp || high.operator === ecomp) {
+      return false
+    }
+
+    // If the lowest version comparator has an operator and our version
+    // is less than it then it isn't higher than the range
+    if ((!low.operator || low.operator === comp) &&
+        ltefn(version, low.semver)) {
+      return false
+    } else if (low.operator === ecomp && ltfn(version, low.semver)) {
+      return false
+    }
+  }
+  return true
+}
+
+exports.prerelease = prerelease
+function prerelease (version, options) {
+  var parsed = parse(version, options)
+  return (parsed && parsed.prerelease.length) ? parsed.prerelease : null
+}
+
+exports.intersects = intersects
+function intersects (r1, r2, options) {
+  r1 = new Range(r1, options)
+  r2 = new Range(r2, options)
+  return r1.intersects(r2)
+}
+
+exports.coerce = coerce
+function coerce (version) {
+  if (version instanceof SemVer) {
+    return version
+  }
+
+  if (typeof version !== 'string') {
+    return null
+  }
+
+  var match = version.match(re[COERCE])
+
+  if (match == null) {
+    return null
+  }
+
+  return parse(match[1] +
+    '.' + (match[2] || '0') +
+    '.' + (match[3] || '0'))
+}
 
 
 /***/ }),
 
-/***/ 4359:
+/***/ 4947:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-"use strict";
+var timespan = __nccwpck_require__(1842);
+var PS_SUPPORTED = __nccwpck_require__(321);
+var jws = __nccwpck_require__(4273);
+var includes = __nccwpck_require__(5934);
+var isBoolean = __nccwpck_require__(8938);
+var isInteger = __nccwpck_require__(5747);
+var isNumber = __nccwpck_require__(9358);
+var isPlainObject = __nccwpck_require__(9389);
+var isString = __nccwpck_require__(5679);
+var once = __nccwpck_require__(6155);
 
-
-var content = __nccwpck_require__(2455)
-var document = __nccwpck_require__(2075)
-var flow = __nccwpck_require__(8871)
-var text = __nccwpck_require__(5394)
-var combineExtensions = __nccwpck_require__(3390)
-var createTokenizer = __nccwpck_require__(5711)
-var miniflat = __nccwpck_require__(7150)
-var constructs = __nccwpck_require__(333)
-
-function parse(options) {
-  var settings = options || {}
-  var parser = {
-    defined: [],
-    constructs: combineExtensions(
-      [constructs].concat(miniflat(settings.extensions))
-    ),
-    content: create(content),
-    document: create(document),
-    flow: create(flow),
-    string: create(text.string),
-    text: create(text.text)
-  }
-  return parser
-
-  function create(initializer) {
-    return creator
-
-    function creator(from) {
-      return createTokenizer(parser, initializer, from)
-    }
-  }
+var SUPPORTED_ALGS = ['RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'HS256', 'HS384', 'HS512', 'none']
+if (PS_SUPPORTED) {
+  SUPPORTED_ALGS.splice(3, 0, 'PS256', 'PS384', 'PS512');
 }
 
-module.exports = parse
+var sign_options_schema = {
+  expiresIn: { isValid: function(value) { return isInteger(value) || (isString(value) && value); }, message: '"expiresIn" should be a number of seconds or string representing a timespan' },
+  notBefore: { isValid: function(value) { return isInteger(value) || (isString(value) && value); }, message: '"notBefore" should be a number of seconds or string representing a timespan' },
+  audience: { isValid: function(value) { return isString(value) || Array.isArray(value); }, message: '"audience" must be a string or array' },
+  algorithm: { isValid: includes.bind(null, SUPPORTED_ALGS), message: '"algorithm" must be a valid string enum value' },
+  header: { isValid: isPlainObject, message: '"header" must be an object' },
+  encoding: { isValid: isString, message: '"encoding" must be a string' },
+  issuer: { isValid: isString, message: '"issuer" must be a string' },
+  subject: { isValid: isString, message: '"subject" must be a string' },
+  jwtid: { isValid: isString, message: '"jwtid" must be a string' },
+  noTimestamp: { isValid: isBoolean, message: '"noTimestamp" must be a boolean' },
+  keyid: { isValid: isString, message: '"keyid" must be a string' },
+  mutatePayload: { isValid: isBoolean, message: '"mutatePayload" must be a boolean' }
+};
+
+var registered_claims_schema = {
+  iat: { isValid: isNumber, message: '"iat" should be a number of seconds' },
+  exp: { isValid: isNumber, message: '"exp" should be a number of seconds' },
+  nbf: { isValid: isNumber, message: '"nbf" should be a number of seconds' }
+};
+
+function validate(schema, allowUnknown, object, parameterName) {
+  if (!isPlainObject(object)) {
+    throw new Error('Expected "' + parameterName + '" to be a plain object.');
+  }
+  Object.keys(object)
+    .forEach(function(key) {
+      var validator = schema[key];
+      if (!validator) {
+        if (!allowUnknown) {
+          throw new Error('"' + key + '" is not allowed in "' + parameterName + '"');
+        }
+        return;
+      }
+      if (!validator.isValid(object[key])) {
+        throw new Error(validator.message);
+      }
+    });
+}
+
+function validateOptions(options) {
+  return validate(sign_options_schema, false, options, 'options');
+}
+
+function validatePayload(payload) {
+  return validate(registered_claims_schema, true, payload, 'payload');
+}
+
+var options_to_payload = {
+  'audience': 'aud',
+  'issuer': 'iss',
+  'subject': 'sub',
+  'jwtid': 'jti'
+};
+
+var options_for_objects = [
+  'expiresIn',
+  'notBefore',
+  'noTimestamp',
+  'audience',
+  'issuer',
+  'subject',
+  'jwtid',
+];
+
+module.exports = function (payload, secretOrPrivateKey, options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else {
+    options = options || {};
+  }
+
+  var isObjectPayload = typeof payload === 'object' &&
+                        !Buffer.isBuffer(payload);
+
+  var header = Object.assign({
+    alg: options.algorithm || 'HS256',
+    typ: isObjectPayload ? 'JWT' : undefined,
+    kid: options.keyid
+  }, options.header);
+
+  function failure(err) {
+    if (callback) {
+      return callback(err);
+    }
+    throw err;
+  }
+
+  if (!secretOrPrivateKey && options.algorithm !== 'none') {
+    return failure(new Error('secretOrPrivateKey must have a value'));
+  }
+
+  if (typeof payload === 'undefined') {
+    return failure(new Error('payload is required'));
+  } else if (isObjectPayload) {
+    try {
+      validatePayload(payload);
+    }
+    catch (error) {
+      return failure(error);
+    }
+    if (!options.mutatePayload) {
+      payload = Object.assign({},payload);
+    }
+  } else {
+    var invalid_options = options_for_objects.filter(function (opt) {
+      return typeof options[opt] !== 'undefined';
+    });
+
+    if (invalid_options.length > 0) {
+      return failure(new Error('invalid ' + invalid_options.join(',') + ' option for ' + (typeof payload ) + ' payload'));
+    }
+  }
+
+  if (typeof payload.exp !== 'undefined' && typeof options.expiresIn !== 'undefined') {
+    return failure(new Error('Bad "options.expiresIn" option the payload already has an "exp" property.'));
+  }
+
+  if (typeof payload.nbf !== 'undefined' && typeof options.notBefore !== 'undefined') {
+    return failure(new Error('Bad "options.notBefore" option the payload already has an "nbf" property.'));
+  }
+
+  try {
+    validateOptions(options);
+  }
+  catch (error) {
+    return failure(error);
+  }
+
+  var timestamp = payload.iat || Math.floor(Date.now() / 1000);
+
+  if (options.noTimestamp) {
+    delete payload.iat;
+  } else if (isObjectPayload) {
+    payload.iat = timestamp;
+  }
+
+  if (typeof options.notBefore !== 'undefined') {
+    try {
+      payload.nbf = timespan(options.notBefore, timestamp);
+    }
+    catch (err) {
+      return failure(err);
+    }
+    if (typeof payload.nbf === 'undefined') {
+      return failure(new Error('"notBefore" should be a number of seconds or string representing a timespan eg: "1d", "20h", 60'));
+    }
+  }
+
+  if (typeof options.expiresIn !== 'undefined' && typeof payload === 'object') {
+    try {
+      payload.exp = timespan(options.expiresIn, timestamp);
+    }
+    catch (err) {
+      return failure(err);
+    }
+    if (typeof payload.exp === 'undefined') {
+      return failure(new Error('"expiresIn" should be a number of seconds or string representing a timespan eg: "1d", "20h", 60'));
+    }
+  }
+
+  Object.keys(options_to_payload).forEach(function (key) {
+    var claim = options_to_payload[key];
+    if (typeof options[key] !== 'undefined') {
+      if (typeof payload[claim] !== 'undefined') {
+        return failure(new Error('Bad "options.' + key + '" option. The payload already has an "' + claim + '" property.'));
+      }
+      payload[claim] = options[key];
+    }
+  });
+
+  var encoding = options.encoding || 'utf8';
+
+  if (typeof callback === 'function') {
+    callback = callback && once(callback);
+
+    jws.createSign({
+      header: header,
+      privateKey: secretOrPrivateKey,
+      payload: payload,
+      encoding: encoding
+    }).once('error', callback)
+      .once('done', function (signature) {
+        callback(null, signature);
+      });
+  } else {
+    return jws.sign({header: header, payload: payload, secret: secretOrPrivateKey, encoding: encoding});
+  }
+};
 
 
 /***/ }),
 
-/***/ 3592:
+/***/ 6863:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-"use strict";
+var JsonWebTokenError = __nccwpck_require__(3119);
+var NotBeforeError    = __nccwpck_require__(6796);
+var TokenExpiredError = __nccwpck_require__(3689);
+var decode            = __nccwpck_require__(590);
+var timespan          = __nccwpck_require__(1842);
+var PS_SUPPORTED      = __nccwpck_require__(321);
+var jws               = __nccwpck_require__(4273);
 
+var PUB_KEY_ALGS = ['RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512'];
+var RSA_KEY_ALGS = ['RS256', 'RS384', 'RS512'];
+var HS_ALGS = ['HS256', 'HS384', 'HS512'];
 
-var subtokenize = __nccwpck_require__(4737)
-
-function postprocess(events) {
-  while (!subtokenize(events)) {
-    // Empty
-  }
-
-  return events
+if (PS_SUPPORTED) {
+  PUB_KEY_ALGS.splice(3, 0, 'PS256', 'PS384', 'PS512');
+  RSA_KEY_ALGS.splice(3, 0, 'PS256', 'PS384', 'PS512');
 }
 
-module.exports = postprocess
+module.exports = function (jwtString, secretOrPublicKey, options, callback) {
+  if ((typeof options === 'function') && !callback) {
+    callback = options;
+    options = {};
+  }
 
+  if (!options) {
+    options = {};
+  }
 
-/***/ }),
+  //clone this object since we are going to mutate it.
+  options = Object.assign({}, options);
 
-/***/ 7831:
-/***/ ((module) => {
+  var done;
 
-"use strict";
+  if (callback) {
+    done = callback;
+  } else {
+    done = function(err, data) {
+      if (err) throw err;
+      return data;
+    };
+  }
 
+  if (options.clockTimestamp && typeof options.clockTimestamp !== 'number') {
+    return done(new JsonWebTokenError('clockTimestamp must be a number'));
+  }
 
-var search = /[\0\t\n\r]/g
+  if (options.nonce !== undefined && (typeof options.nonce !== 'string' || options.nonce.trim() === '')) {
+    return done(new JsonWebTokenError('nonce must be a non-empty string'));
+  }
 
-function preprocess() {
-  var start = true
-  var column = 1
-  var buffer = ''
-  var atCarriageReturn
-  return preprocessor
+  var clockTimestamp = options.clockTimestamp || Math.floor(Date.now() / 1000);
 
-  function preprocessor(value, encoding, end) {
-    var chunks = []
-    var match
-    var next
-    var startPosition
-    var endPosition
-    var code
-    value = buffer + value.toString(encoding)
-    startPosition = 0
-    buffer = ''
+  if (!jwtString){
+    return done(new JsonWebTokenError('jwt must be provided'));
+  }
 
-    if (start) {
-      if (value.charCodeAt(0) === 65279) {
-        startPosition++
-      }
+  if (typeof jwtString !== 'string') {
+    return done(new JsonWebTokenError('jwt must be a string'));
+  }
 
-      start = undefined
+  var parts = jwtString.split('.');
+
+  if (parts.length !== 3){
+    return done(new JsonWebTokenError('jwt malformed'));
+  }
+
+  var decodedToken;
+
+  try {
+    decodedToken = decode(jwtString, { complete: true });
+  } catch(err) {
+    return done(err);
+  }
+
+  if (!decodedToken) {
+    return done(new JsonWebTokenError('invalid token'));
+  }
+
+  var header = decodedToken.header;
+  var getSecret;
+
+  if(typeof secretOrPublicKey === 'function') {
+    if(!callback) {
+      return done(new JsonWebTokenError('verify must be called asynchronous if secret or public key is provided as a callback'));
     }
 
-    while (startPosition < value.length) {
-      search.lastIndex = startPosition
-      match = search.exec(value)
-      endPosition = match ? match.index : value.length
-      code = value.charCodeAt(endPosition)
+    getSecret = secretOrPublicKey;
+  }
+  else {
+    getSecret = function(header, secretCallback) {
+      return secretCallback(null, secretOrPublicKey);
+    };
+  }
+
+  return getSecret(header, function(err, secretOrPublicKey) {
+    if(err) {
+      return done(new JsonWebTokenError('error in secret or public key callback: ' + err.message));
+    }
+
+    var hasSignature = parts[2].trim() !== '';
+
+    if (!hasSignature && secretOrPublicKey){
+      return done(new JsonWebTokenError('jwt signature is required'));
+    }
+
+    if (hasSignature && !secretOrPublicKey) {
+      return done(new JsonWebTokenError('secret or public key must be provided'));
+    }
+
+    if (!hasSignature && !options.algorithms) {
+      options.algorithms = ['none'];
+    }
+
+    if (!options.algorithms) {
+      options.algorithms = ~secretOrPublicKey.toString().indexOf('BEGIN CERTIFICATE') ||
+        ~secretOrPublicKey.toString().indexOf('BEGIN PUBLIC KEY') ? PUB_KEY_ALGS :
+        ~secretOrPublicKey.toString().indexOf('BEGIN RSA PUBLIC KEY') ? RSA_KEY_ALGS : HS_ALGS;
+
+    }
+
+    if (!~options.algorithms.indexOf(decodedToken.header.alg)) {
+      return done(new JsonWebTokenError('invalid algorithm'));
+    }
+
+    var valid;
+
+    try {
+      valid = jws.verify(jwtString, decodedToken.header.alg, secretOrPublicKey);
+    } catch (e) {
+      return done(e);
+    }
+
+    if (!valid) {
+      return done(new JsonWebTokenError('invalid signature'));
+    }
+
+    var payload = decodedToken.payload;
+
+    if (typeof payload.nbf !== 'undefined' && !options.ignoreNotBefore) {
+      if (typeof payload.nbf !== 'number') {
+        return done(new JsonWebTokenError('invalid nbf value'));
+      }
+      if (payload.nbf > clockTimestamp + (options.clockTolerance || 0)) {
+        return done(new NotBeforeError('jwt not active', new Date(payload.nbf * 1000)));
+      }
+    }
+
+    if (typeof payload.exp !== 'undefined' && !options.ignoreExpiration) {
+      if (typeof payload.exp !== 'number') {
+        return done(new JsonWebTokenError('invalid exp value'));
+      }
+      if (clockTimestamp >= payload.exp + (options.clockTolerance || 0)) {
+        return done(new TokenExpiredError('jwt expired', new Date(payload.exp * 1000)));
+      }
+    }
+
+    if (options.audience) {
+      var audiences = Array.isArray(options.audience) ? options.audience : [options.audience];
+      var target = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+
+      var match = target.some(function (targetAudience) {
+        return audiences.some(function (audience) {
+          return audience instanceof RegExp ? audience.test(targetAudience) : audience === targetAudience;
+        });
+      });
 
       if (!match) {
-        buffer = value.slice(startPosition)
-        break
+        return done(new JsonWebTokenError('jwt audience invalid. expected: ' + audiences.join(' or ')));
       }
-
-      if (code === 10 && startPosition === endPosition && atCarriageReturn) {
-        chunks.push(-3)
-        atCarriageReturn = undefined
-      } else {
-        if (atCarriageReturn) {
-          chunks.push(-5)
-          atCarriageReturn = undefined
-        }
-
-        if (startPosition < endPosition) {
-          chunks.push(value.slice(startPosition, endPosition))
-          column += endPosition - startPosition
-        }
-
-        if (code === 0) {
-          chunks.push(65533)
-          column++
-        } else if (code === 9) {
-          next = Math.ceil(column / 4) * 4
-          chunks.push(-2)
-
-          while (column++ < next) chunks.push(-1)
-        } else if (code === 10) {
-          chunks.push(-4)
-          column = 1
-        } // Must be carriage return.
-        else {
-          atCarriageReturn = true
-          column = 1
-        }
-      }
-
-      startPosition = endPosition + 1
     }
 
-    if (end) {
-      if (atCarriageReturn) chunks.push(-5)
-      if (buffer) chunks.push(buffer)
-      chunks.push(null)
+    if (options.issuer) {
+      var invalid_issuer =
+              (typeof options.issuer === 'string' && payload.iss !== options.issuer) ||
+              (Array.isArray(options.issuer) && options.issuer.indexOf(payload.iss) === -1);
+
+      if (invalid_issuer) {
+        return done(new JsonWebTokenError('jwt issuer invalid. expected: ' + options.issuer));
+      }
     }
 
-    return chunks
-  }
-}
+    if (options.subject) {
+      if (payload.sub !== options.subject) {
+        return done(new JsonWebTokenError('jwt subject invalid. expected: ' + options.subject));
+      }
+    }
 
-module.exports = preprocess
+    if (options.jwtid) {
+      if (payload.jti !== options.jwtid) {
+        return done(new JsonWebTokenError('jwt jwtid invalid. expected: ' + options.jwtid));
+      }
+    }
+
+    if (options.nonce) {
+      if (payload.nonce !== options.nonce) {
+        return done(new JsonWebTokenError('jwt nonce invalid. expected: ' + options.nonce));
+      }
+    }
+
+    if (options.maxAge) {
+      if (typeof payload.iat !== 'number') {
+        return done(new JsonWebTokenError('iat required when maxAge is specified'));
+      }
+
+      var maxAgeTimestamp = timespan(options.maxAge, payload.iat);
+      if (typeof maxAgeTimestamp === 'undefined') {
+        return done(new JsonWebTokenError('"maxAge" should be a number of seconds or string representing a timespan eg: "1d", "20h", 60'));
+      }
+      if (clockTimestamp >= maxAgeTimestamp + (options.clockTolerance || 0)) {
+        return done(new TokenExpiredError('maxAge exceeded', new Date(maxAgeTimestamp * 1000)));
+      }
+    }
+
+    if (options.complete === true) {
+      var signature = decodedToken.signature;
+
+      return done(null, {
+        header: header,
+        payload: payload,
+        signature: signature
+      });
+    }
+
+    return done(null, payload);
+  });
+};
 
 
 /***/ }),
 
-/***/ 3691:
+/***/ 4793:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var bufferEqual = __nccwpck_require__(6645);
+var Buffer = (__nccwpck_require__(2824).Buffer);
+var crypto = __nccwpck_require__(6113);
+var formatEcdsa = __nccwpck_require__(7944);
+var util = __nccwpck_require__(3837);
+
+var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".'
+var MSG_INVALID_SECRET = 'secret must be a string or buffer';
+var MSG_INVALID_VERIFIER_KEY = 'key must be a string or a buffer';
+var MSG_INVALID_SIGNER_KEY = 'key must be a string, a buffer or an object';
+
+var supportsKeyObjects = typeof crypto.createPublicKey === 'function';
+if (supportsKeyObjects) {
+  MSG_INVALID_VERIFIER_KEY += ' or a KeyObject';
+  MSG_INVALID_SECRET += 'or a KeyObject';
+}
+
+function checkIsPublicKey(key) {
+  if (Buffer.isBuffer(key)) {
+    return;
+  }
+
+  if (typeof key === 'string') {
+    return;
+  }
+
+  if (!supportsKeyObjects) {
+    throw typeError(MSG_INVALID_VERIFIER_KEY);
+  }
+
+  if (typeof key !== 'object') {
+    throw typeError(MSG_INVALID_VERIFIER_KEY);
+  }
+
+  if (typeof key.type !== 'string') {
+    throw typeError(MSG_INVALID_VERIFIER_KEY);
+  }
+
+  if (typeof key.asymmetricKeyType !== 'string') {
+    throw typeError(MSG_INVALID_VERIFIER_KEY);
+  }
+
+  if (typeof key.export !== 'function') {
+    throw typeError(MSG_INVALID_VERIFIER_KEY);
+  }
+};
+
+function checkIsPrivateKey(key) {
+  if (Buffer.isBuffer(key)) {
+    return;
+  }
+
+  if (typeof key === 'string') {
+    return;
+  }
+
+  if (typeof key === 'object') {
+    return;
+  }
+
+  throw typeError(MSG_INVALID_SIGNER_KEY);
+};
+
+function checkIsSecretKey(key) {
+  if (Buffer.isBuffer(key)) {
+    return;
+  }
+
+  if (typeof key === 'string') {
+    return key;
+  }
+
+  if (!supportsKeyObjects) {
+    throw typeError(MSG_INVALID_SECRET);
+  }
+
+  if (typeof key !== 'object') {
+    throw typeError(MSG_INVALID_SECRET);
+  }
+
+  if (key.type !== 'secret') {
+    throw typeError(MSG_INVALID_SECRET);
+  }
+
+  if (typeof key.export !== 'function') {
+    throw typeError(MSG_INVALID_SECRET);
+  }
+}
+
+function fromBase64(base64) {
+  return base64
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+function toBase64(base64url) {
+  base64url = base64url.toString();
+
+  var padding = 4 - base64url.length % 4;
+  if (padding !== 4) {
+    for (var i = 0; i < padding; ++i) {
+      base64url += '=';
+    }
+  }
+
+  return base64url
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+}
+
+function typeError(template) {
+  var args = [].slice.call(arguments, 1);
+  var errMsg = util.format.bind(util, template).apply(null, args);
+  return new TypeError(errMsg);
+}
+
+function bufferOrString(obj) {
+  return Buffer.isBuffer(obj) || typeof obj === 'string';
+}
+
+function normalizeInput(thing) {
+  if (!bufferOrString(thing))
+    thing = JSON.stringify(thing);
+  return thing;
+}
+
+function createHmacSigner(bits) {
+  return function sign(thing, secret) {
+    checkIsSecretKey(secret);
+    thing = normalizeInput(thing);
+    var hmac = crypto.createHmac('sha' + bits, secret);
+    var sig = (hmac.update(thing), hmac.digest('base64'))
+    return fromBase64(sig);
+  }
+}
+
+function createHmacVerifier(bits) {
+  return function verify(thing, signature, secret) {
+    var computedSig = createHmacSigner(bits)(thing, secret);
+    return bufferEqual(Buffer.from(signature), Buffer.from(computedSig));
+  }
+}
+
+function createKeySigner(bits) {
+ return function sign(thing, privateKey) {
+    checkIsPrivateKey(privateKey);
+    thing = normalizeInput(thing);
+    // Even though we are specifying "RSA" here, this works with ECDSA
+    // keys as well.
+    var signer = crypto.createSign('RSA-SHA' + bits);
+    var sig = (signer.update(thing), signer.sign(privateKey, 'base64'));
+    return fromBase64(sig);
+  }
+}
+
+function createKeyVerifier(bits) {
+  return function verify(thing, signature, publicKey) {
+    checkIsPublicKey(publicKey);
+    thing = normalizeInput(thing);
+    signature = toBase64(signature);
+    var verifier = crypto.createVerify('RSA-SHA' + bits);
+    verifier.update(thing);
+    return verifier.verify(publicKey, signature, 'base64');
+  }
+}
+
+function createPSSKeySigner(bits) {
+  return function sign(thing, privateKey) {
+    checkIsPrivateKey(privateKey);
+    thing = normalizeInput(thing);
+    var signer = crypto.createSign('RSA-SHA' + bits);
+    var sig = (signer.update(thing), signer.sign({
+      key: privateKey,
+      padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+      saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST
+    }, 'base64'));
+    return fromBase64(sig);
+  }
+}
+
+function createPSSKeyVerifier(bits) {
+  return function verify(thing, signature, publicKey) {
+    checkIsPublicKey(publicKey);
+    thing = normalizeInput(thing);
+    signature = toBase64(signature);
+    var verifier = crypto.createVerify('RSA-SHA' + bits);
+    verifier.update(thing);
+    return verifier.verify({
+      key: publicKey,
+      padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+      saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST
+    }, signature, 'base64');
+  }
+}
+
+function createECDSASigner(bits) {
+  var inner = createKeySigner(bits);
+  return function sign() {
+    var signature = inner.apply(null, arguments);
+    signature = formatEcdsa.derToJose(signature, 'ES' + bits);
+    return signature;
+  };
+}
+
+function createECDSAVerifer(bits) {
+  var inner = createKeyVerifier(bits);
+  return function verify(thing, signature, publicKey) {
+    signature = formatEcdsa.joseToDer(signature, 'ES' + bits).toString('base64');
+    var result = inner(thing, signature, publicKey);
+    return result;
+  };
+}
+
+function createNoneSigner() {
+  return function sign() {
+    return '';
+  }
+}
+
+function createNoneVerifier() {
+  return function verify(thing, signature) {
+    return signature === '';
+  }
+}
+
+module.exports = function jwa(algorithm) {
+  var signerFactories = {
+    hs: createHmacSigner,
+    rs: createKeySigner,
+    ps: createPSSKeySigner,
+    es: createECDSASigner,
+    none: createNoneSigner,
+  }
+  var verifierFactories = {
+    hs: createHmacVerifier,
+    rs: createKeyVerifier,
+    ps: createPSSKeyVerifier,
+    es: createECDSAVerifer,
+    none: createNoneVerifier,
+  }
+  var match = algorithm.match(/^(RS|PS|ES|HS)(256|384|512)$|^(none)$/i);
+  if (!match)
+    throw typeError(MSG_INVALID_ALGORITHM, algorithm);
+  var algo = (match[1] || match[3]).toLowerCase();
+  var bits = match[2];
+
+  return {
+    sign: signerFactories[algo](bits),
+    verify: verifierFactories[algo](bits),
+  }
+};
+
+
+/***/ }),
+
+/***/ 4273:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+/*global exports*/
+var SignStream = __nccwpck_require__(6392);
+var VerifyStream = __nccwpck_require__(3549);
+
+var ALGORITHMS = [
+  'HS256', 'HS384', 'HS512',
+  'RS256', 'RS384', 'RS512',
+  'PS256', 'PS384', 'PS512',
+  'ES256', 'ES384', 'ES512'
+];
+
+exports.ALGORITHMS = ALGORITHMS;
+exports.sign = SignStream.sign;
+exports.verify = VerifyStream.verify;
+exports.decode = VerifyStream.decode;
+exports.isValid = VerifyStream.isValid;
+exports.createSign = function createSign(opts) {
+  return new SignStream(opts);
+};
+exports.createVerify = function createVerify(opts) {
+  return new VerifyStream(opts);
+};
+
+
+/***/ }),
+
+/***/ 7765:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+/*global module, process*/
+var Buffer = (__nccwpck_require__(2824).Buffer);
+var Stream = __nccwpck_require__(2781);
+var util = __nccwpck_require__(3837);
+
+function DataStream(data) {
+  this.buffer = null;
+  this.writable = true;
+  this.readable = true;
+
+  // No input
+  if (!data) {
+    this.buffer = Buffer.alloc(0);
+    return this;
+  }
+
+  // Stream
+  if (typeof data.pipe === 'function') {
+    this.buffer = Buffer.alloc(0);
+    data.pipe(this);
+    return this;
+  }
+
+  // Buffer or String
+  // or Object (assumedly a passworded key)
+  if (data.length || typeof data === 'object') {
+    this.buffer = data;
+    this.writable = false;
+    process.nextTick(function () {
+      this.emit('end', data);
+      this.readable = false;
+      this.emit('close');
+    }.bind(this));
+    return this;
+  }
+
+  throw new TypeError('Unexpected data type ('+ typeof data + ')');
+}
+util.inherits(DataStream, Stream);
+
+DataStream.prototype.write = function write(data) {
+  this.buffer = Buffer.concat([this.buffer, Buffer.from(data)]);
+  this.emit('data', data);
+};
+
+DataStream.prototype.end = function end(data) {
+  if (data)
+    this.write(data);
+  this.emit('end', data);
+  this.emit('close');
+  this.writable = false;
+  this.readable = false;
+};
+
+module.exports = DataStream;
+
+
+/***/ }),
+
+/***/ 6392:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+/*global module*/
+var Buffer = (__nccwpck_require__(2824).Buffer);
+var DataStream = __nccwpck_require__(7765);
+var jwa = __nccwpck_require__(4793);
+var Stream = __nccwpck_require__(2781);
+var toString = __nccwpck_require__(5649);
+var util = __nccwpck_require__(3837);
+
+function base64url(string, encoding) {
+  return Buffer
+    .from(string, encoding)
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+function jwsSecuredInput(header, payload, encoding) {
+  encoding = encoding || 'utf8';
+  var encodedHeader = base64url(toString(header), 'binary');
+  var encodedPayload = base64url(toString(payload), encoding);
+  return util.format('%s.%s', encodedHeader, encodedPayload);
+}
+
+function jwsSign(opts) {
+  var header = opts.header;
+  var payload = opts.payload;
+  var secretOrKey = opts.secret || opts.privateKey;
+  var encoding = opts.encoding;
+  var algo = jwa(header.alg);
+  var securedInput = jwsSecuredInput(header, payload, encoding);
+  var signature = algo.sign(securedInput, secretOrKey);
+  return util.format('%s.%s', securedInput, signature);
+}
+
+function SignStream(opts) {
+  var secret = opts.secret||opts.privateKey||opts.key;
+  var secretStream = new DataStream(secret);
+  this.readable = true;
+  this.header = opts.header;
+  this.encoding = opts.encoding;
+  this.secret = this.privateKey = this.key = secretStream;
+  this.payload = new DataStream(opts.payload);
+  this.secret.once('close', function () {
+    if (!this.payload.writable && this.readable)
+      this.sign();
+  }.bind(this));
+
+  this.payload.once('close', function () {
+    if (!this.secret.writable && this.readable)
+      this.sign();
+  }.bind(this));
+}
+util.inherits(SignStream, Stream);
+
+SignStream.prototype.sign = function sign() {
+  try {
+    var signature = jwsSign({
+      header: this.header,
+      payload: this.payload.buffer,
+      secret: this.secret.buffer,
+      encoding: this.encoding
+    });
+    this.emit('done', signature);
+    this.emit('data', signature);
+    this.emit('end');
+    this.readable = false;
+    return signature;
+  } catch (e) {
+    this.readable = false;
+    this.emit('error', e);
+    this.emit('close');
+  }
+};
+
+SignStream.sign = jwsSign;
+
+module.exports = SignStream;
+
+
+/***/ }),
+
+/***/ 5649:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+/*global module*/
+var Buffer = (__nccwpck_require__(4300).Buffer);
+
+module.exports = function toString(obj) {
+  if (typeof obj === 'string')
+    return obj;
+  if (typeof obj === 'number' || Buffer.isBuffer(obj))
+    return obj.toString();
+  return JSON.stringify(obj);
+};
+
+
+/***/ }),
+
+/***/ 3549:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+/*global module*/
+var Buffer = (__nccwpck_require__(2824).Buffer);
+var DataStream = __nccwpck_require__(7765);
+var jwa = __nccwpck_require__(4793);
+var Stream = __nccwpck_require__(2781);
+var toString = __nccwpck_require__(5649);
+var util = __nccwpck_require__(3837);
+var JWS_REGEX = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
+
+function isObject(thing) {
+  return Object.prototype.toString.call(thing) === '[object Object]';
+}
+
+function safeJsonParse(thing) {
+  if (isObject(thing))
+    return thing;
+  try { return JSON.parse(thing); }
+  catch (e) { return undefined; }
+}
+
+function headerFromJWS(jwsSig) {
+  var encodedHeader = jwsSig.split('.', 1)[0];
+  return safeJsonParse(Buffer.from(encodedHeader, 'base64').toString('binary'));
+}
+
+function securedInputFromJWS(jwsSig) {
+  return jwsSig.split('.', 2).join('.');
+}
+
+function signatureFromJWS(jwsSig) {
+  return jwsSig.split('.')[2];
+}
+
+function payloadFromJWS(jwsSig, encoding) {
+  encoding = encoding || 'utf8';
+  var payload = jwsSig.split('.')[1];
+  return Buffer.from(payload, 'base64').toString(encoding);
+}
+
+function isValidJws(string) {
+  return JWS_REGEX.test(string) && !!headerFromJWS(string);
+}
+
+function jwsVerify(jwsSig, algorithm, secretOrKey) {
+  if (!algorithm) {
+    var err = new Error("Missing algorithm parameter for jws.verify");
+    err.code = "MISSING_ALGORITHM";
+    throw err;
+  }
+  jwsSig = toString(jwsSig);
+  var signature = signatureFromJWS(jwsSig);
+  var securedInput = securedInputFromJWS(jwsSig);
+  var algo = jwa(algorithm);
+  return algo.verify(securedInput, signature, secretOrKey);
+}
+
+function jwsDecode(jwsSig, opts) {
+  opts = opts || {};
+  jwsSig = toString(jwsSig);
+
+  if (!isValidJws(jwsSig))
+    return null;
+
+  var header = headerFromJWS(jwsSig);
+
+  if (!header)
+    return null;
+
+  var payload = payloadFromJWS(jwsSig);
+  if (header.typ === 'JWT' || opts.json)
+    payload = JSON.parse(payload, opts.encoding);
+
+  return {
+    header: header,
+    payload: payload,
+    signature: signatureFromJWS(jwsSig)
+  };
+}
+
+function VerifyStream(opts) {
+  opts = opts || {};
+  var secretOrKey = opts.secret||opts.publicKey||opts.key;
+  var secretStream = new DataStream(secretOrKey);
+  this.readable = true;
+  this.algorithm = opts.algorithm;
+  this.encoding = opts.encoding;
+  this.secret = this.publicKey = this.key = secretStream;
+  this.signature = new DataStream(opts.signature);
+  this.secret.once('close', function () {
+    if (!this.signature.writable && this.readable)
+      this.verify();
+  }.bind(this));
+
+  this.signature.once('close', function () {
+    if (!this.secret.writable && this.readable)
+      this.verify();
+  }.bind(this));
+}
+util.inherits(VerifyStream, Stream);
+VerifyStream.prototype.verify = function verify() {
+  try {
+    var valid = jwsVerify(this.signature.buffer, this.algorithm, this.key.buffer);
+    var obj = jwsDecode(this.signature.buffer, this.encoding);
+    this.emit('done', valid, obj);
+    this.emit('data', valid);
+    this.emit('end');
+    this.readable = false;
+    return valid;
+  } catch (e) {
+    this.readable = false;
+    this.emit('error', e);
+    this.emit('close');
+  }
+};
+
+VerifyStream.decode = jwsDecode;
+VerifyStream.isValid = isValidJws;
+VerifyStream.verify = jwsVerify;
+
+module.exports = VerifyStream;
+
+
+/***/ }),
+
+/***/ 5934:
+/***/ ((module) => {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_SAFE_INTEGER = 9007199254740991,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    stringTag = '[object String]',
+    symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/**
+ * A specialized version of `_.map` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function arrayMap(array, iteratee) {
+  var index = -1,
+      length = array ? array.length : 0,
+      result = Array(length);
+
+  while (++index < length) {
+    result[index] = iteratee(array[index], index, array);
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.findIndex` and `_.findLastIndex` without
+ * support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Function} predicate The function invoked per iteration.
+ * @param {number} fromIndex The index to search from.
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseFindIndex(array, predicate, fromIndex, fromRight) {
+  var length = array.length,
+      index = fromIndex + (fromRight ? 1 : -1);
+
+  while ((fromRight ? index-- : ++index < length)) {
+    if (predicate(array[index], index, array)) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/**
+ * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} fromIndex The index to search from.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseIndexOf(array, value, fromIndex) {
+  if (value !== value) {
+    return baseFindIndex(array, baseIsNaN, fromIndex);
+  }
+  var index = fromIndex - 1,
+      length = array.length;
+
+  while (++index < length) {
+    if (array[index] === value) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/**
+ * The base implementation of `_.isNaN` without support for number objects.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is `NaN`, else `false`.
+ */
+function baseIsNaN(value) {
+  return value !== value;
+}
+
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
+
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.values` and `_.valuesIn` which creates an
+ * array of `object` property values corresponding to the property names
+ * of `props`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array} props The property names to get values for.
+ * @returns {Object} Returns the array of property values.
+ */
+function baseValues(object, props) {
+  return arrayMap(props, function(key) {
+    return object[key];
+  });
+}
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeKeys = overArg(Object.keys, Object),
+    nativeMax = Math.max;
+
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+function arrayLikeKeys(value, inherited) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  // Safari 9 makes `arguments.length` enumerable in strict mode.
+  var result = (isArray(value) || isArguments(value))
+    ? baseTimes(value.length, String)
+    : [];
+
+  var length = result.length,
+      skipIndexes = !!length;
+
+  for (var key in value) {
+    if ((inherited || hasOwnProperty.call(value, key)) &&
+        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function baseKeys(object) {
+  if (!isPrototype(object)) {
+    return nativeKeys(object);
+  }
+  var result = [];
+  for (var key in Object(object)) {
+    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return !!length &&
+    (typeof value == 'number' || reIsUint.test(value)) &&
+    (value > -1 && value % 1 == 0 && value < length);
+}
+
+/**
+ * Checks if `value` is likely a prototype object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+ */
+function isPrototype(value) {
+  var Ctor = value && value.constructor,
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+
+  return value === proto;
+}
+
+/**
+ * Checks if `value` is in `collection`. If `collection` is a string, it's
+ * checked for a substring of `value`, otherwise
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * is used for equality comparisons. If `fromIndex` is negative, it's used as
+ * the offset from the end of `collection`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object|string} collection The collection to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} [fromIndex=0] The index to search from.
+ * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
+ * @returns {boolean} Returns `true` if `value` is found, else `false`.
+ * @example
+ *
+ * _.includes([1, 2, 3], 1);
+ * // => true
+ *
+ * _.includes([1, 2, 3], 1, 2);
+ * // => false
+ *
+ * _.includes({ 'a': 1, 'b': 2 }, 1);
+ * // => true
+ *
+ * _.includes('abcd', 'bc');
+ * // => true
+ */
+function includes(collection, value, fromIndex, guard) {
+  collection = isArrayLike(collection) ? collection : values(collection);
+  fromIndex = (fromIndex && !guard) ? toInteger(fromIndex) : 0;
+
+  var length = collection.length;
+  if (fromIndex < 0) {
+    fromIndex = nativeMax(length + fromIndex, 0);
+  }
+  return isString(collection)
+    ? (fromIndex <= length && collection.indexOf(value, fromIndex) > -1)
+    : (!!length && baseIndexOf(collection, value, fromIndex) > -1);
+}
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+function isArguments(value) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+}
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && isLength(value.length) && !isFunction(value);
+}
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike(value) && isArrayLike(value);
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8-9 which returns 'object' for typed array and other constructors.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' &&
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `String` primitive or object.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a string, else `false`.
+ * @example
+ *
+ * _.isString('abc');
+ * // => true
+ *
+ * _.isString(1);
+ * // => false
+ */
+function isString(value) {
+  return typeof value == 'string' ||
+    (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+}
+
+/**
+ * Creates an array of the own enumerable string keyed property values of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property values.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.values(new Foo);
+ * // => [1, 2] (iteration order is not guaranteed)
+ *
+ * _.values('hi');
+ * // => ['h', 'i']
+ */
+function values(object) {
+  return object ? baseValues(object, keys(object)) : [];
+}
+
+module.exports = includes;
+
+
+/***/ }),
+
+/***/ 8938:
+/***/ ((module) => {
+
+/**
+ * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var boolTag = '[object Boolean]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is classified as a boolean primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isBoolean(false);
+ * // => true
+ *
+ * _.isBoolean(null);
+ * // => false
+ */
+function isBoolean(value) {
+  return value === true || value === false ||
+    (isObjectLike(value) && objectToString.call(value) == boolTag);
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+module.exports = isBoolean;
+
+
+/***/ }),
+
+/***/ 5747:
+/***/ ((module) => {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is an integer.
+ *
+ * **Note:** This method is based on
+ * [`Number.isInteger`](https://mdn.io/Number/isInteger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an integer, else `false`.
+ * @example
+ *
+ * _.isInteger(3);
+ * // => true
+ *
+ * _.isInteger(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isInteger(Infinity);
+ * // => false
+ *
+ * _.isInteger('3');
+ * // => false
+ */
+function isInteger(value) {
+  return typeof value == 'number' && value == toInteger(value);
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = isInteger;
+
+
+/***/ }),
+
+/***/ 9358:
+/***/ ((module) => {
+
+/**
+ * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var numberTag = '[object Number]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Number` primitive or object.
+ *
+ * **Note:** To exclude `Infinity`, `-Infinity`, and `NaN`, which are classified
+ * as numbers, use the `_.isFinite` method.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isNumber(3);
+ * // => true
+ *
+ * _.isNumber(Number.MIN_VALUE);
+ * // => true
+ *
+ * _.isNumber(Infinity);
+ * // => true
+ *
+ * _.isNumber('3');
+ * // => false
+ */
+function isNumber(value) {
+  return typeof value == 'number' ||
+    (isObjectLike(value) && objectToString.call(value) == numberTag);
+}
+
+module.exports = isNumber;
+
+
+/***/ }),
+
+/***/ 9389:
+/***/ ((module) => {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** `Object#toString` result references. */
+var objectTag = '[object Object]';
+
+/**
+ * Checks if `value` is a host object in IE < 9.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
+ */
+function isHostObject(value) {
+  // Many host objects are `Object` objects that can coerce to strings
+  // despite having improperly defined `toString` methods.
+  var result = false;
+  if (value != null && typeof value.toString != 'function') {
+    try {
+      result = !!(value + '');
+    } catch (e) {}
+  }
+  return result;
+}
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+/** Used for built-in method references. */
+var funcProto = Function.prototype,
+    objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = funcProto.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Used to infer the `Object` constructor. */
+var objectCtorString = funcToString.call(Object);
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var getPrototype = overArg(Object.getPrototypeOf, Object);
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is a plain object, that is, an object created by the
+ * `Object` constructor or one with a `[[Prototype]]` of `null`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.8.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ * }
+ *
+ * _.isPlainObject(new Foo);
+ * // => false
+ *
+ * _.isPlainObject([1, 2, 3]);
+ * // => false
+ *
+ * _.isPlainObject({ 'x': 0, 'y': 0 });
+ * // => true
+ *
+ * _.isPlainObject(Object.create(null));
+ * // => true
+ */
+function isPlainObject(value) {
+  if (!isObjectLike(value) ||
+      objectToString.call(value) != objectTag || isHostObject(value)) {
+    return false;
+  }
+  var proto = getPrototype(value);
+  if (proto === null) {
+    return true;
+  }
+  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+  return (typeof Ctor == 'function' &&
+    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
+}
+
+module.exports = isPlainObject;
+
+
+/***/ }),
+
+/***/ 5679:
+/***/ ((module) => {
+
+/**
+ * lodash 4.0.1 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var stringTag = '[object String]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @type Function
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `String` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isString('abc');
+ * // => true
+ *
+ * _.isString(1);
+ * // => false
+ */
+function isString(value) {
+  return typeof value == 'string' ||
+    (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
+}
+
+module.exports = isString;
+
+
+/***/ }),
+
+/***/ 6155:
+/***/ ((module) => {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Creates a function that invokes `func`, with the `this` binding and arguments
+ * of the created function, while it's called less than `n` times. Subsequent
+ * calls to the created function return the result of the last `func` invocation.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category Function
+ * @param {number} n The number of calls at which `func` is no longer invoked.
+ * @param {Function} func The function to restrict.
+ * @returns {Function} Returns the new restricted function.
+ * @example
+ *
+ * jQuery(element).on('click', _.before(5, addContactToList));
+ * // => Allows adding up to 4 contacts to the list.
+ */
+function before(n, func) {
+  var result;
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  n = toInteger(n);
+  return function() {
+    if (--n > 0) {
+      result = func.apply(this, arguments);
+    }
+    if (n <= 1) {
+      func = undefined;
+    }
+    return result;
+  };
+}
+
+/**
+ * Creates a function that is restricted to invoking `func` once. Repeat calls
+ * to the function return the value of the first invocation. The `func` is
+ * invoked with the `this` binding and arguments of the created function.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to restrict.
+ * @returns {Function} Returns the new restricted function.
+ * @example
+ *
+ * var initialize = _.once(createApplication);
+ * initialize();
+ * initialize();
+ * // => `createApplication` is invoked once
+ */
+function once(func) {
+  return before(2, func);
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = once;
+
+
+/***/ }),
+
+/***/ 7899:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var chunkedPush = __nccwpck_require__(2029)
-var chunkedSplice = __nccwpck_require__(5810)
-var classifyCharacter = __nccwpck_require__(8086)
-var movePoint = __nccwpck_require__(695)
-var resolveAll = __nccwpck_require__(3418)
-var shallow = __nccwpck_require__(7766)
+// A linked list to keep track of recently-used-ness
+const Yallist = __nccwpck_require__(570)
 
-var attention = {
-  name: 'attention',
-  tokenize: tokenizeAttention,
-  resolveAll: resolveAllAttention
-}
+const MAX = Symbol('max')
+const LENGTH = Symbol('length')
+const LENGTH_CALCULATOR = Symbol('lengthCalculator')
+const ALLOW_STALE = Symbol('allowStale')
+const MAX_AGE = Symbol('maxAge')
+const DISPOSE = Symbol('dispose')
+const NO_DISPOSE_ON_SET = Symbol('noDisposeOnSet')
+const LRU_LIST = Symbol('lruList')
+const CACHE = Symbol('cache')
+const UPDATE_AGE_ON_GET = Symbol('updateAgeOnGet')
 
-function resolveAllAttention(events, context) {
-  var index = -1
-  var open
-  var group
-  var text
-  var openingSequence
-  var closingSequence
-  var use
-  var nextEvents
-  var offset // Walk through all events.
-  //
-  // Note: performance of this is fine on an mb of normal markdown, but it’s
-  // a bottleneck for malicious stuff.
+const naiveLength = () => 1
 
-  while (++index < events.length) {
-    // Find a token that can close.
-    if (
-      events[index][0] === 'enter' &&
-      events[index][1].type === 'attentionSequence' &&
-      events[index][1]._close
-    ) {
-      open = index // Now walk back to find an opener.
+// lruList is a yallist where the head is the youngest
+// item, and the tail is the oldest.  the list contains the Hit
+// objects as the entries.
+// Each Hit object has a reference to its Yallist.Node.  This
+// never changes.
+//
+// cache is a Map (or PseudoMap) that matches the keys to
+// the Yallist.Node object.
+class LRUCache {
+  constructor (options) {
+    if (typeof options === 'number')
+      options = { max: options }
 
-      while (open--) {
-        // Find a token that can open the closer.
-        if (
-          events[open][0] === 'exit' &&
-          events[open][1].type === 'attentionSequence' &&
-          events[open][1]._open && // If the markers are the same:
-          context.sliceSerialize(events[open][1]).charCodeAt(0) ===
-            context.sliceSerialize(events[index][1]).charCodeAt(0)
-        ) {
-          // If the opening can close or the closing can open,
-          // and the close size *is not* a multiple of three,
-          // but the sum of the opening and closing size *is* multiple of three,
-          // then don’t match.
-          if (
-            (events[open][1]._close || events[index][1]._open) &&
-            (events[index][1].end.offset - events[index][1].start.offset) % 3 &&
-            !(
-              (events[open][1].end.offset -
-                events[open][1].start.offset +
-                events[index][1].end.offset -
-                events[index][1].start.offset) %
-              3
-            )
-          ) {
-            continue
-          } // Number of markers to use from the sequence.
+    if (!options)
+      options = {}
 
-          use =
-            events[open][1].end.offset - events[open][1].start.offset > 1 &&
-            events[index][1].end.offset - events[index][1].start.offset > 1
-              ? 2
-              : 1
-          openingSequence = {
-            type: use > 1 ? 'strongSequence' : 'emphasisSequence',
-            start: movePoint(shallow(events[open][1].end), -use),
-            end: shallow(events[open][1].end)
-          }
-          closingSequence = {
-            type: use > 1 ? 'strongSequence' : 'emphasisSequence',
-            start: shallow(events[index][1].start),
-            end: movePoint(shallow(events[index][1].start), use)
-          }
-          text = {
-            type: use > 1 ? 'strongText' : 'emphasisText',
-            start: shallow(events[open][1].end),
-            end: shallow(events[index][1].start)
-          }
-          group = {
-            type: use > 1 ? 'strong' : 'emphasis',
-            start: shallow(openingSequence.start),
-            end: shallow(closingSequence.end)
-          }
-          events[open][1].end = shallow(openingSequence.start)
-          events[index][1].start = shallow(closingSequence.end)
-          nextEvents = [] // If there are more markers in the opening, add them before.
+    if (options.max && (typeof options.max !== 'number' || options.max < 0))
+      throw new TypeError('max must be a non-negative number')
+    // Kind of weird to have a default max of Infinity, but oh well.
+    const max = this[MAX] = options.max || Infinity
 
-          if (events[open][1].end.offset - events[open][1].start.offset) {
-            nextEvents = chunkedPush(nextEvents, [
-              ['enter', events[open][1], context],
-              ['exit', events[open][1], context]
-            ])
-          } // Opening.
+    const lc = options.length || naiveLength
+    this[LENGTH_CALCULATOR] = (typeof lc !== 'function') ? naiveLength : lc
+    this[ALLOW_STALE] = options.stale || false
+    if (options.maxAge && typeof options.maxAge !== 'number')
+      throw new TypeError('maxAge must be a number')
+    this[MAX_AGE] = options.maxAge || 0
+    this[DISPOSE] = options.dispose
+    this[NO_DISPOSE_ON_SET] = options.noDisposeOnSet || false
+    this[UPDATE_AGE_ON_GET] = options.updateAgeOnGet || false
+    this.reset()
+  }
 
-          nextEvents = chunkedPush(nextEvents, [
-            ['enter', group, context],
-            ['enter', openingSequence, context],
-            ['exit', openingSequence, context],
-            ['enter', text, context]
-          ]) // Between.
+  // resize the cache when the max changes.
+  set max (mL) {
+    if (typeof mL !== 'number' || mL < 0)
+      throw new TypeError('max must be a non-negative number')
 
-          nextEvents = chunkedPush(
-            nextEvents,
-            resolveAll(
-              context.parser.constructs.insideSpan.null,
-              events.slice(open + 1, index),
-              context
-            )
-          ) // Closing.
+    this[MAX] = mL || Infinity
+    trim(this)
+  }
+  get max () {
+    return this[MAX]
+  }
 
-          nextEvents = chunkedPush(nextEvents, [
-            ['exit', text, context],
-            ['enter', closingSequence, context],
-            ['exit', closingSequence, context],
-            ['exit', group, context]
-          ]) // If there are more markers in the closing, add them after.
+  set allowStale (allowStale) {
+    this[ALLOW_STALE] = !!allowStale
+  }
+  get allowStale () {
+    return this[ALLOW_STALE]
+  }
 
-          if (events[index][1].end.offset - events[index][1].start.offset) {
-            offset = 2
-            nextEvents = chunkedPush(nextEvents, [
-              ['enter', events[index][1], context],
-              ['exit', events[index][1], context]
-            ])
-          } else {
-            offset = 0
-          }
+  set maxAge (mA) {
+    if (typeof mA !== 'number')
+      throw new TypeError('maxAge must be a non-negative number')
 
-          chunkedSplice(events, open - 1, index - open + 3, nextEvents)
-          index = open + nextEvents.length - offset - 2
-          break
+    this[MAX_AGE] = mA
+    trim(this)
+  }
+  get maxAge () {
+    return this[MAX_AGE]
+  }
+
+  // resize the cache when the lengthCalculator changes.
+  set lengthCalculator (lC) {
+    if (typeof lC !== 'function')
+      lC = naiveLength
+
+    if (lC !== this[LENGTH_CALCULATOR]) {
+      this[LENGTH_CALCULATOR] = lC
+      this[LENGTH] = 0
+      this[LRU_LIST].forEach(hit => {
+        hit.length = this[LENGTH_CALCULATOR](hit.value, hit.key)
+        this[LENGTH] += hit.length
+      })
+    }
+    trim(this)
+  }
+  get lengthCalculator () { return this[LENGTH_CALCULATOR] }
+
+  get length () { return this[LENGTH] }
+  get itemCount () { return this[LRU_LIST].length }
+
+  rforEach (fn, thisp) {
+    thisp = thisp || this
+    for (let walker = this[LRU_LIST].tail; walker !== null;) {
+      const prev = walker.prev
+      forEachStep(this, fn, walker, thisp)
+      walker = prev
+    }
+  }
+
+  forEach (fn, thisp) {
+    thisp = thisp || this
+    for (let walker = this[LRU_LIST].head; walker !== null;) {
+      const next = walker.next
+      forEachStep(this, fn, walker, thisp)
+      walker = next
+    }
+  }
+
+  keys () {
+    return this[LRU_LIST].toArray().map(k => k.key)
+  }
+
+  values () {
+    return this[LRU_LIST].toArray().map(k => k.value)
+  }
+
+  reset () {
+    if (this[DISPOSE] &&
+        this[LRU_LIST] &&
+        this[LRU_LIST].length) {
+      this[LRU_LIST].forEach(hit => this[DISPOSE](hit.key, hit.value))
+    }
+
+    this[CACHE] = new Map() // hash of items by key
+    this[LRU_LIST] = new Yallist() // list of items in order of use recency
+    this[LENGTH] = 0 // length of items in the list
+  }
+
+  dump () {
+    return this[LRU_LIST].map(hit =>
+      isStale(this, hit) ? false : {
+        k: hit.key,
+        v: hit.value,
+        e: hit.now + (hit.maxAge || 0)
+      }).toArray().filter(h => h)
+  }
+
+  dumpLru () {
+    return this[LRU_LIST]
+  }
+
+  set (key, value, maxAge) {
+    maxAge = maxAge || this[MAX_AGE]
+
+    if (maxAge && typeof maxAge !== 'number')
+      throw new TypeError('maxAge must be a number')
+
+    const now = maxAge ? Date.now() : 0
+    const len = this[LENGTH_CALCULATOR](value, key)
+
+    if (this[CACHE].has(key)) {
+      if (len > this[MAX]) {
+        del(this, this[CACHE].get(key))
+        return false
+      }
+
+      const node = this[CACHE].get(key)
+      const item = node.value
+
+      // dispose of the old one before overwriting
+      // split out into 2 ifs for better coverage tracking
+      if (this[DISPOSE]) {
+        if (!this[NO_DISPOSE_ON_SET])
+          this[DISPOSE](key, item.value)
+      }
+
+      item.now = now
+      item.maxAge = maxAge
+      item.value = value
+      this[LENGTH] += len - item.length
+      item.length = len
+      this.get(key)
+      trim(this)
+      return true
+    }
+
+    const hit = new Entry(key, value, len, now, maxAge)
+
+    // oversized objects fall out of cache automatically.
+    if (hit.length > this[MAX]) {
+      if (this[DISPOSE])
+        this[DISPOSE](key, value)
+
+      return false
+    }
+
+    this[LENGTH] += hit.length
+    this[LRU_LIST].unshift(hit)
+    this[CACHE].set(key, this[LRU_LIST].head)
+    trim(this)
+    return true
+  }
+
+  has (key) {
+    if (!this[CACHE].has(key)) return false
+    const hit = this[CACHE].get(key).value
+    return !isStale(this, hit)
+  }
+
+  get (key) {
+    return get(this, key, true)
+  }
+
+  peek (key) {
+    return get(this, key, false)
+  }
+
+  pop () {
+    const node = this[LRU_LIST].tail
+    if (!node)
+      return null
+
+    del(this, node)
+    return node.value
+  }
+
+  del (key) {
+    del(this, this[CACHE].get(key))
+  }
+
+  load (arr) {
+    // reset the cache
+    this.reset()
+
+    const now = Date.now()
+    // A previous serialized cache has the most recent items first
+    for (let l = arr.length - 1; l >= 0; l--) {
+      const hit = arr[l]
+      const expiresAt = hit.e || 0
+      if (expiresAt === 0)
+        // the item was created without expiration in a non aged cache
+        this.set(hit.k, hit.v)
+      else {
+        const maxAge = expiresAt - now
+        // dont add already expired items
+        if (maxAge > 0) {
+          this.set(hit.k, hit.v, maxAge)
         }
       }
     }
-  } // Remove remaining sequences.
-
-  index = -1
-
-  while (++index < events.length) {
-    if (events[index][1].type === 'attentionSequence') {
-      events[index][1].type = 'data'
-    }
   }
 
-  return events
-}
-
-function tokenizeAttention(effects, ok) {
-  var before = classifyCharacter(this.previous)
-  var marker
-  return start
-
-  function start(code) {
-    effects.enter('attentionSequence')
-    marker = code
-    return sequence(code)
-  }
-
-  function sequence(code) {
-    var token
-    var after
-    var open
-    var close
-
-    if (code === marker) {
-      effects.consume(code)
-      return sequence
-    }
-
-    token = effects.exit('attentionSequence')
-    after = classifyCharacter(code)
-    open = !after || (after === 2 && before)
-    close = !before || (before === 2 && after)
-    token._open = marker === 42 ? open : open && (before || !close)
-    token._close = marker === 42 ? close : close && (after || !open)
-    return ok(code)
+  prune () {
+    this[CACHE].forEach((value, key) => get(this, key, false))
   }
 }
 
-module.exports = attention
-
-
-/***/ }),
-
-/***/ 7321:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var asciiAlpha = __nccwpck_require__(8229)
-var asciiAlphanumeric = __nccwpck_require__(209)
-var asciiAtext = __nccwpck_require__(4783)
-var asciiControl = __nccwpck_require__(7759)
-
-var autolink = {
-  name: 'autolink',
-  tokenize: tokenizeAutolink
-}
-
-function tokenizeAutolink(effects, ok, nok) {
-  var size = 1
-  return start
-
-  function start(code) {
-    effects.enter('autolink')
-    effects.enter('autolinkMarker')
-    effects.consume(code)
-    effects.exit('autolinkMarker')
-    effects.enter('autolinkProtocol')
-    return open
-  }
-
-  function open(code) {
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      return schemeOrEmailAtext
-    }
-
-    return asciiAtext(code) ? emailAtext(code) : nok(code)
-  }
-
-  function schemeOrEmailAtext(code) {
-    return code === 43 || code === 45 || code === 46 || asciiAlphanumeric(code)
-      ? schemeInsideOrEmailAtext(code)
-      : emailAtext(code)
-  }
-
-  function schemeInsideOrEmailAtext(code) {
-    if (code === 58) {
-      effects.consume(code)
-      return urlInside
-    }
-
-    if (
-      (code === 43 || code === 45 || code === 46 || asciiAlphanumeric(code)) &&
-      size++ < 32
-    ) {
-      effects.consume(code)
-      return schemeInsideOrEmailAtext
-    }
-
-    return emailAtext(code)
-  }
-
-  function urlInside(code) {
-    if (code === 62) {
-      effects.exit('autolinkProtocol')
-      return end(code)
-    }
-
-    if (code === 32 || code === 60 || asciiControl(code)) {
-      return nok(code)
-    }
-
-    effects.consume(code)
-    return urlInside
-  }
-
-  function emailAtext(code) {
-    if (code === 64) {
-      effects.consume(code)
-      size = 0
-      return emailAtSignOrDot
-    }
-
-    if (asciiAtext(code)) {
-      effects.consume(code)
-      return emailAtext
-    }
-
-    return nok(code)
-  }
-
-  function emailAtSignOrDot(code) {
-    return asciiAlphanumeric(code) ? emailLabel(code) : nok(code)
-  }
-
-  function emailLabel(code) {
-    if (code === 46) {
-      effects.consume(code)
-      size = 0
-      return emailAtSignOrDot
-    }
-
-    if (code === 62) {
-      // Exit, then change the type.
-      effects.exit('autolinkProtocol').type = 'autolinkEmail'
-      return end(code)
-    }
-
-    return emailValue(code)
-  }
-
-  function emailValue(code) {
-    if ((code === 45 || asciiAlphanumeric(code)) && size++ < 63) {
-      effects.consume(code)
-      return code === 45 ? emailValue : emailLabel
-    }
-
-    return nok(code)
-  }
-
-  function end(code) {
-    effects.enter('autolinkMarker')
-    effects.consume(code)
-    effects.exit('autolinkMarker')
-    effects.exit('autolink')
-    return ok
-  }
-}
-
-module.exports = autolink
-
-
-/***/ }),
-
-/***/ 8823:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownSpace = __nccwpck_require__(3155)
-var factorySpace = __nccwpck_require__(556)
-
-var blockQuote = {
-  name: 'blockQuote',
-  tokenize: tokenizeBlockQuoteStart,
-  continuation: {
-    tokenize: tokenizeBlockQuoteContinuation
-  },
-  exit: exit
-}
-
-function tokenizeBlockQuoteStart(effects, ok, nok) {
-  var self = this
-  return start
-
-  function start(code) {
-    if (code === 62) {
-      if (!self.containerState.open) {
-        effects.enter('blockQuote', {
-          _container: true
-        })
-        self.containerState.open = true
+const get = (self, key, doUse) => {
+  const node = self[CACHE].get(key)
+  if (node) {
+    const hit = node.value
+    if (isStale(self, hit)) {
+      del(self, node)
+      if (!self[ALLOW_STALE])
+        return undefined
+    } else {
+      if (doUse) {
+        if (self[UPDATE_AGE_ON_GET])
+          node.value.now = Date.now()
+        self[LRU_LIST].unshiftNode(node)
       }
-
-      effects.enter('blockQuotePrefix')
-      effects.enter('blockQuoteMarker')
-      effects.consume(code)
-      effects.exit('blockQuoteMarker')
-      return after
     }
-
-    return nok(code)
+    return hit.value
   }
+}
 
-  function after(code) {
-    if (markdownSpace(code)) {
-      effects.enter('blockQuotePrefixWhitespace')
-      effects.consume(code)
-      effects.exit('blockQuotePrefixWhitespace')
-      effects.exit('blockQuotePrefix')
-      return ok
+const isStale = (self, hit) => {
+  if (!hit || (!hit.maxAge && !self[MAX_AGE]))
+    return false
+
+  const diff = Date.now() - hit.now
+  return hit.maxAge ? diff > hit.maxAge
+    : self[MAX_AGE] && (diff > self[MAX_AGE])
+}
+
+const trim = self => {
+  if (self[LENGTH] > self[MAX]) {
+    for (let walker = self[LRU_LIST].tail;
+      self[LENGTH] > self[MAX] && walker !== null;) {
+      // We know that we're about to delete this one, and also
+      // what the next least recently used key will be, so just
+      // go ahead and set it now.
+      const prev = walker.prev
+      del(self, walker)
+      walker = prev
     }
-
-    effects.exit('blockQuotePrefix')
-    return ok(code)
   }
 }
 
-function tokenizeBlockQuoteContinuation(effects, ok, nok) {
-  return factorySpace(
-    effects,
-    effects.attempt(blockQuote, ok, nok),
-    'linePrefix',
-    this.parser.constructs.disable.null.indexOf('codeIndented') > -1
-      ? undefined
-      : 4
-  )
-}
+const del = (self, node) => {
+  if (node) {
+    const hit = node.value
+    if (self[DISPOSE])
+      self[DISPOSE](hit.key, hit.value)
 
-function exit(effects) {
-  effects.exit('blockQuote')
-}
-
-module.exports = blockQuote
-
-
-/***/ }),
-
-/***/ 1306:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var asciiPunctuation = __nccwpck_require__(8507)
-
-var characterEscape = {
-  name: 'characterEscape',
-  tokenize: tokenizeCharacterEscape
-}
-
-function tokenizeCharacterEscape(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    effects.enter('characterEscape')
-    effects.enter('escapeMarker')
-    effects.consume(code)
-    effects.exit('escapeMarker')
-    return open
-  }
-
-  function open(code) {
-    if (asciiPunctuation(code)) {
-      effects.enter('characterEscapeValue')
-      effects.consume(code)
-      effects.exit('characterEscapeValue')
-      effects.exit('characterEscape')
-      return ok
-    }
-
-    return nok(code)
+    self[LENGTH] -= hit.length
+    self[CACHE].delete(hit.key)
+    self[LRU_LIST].removeNode(node)
   }
 }
 
-module.exports = characterEscape
+class Entry {
+  constructor (key, value, length, now, maxAge) {
+    this.key = key
+    this.value = value
+    this.length = length
+    this.now = now
+    this.maxAge = maxAge || 0
+  }
+}
+
+const forEachStep = (self, fn, node, thisp) => {
+  let hit = node.value
+  if (isStale(self, hit)) {
+    del(self, node)
+    if (!self[ALLOW_STALE])
+      hit = undefined
+  }
+  if (hit)
+    fn.call(thisp, hit.value, hit.key, self)
+}
+
+module.exports = LRUCache
 
 
 /***/ }),
 
 /***/ 3815:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var decodeEntity = __nccwpck_require__(4898)
-var asciiAlphanumeric = __nccwpck_require__(209)
-var asciiDigit = __nccwpck_require__(2090)
-var asciiHexDigit = __nccwpck_require__(5094)
-
-function _interopDefaultLegacy(e) {
-  return e && typeof e === 'object' && 'default' in e ? e : {default: e}
-}
-
-var decodeEntity__default = /*#__PURE__*/ _interopDefaultLegacy(decodeEntity)
-
-var characterReference = {
-  name: 'characterReference',
-  tokenize: tokenizeCharacterReference
-}
-
-function tokenizeCharacterReference(effects, ok, nok) {
-  var self = this
-  var size = 0
-  var max
-  var test
-  return start
-
-  function start(code) {
-    effects.enter('characterReference')
-    effects.enter('characterReferenceMarker')
-    effects.consume(code)
-    effects.exit('characterReferenceMarker')
-    return open
-  }
-
-  function open(code) {
-    if (code === 35) {
-      effects.enter('characterReferenceMarkerNumeric')
-      effects.consume(code)
-      effects.exit('characterReferenceMarkerNumeric')
-      return numeric
-    }
-
-    effects.enter('characterReferenceValue')
-    max = 31
-    test = asciiAlphanumeric
-    return value(code)
-  }
-
-  function numeric(code) {
-    if (code === 88 || code === 120) {
-      effects.enter('characterReferenceMarkerHexadecimal')
-      effects.consume(code)
-      effects.exit('characterReferenceMarkerHexadecimal')
-      effects.enter('characterReferenceValue')
-      max = 6
-      test = asciiHexDigit
-      return value
-    }
-
-    effects.enter('characterReferenceValue')
-    max = 7
-    test = asciiDigit
-    return value(code)
-  }
-
-  function value(code) {
-    var token
-
-    if (code === 59 && size) {
-      token = effects.exit('characterReferenceValue')
-
-      if (
-        test === asciiAlphanumeric &&
-        !decodeEntity__default['default'](self.sliceSerialize(token))
-      ) {
-        return nok(code)
-      }
-
-      effects.enter('characterReferenceMarker')
-      effects.consume(code)
-      effects.exit('characterReferenceMarker')
-      effects.exit('characterReference')
-      return ok
-    }
-
-    if (test(code) && size++ < max) {
-      effects.consume(code)
-      return value
-    }
-
-    return nok(code)
-  }
-}
-
-module.exports = characterReference
-
-
-/***/ }),
-
-/***/ 212:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var prefixSize = __nccwpck_require__(7208)
-var factorySpace = __nccwpck_require__(556)
-
-var codeFenced = {
-  name: 'codeFenced',
-  tokenize: tokenizeCodeFenced,
-  concrete: true
-}
-
-function tokenizeCodeFenced(effects, ok, nok) {
-  var self = this
-  var closingFenceConstruct = {
-    tokenize: tokenizeClosingFence,
-    partial: true
-  }
-  var initialPrefix = prefixSize(this.events, 'linePrefix')
-  var sizeOpen = 0
-  var marker
-  return start
-
-  function start(code) {
-    effects.enter('codeFenced')
-    effects.enter('codeFencedFence')
-    effects.enter('codeFencedFenceSequence')
-    marker = code
-    return sequenceOpen(code)
-  }
-
-  function sequenceOpen(code) {
-    if (code === marker) {
-      effects.consume(code)
-      sizeOpen++
-      return sequenceOpen
-    }
-
-    effects.exit('codeFencedFenceSequence')
-    return sizeOpen < 3
-      ? nok(code)
-      : factorySpace(effects, infoOpen, 'whitespace')(code)
-  }
-
-  function infoOpen(code) {
-    if (code === null || markdownLineEnding(code)) {
-      return openAfter(code)
-    }
-
-    effects.enter('codeFencedFenceInfo')
-    effects.enter('chunkString', {
-      contentType: 'string'
-    })
-    return info(code)
-  }
-
-  function info(code) {
-    if (code === null || markdownLineEndingOrSpace(code)) {
-      effects.exit('chunkString')
-      effects.exit('codeFencedFenceInfo')
-      return factorySpace(effects, infoAfter, 'whitespace')(code)
-    }
-
-    if (code === 96 && code === marker) return nok(code)
-    effects.consume(code)
-    return info
-  }
-
-  function infoAfter(code) {
-    if (code === null || markdownLineEnding(code)) {
-      return openAfter(code)
-    }
-
-    effects.enter('codeFencedFenceMeta')
-    effects.enter('chunkString', {
-      contentType: 'string'
-    })
-    return meta(code)
-  }
-
-  function meta(code) {
-    if (code === null || markdownLineEnding(code)) {
-      effects.exit('chunkString')
-      effects.exit('codeFencedFenceMeta')
-      return openAfter(code)
-    }
-
-    if (code === 96 && code === marker) return nok(code)
-    effects.consume(code)
-    return meta
-  }
-
-  function openAfter(code) {
-    effects.exit('codeFencedFence')
-    return self.interrupt ? ok(code) : content(code)
-  }
-
-  function content(code) {
-    if (code === null) {
-      return after(code)
-    }
-
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      return effects.attempt(
-        closingFenceConstruct,
-        after,
-        initialPrefix
-          ? factorySpace(effects, content, 'linePrefix', initialPrefix + 1)
-          : content
-      )
-    }
-
-    effects.enter('codeFlowValue')
-    return contentContinue(code)
-  }
-
-  function contentContinue(code) {
-    if (code === null || markdownLineEnding(code)) {
-      effects.exit('codeFlowValue')
-      return content(code)
-    }
-
-    effects.consume(code)
-    return contentContinue
-  }
-
-  function after(code) {
-    effects.exit('codeFenced')
-    return ok(code)
-  }
-
-  function tokenizeClosingFence(effects, ok, nok) {
-    var size = 0
-    return factorySpace(
-      effects,
-      closingSequenceStart,
-      'linePrefix',
-      this.parser.constructs.disable.null.indexOf('codeIndented') > -1
-        ? undefined
-        : 4
-    )
-
-    function closingSequenceStart(code) {
-      effects.enter('codeFencedFence')
-      effects.enter('codeFencedFenceSequence')
-      return closingSequence(code)
-    }
-
-    function closingSequence(code) {
-      if (code === marker) {
-        effects.consume(code)
-        size++
-        return closingSequence
-      }
-
-      if (size < sizeOpen) return nok(code)
-      effects.exit('codeFencedFenceSequence')
-      return factorySpace(effects, closingSequenceEnd, 'whitespace')(code)
-    }
-
-    function closingSequenceEnd(code) {
-      if (code === null || markdownLineEnding(code)) {
-        effects.exit('codeFencedFence')
-        return ok(code)
-      }
-
-      return nok(code)
-    }
-  }
-}
-
-module.exports = codeFenced
-
-
-/***/ }),
-
-/***/ 1388:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var chunkedSplice = __nccwpck_require__(5810)
-var prefixSize = __nccwpck_require__(7208)
-var factorySpace = __nccwpck_require__(556)
-
-var codeIndented = {
-  name: 'codeIndented',
-  tokenize: tokenizeCodeIndented,
-  resolve: resolveCodeIndented
-}
-var indentedContentConstruct = {
-  tokenize: tokenizeIndentedContent,
-  partial: true
-}
-
-function resolveCodeIndented(events, context) {
-  var code = {
-    type: 'codeIndented',
-    start: events[0][1].start,
-    end: events[events.length - 1][1].end
-  }
-  chunkedSplice(events, 0, 0, [['enter', code, context]])
-  chunkedSplice(events, events.length, 0, [['exit', code, context]])
-  return events
-}
-
-function tokenizeCodeIndented(effects, ok, nok) {
-  return effects.attempt(indentedContentConstruct, afterPrefix, nok)
-
-  function afterPrefix(code) {
-    if (code === null) {
-      return ok(code)
-    }
-
-    if (markdownLineEnding(code)) {
-      return effects.attempt(indentedContentConstruct, afterPrefix, ok)(code)
-    }
-
-    effects.enter('codeFlowValue')
-    return content(code)
-  }
-
-  function content(code) {
-    if (code === null || markdownLineEnding(code)) {
-      effects.exit('codeFlowValue')
-      return afterPrefix(code)
-    }
-
-    effects.consume(code)
-    return content
-  }
-}
-
-function tokenizeIndentedContent(effects, ok, nok) {
-  var self = this
-  return factorySpace(effects, afterPrefix, 'linePrefix', 4 + 1)
-
-  function afterPrefix(code) {
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      return factorySpace(effects, afterPrefix, 'linePrefix', 4 + 1)
-    }
-
-    return prefixSize(self.events, 'linePrefix') < 4 ? nok(code) : ok(code)
-  }
-}
-
-module.exports = codeIndented
-
-
-/***/ }),
-
-/***/ 3246:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-
-var codeText = {
-  name: 'codeText',
-  tokenize: tokenizeCodeText,
-  resolve: resolveCodeText,
-  previous: previous
-}
-
-function resolveCodeText(events) {
-  var tailExitIndex = events.length - 4
-  var headEnterIndex = 3
-  var index
-  var enter // If we start and end with an EOL or a space.
-
-  if (
-    (events[headEnterIndex][1].type === 'lineEnding' ||
-      events[headEnterIndex][1].type === 'space') &&
-    (events[tailExitIndex][1].type === 'lineEnding' ||
-      events[tailExitIndex][1].type === 'space')
-  ) {
-    index = headEnterIndex // And we have data.
-
-    while (++index < tailExitIndex) {
-      if (events[index][1].type === 'codeTextData') {
-        // Then we have padding.
-        events[tailExitIndex][1].type = events[headEnterIndex][1].type =
-          'codeTextPadding'
-        headEnterIndex += 2
-        tailExitIndex -= 2
-        break
-      }
-    }
-  } // Merge adjacent spaces and data.
-
-  index = headEnterIndex - 1
-  tailExitIndex++
-
-  while (++index <= tailExitIndex) {
-    if (enter === undefined) {
-      if (index !== tailExitIndex && events[index][1].type !== 'lineEnding') {
-        enter = index
-      }
-    } else if (
-      index === tailExitIndex ||
-      events[index][1].type === 'lineEnding'
-    ) {
-      events[enter][1].type = 'codeTextData'
-
-      if (index !== enter + 2) {
-        events[enter][1].end = events[index - 1][1].end
-        events.splice(enter + 2, index - enter - 2)
-        tailExitIndex -= index - enter - 2
-        index = enter + 2
-      }
-
-      enter = undefined
-    }
-  }
-
-  return events
-}
-
-function previous(code) {
-  // If there is a previous code, there will always be a tail.
-  return (
-    code !== 96 ||
-    this.events[this.events.length - 1][1].type === 'characterEscape'
-  )
-}
-
-function tokenizeCodeText(effects, ok, nok) {
-  var sizeOpen = 0
-  var size
-  var token
-  return start
-
-  function start(code) {
-    effects.enter('codeText')
-    effects.enter('codeTextSequence')
-    return openingSequence(code)
-  }
-
-  function openingSequence(code) {
-    if (code === 96) {
-      effects.consume(code)
-      sizeOpen++
-      return openingSequence
-    }
-
-    effects.exit('codeTextSequence')
-    return gap(code)
-  }
-
-  function gap(code) {
-    // EOF.
-    if (code === null) {
-      return nok(code)
-    } // Closing fence?
-    // Could also be data.
-
-    if (code === 96) {
-      token = effects.enter('codeTextSequence')
-      size = 0
-      return closingSequence(code)
-    } // Tabs don’t work, and virtual spaces don’t make sense.
-
-    if (code === 32) {
-      effects.enter('space')
-      effects.consume(code)
-      effects.exit('space')
-      return gap
-    }
-
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      return gap
-    } // Data.
-
-    effects.enter('codeTextData')
-    return data(code)
-  } // In code.
-
-  function data(code) {
-    if (
-      code === null ||
-      code === 32 ||
-      code === 96 ||
-      markdownLineEnding(code)
-    ) {
-      effects.exit('codeTextData')
-      return gap(code)
-    }
-
-    effects.consume(code)
-    return data
-  } // Closing fence.
-
-  function closingSequence(code) {
-    // More.
-    if (code === 96) {
-      effects.consume(code)
-      size++
-      return closingSequence
-    } // Done!
-
-    if (size === sizeOpen) {
-      effects.exit('codeTextSequence')
-      effects.exit('codeText')
-      return ok(code)
-    } // More or less accents: mark as data.
-
-    token.type = 'codeTextData'
-    return data(code)
-  }
-}
-
-module.exports = codeText
-
-
-/***/ }),
-
-/***/ 6442:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var prefixSize = __nccwpck_require__(7208)
-var subtokenize = __nccwpck_require__(4737)
-var factorySpace = __nccwpck_require__(556)
-
-// No name because it must not be turned off.
-var content = {
-  tokenize: tokenizeContent,
-  resolve: resolveContent,
-  interruptible: true,
-  lazy: true
-}
-var continuationConstruct = {
-  tokenize: tokenizeContinuation,
-  partial: true
-} // Content is transparent: it’s parsed right now. That way, definitions are also
-// parsed right now: before text in paragraphs (specifically, media) are parsed.
-
-function resolveContent(events) {
-  subtokenize(events)
-  return events
-}
-
-function tokenizeContent(effects, ok) {
-  var previous
-  return start
-
-  function start(code) {
-    effects.enter('content')
-    previous = effects.enter('chunkContent', {
-      contentType: 'content'
-    })
-    return data(code)
-  }
-
-  function data(code) {
-    if (code === null) {
-      return contentEnd(code)
-    }
-
-    if (markdownLineEnding(code)) {
-      return effects.check(
-        continuationConstruct,
-        contentContinue,
-        contentEnd
-      )(code)
-    } // Data.
-
-    effects.consume(code)
-    return data
-  }
-
-  function contentEnd(code) {
-    effects.exit('chunkContent')
-    effects.exit('content')
-    return ok(code)
-  }
-
-  function contentContinue(code) {
-    effects.consume(code)
-    effects.exit('chunkContent')
-    previous = previous.next = effects.enter('chunkContent', {
-      contentType: 'content',
-      previous: previous
-    })
-    return data
-  }
-}
-
-function tokenizeContinuation(effects, ok, nok) {
-  var self = this
-  return startLookahead
-
-  function startLookahead(code) {
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-    return factorySpace(effects, prefixed, 'linePrefix')
-  }
-
-  function prefixed(code) {
-    if (code === null || markdownLineEnding(code)) {
-      return nok(code)
-    }
-
-    if (
-      self.parser.constructs.disable.null.indexOf('codeIndented') > -1 ||
-      prefixSize(self.events, 'linePrefix') < 4
-    ) {
-      return effects.interrupt(self.parser.constructs.flow, nok, ok)(code)
-    }
-
-    return ok(code)
-  }
-}
-
-module.exports = content
-
-
-/***/ }),
-
-/***/ 6865:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var normalizeIdentifier = __nccwpck_require__(3909)
-var factoryDestination = __nccwpck_require__(9839)
-var factoryLabel = __nccwpck_require__(8106)
-var factorySpace = __nccwpck_require__(556)
-var factoryWhitespace = __nccwpck_require__(860)
-var factoryTitle = __nccwpck_require__(8066)
-
-var definition = {
-  name: 'definition',
-  tokenize: tokenizeDefinition
-}
-var titleConstruct = {
-  tokenize: tokenizeTitle,
-  partial: true
-}
-
-function tokenizeDefinition(effects, ok, nok) {
-  var self = this
-  var identifier
-  return start
-
-  function start(code) {
-    effects.enter('definition')
-    return factoryLabel.call(
-      self,
-      effects,
-      labelAfter,
-      nok,
-      'definitionLabel',
-      'definitionLabelMarker',
-      'definitionLabelString'
-    )(code)
-  }
-
-  function labelAfter(code) {
-    identifier = normalizeIdentifier(
-      self.sliceSerialize(self.events[self.events.length - 1][1]).slice(1, -1)
-    )
-
-    if (code === 58) {
-      effects.enter('definitionMarker')
-      effects.consume(code)
-      effects.exit('definitionMarker') // Note: blank lines can’t exist in content.
-
-      return factoryWhitespace(
-        effects,
-        factoryDestination(
-          effects,
-          effects.attempt(
-            titleConstruct,
-            factorySpace(effects, after, 'whitespace'),
-            factorySpace(effects, after, 'whitespace')
-          ),
-          nok,
-          'definitionDestination',
-          'definitionDestinationLiteral',
-          'definitionDestinationLiteralMarker',
-          'definitionDestinationRaw',
-          'definitionDestinationString'
-        )
-      )
-    }
-
-    return nok(code)
-  }
-
-  function after(code) {
-    if (code === null || markdownLineEnding(code)) {
-      effects.exit('definition')
-
-      if (self.parser.defined.indexOf(identifier) < 0) {
-        self.parser.defined.push(identifier)
-      }
-
-      return ok(code)
-    }
-
-    return nok(code)
-  }
-}
-
-function tokenizeTitle(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    return markdownLineEndingOrSpace(code)
-      ? factoryWhitespace(effects, before)(code)
-      : nok(code)
-  }
-
-  function before(code) {
-    if (code === 34 || code === 39 || code === 40) {
-      return factoryTitle(
-        effects,
-        factorySpace(effects, after, 'whitespace'),
-        nok,
-        'definitionTitle',
-        'definitionTitleMarker',
-        'definitionTitleString'
-      )(code)
-    }
-
-    return nok(code)
-  }
-
-  function after(code) {
-    return code === null || markdownLineEnding(code) ? ok(code) : nok(code)
-  }
-}
-
-module.exports = definition
-
-
-/***/ }),
-
-/***/ 9839:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var asciiControl = __nccwpck_require__(7759)
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var markdownLineEnding = __nccwpck_require__(4196)
-
-// eslint-disable-next-line max-params
-function destinationFactory(
-  effects,
-  ok,
-  nok,
-  type,
-  literalType,
-  literalMarkerType,
-  rawType,
-  stringType,
-  max
-) {
-  var limit = max || Infinity
-  var balance = 0
-  return start
-
-  function start(code) {
-    if (code === 60) {
-      effects.enter(type)
-      effects.enter(literalType)
-      effects.enter(literalMarkerType)
-      effects.consume(code)
-      effects.exit(literalMarkerType)
-      return destinationEnclosedBefore
-    }
-
-    if (asciiControl(code) || code === 41) {
-      return nok(code)
-    }
-
-    effects.enter(type)
-    effects.enter(rawType)
-    effects.enter(stringType)
-    effects.enter('chunkString', {
-      contentType: 'string'
-    })
-    return destinationRaw(code)
-  }
-
-  function destinationEnclosedBefore(code) {
-    if (code === 62) {
-      effects.enter(literalMarkerType)
-      effects.consume(code)
-      effects.exit(literalMarkerType)
-      effects.exit(literalType)
-      effects.exit(type)
-      return ok
-    }
-
-    effects.enter(stringType)
-    effects.enter('chunkString', {
-      contentType: 'string'
-    })
-    return destinationEnclosed(code)
-  }
-
-  function destinationEnclosed(code) {
-    if (code === 62) {
-      effects.exit('chunkString')
-      effects.exit(stringType)
-      return destinationEnclosedBefore(code)
-    }
-
-    if (code === null || code === 60 || markdownLineEnding(code)) {
-      return nok(code)
-    }
-
-    effects.consume(code)
-    return code === 92 ? destinationEnclosedEscape : destinationEnclosed
-  }
-
-  function destinationEnclosedEscape(code) {
-    if (code === 60 || code === 62 || code === 92) {
-      effects.consume(code)
-      return destinationEnclosed
-    }
-
-    return destinationEnclosed(code)
-  }
-
-  function destinationRaw(code) {
-    if (code === 40) {
-      if (++balance > limit) return nok(code)
-      effects.consume(code)
-      return destinationRaw
-    }
-
-    if (code === 41) {
-      if (!balance--) {
-        effects.exit('chunkString')
-        effects.exit(stringType)
-        effects.exit(rawType)
-        effects.exit(type)
-        return ok(code)
-      }
-
-      effects.consume(code)
-      return destinationRaw
-    }
-
-    if (code === null || markdownLineEndingOrSpace(code)) {
-      if (balance) return nok(code)
-      effects.exit('chunkString')
-      effects.exit(stringType)
-      effects.exit(rawType)
-      effects.exit(type)
-      return ok(code)
-    }
-
-    if (asciiControl(code)) return nok(code)
-    effects.consume(code)
-    return code === 92 ? destinationRawEscape : destinationRaw
-  }
-
-  function destinationRawEscape(code) {
-    if (code === 40 || code === 41 || code === 92) {
-      effects.consume(code)
-      return destinationRaw
-    }
-
-    return destinationRaw(code)
-  }
-}
-
-module.exports = destinationFactory
-
-
-/***/ }),
-
-/***/ 8106:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownSpace = __nccwpck_require__(3155)
-
-// eslint-disable-next-line max-params
-function labelFactory(effects, ok, nok, type, markerType, stringType) {
-  var self = this
-  var size = 0
-  var data
-  return start
-
-  function start(code) {
-    effects.enter(type)
-    effects.enter(markerType)
-    effects.consume(code)
-    effects.exit(markerType)
-    effects.enter(stringType)
-    return atBreak
-  }
-
-  function atBreak(code) {
-    if (
-      code === null ||
-      code === 91 ||
-      (code === 93 && !data) ||
-      /* c8 ignore next */
-      (code === 94 &&
-        /* c8 ignore next */
-        !size &&
-        /* c8 ignore next */
-        '_hiddenFootnoteSupport' in self.parser.constructs) ||
-      size > 999
-    ) {
-      return nok(code)
-    }
-
-    if (code === 93) {
-      effects.exit(stringType)
-      effects.enter(markerType)
-      effects.consume(code)
-      effects.exit(markerType)
-      effects.exit(type)
-      return ok
-    }
-
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      return atBreak
-    }
-
-    effects.enter('chunkString', {
-      contentType: 'string'
-    })
-    return label(code)
-  }
-
-  function label(code) {
-    if (
-      code === null ||
-      code === 91 ||
-      code === 93 ||
-      markdownLineEnding(code) ||
-      size++ > 999
-    ) {
-      effects.exit('chunkString')
-      return atBreak(code)
-    }
-
-    effects.consume(code)
-    data = data || !markdownSpace(code)
-    return code === 92 ? labelEscape : label
-  }
-
-  function labelEscape(code) {
-    if (code === 91 || code === 92 || code === 93) {
-      effects.consume(code)
-      size++
-      return label
-    }
-
-    return label(code)
-  }
-}
-
-module.exports = labelFactory
-
-
-/***/ }),
-
-/***/ 556:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownSpace = __nccwpck_require__(3155)
-
-function spaceFactory(effects, ok, type, max) {
-  var limit = max ? max - 1 : Infinity
-  var size = 0
-  return start
-
-  function start(code) {
-    if (markdownSpace(code)) {
-      effects.enter(type)
-      return prefix(code)
-    }
-
-    return ok(code)
-  }
-
-  function prefix(code) {
-    if (markdownSpace(code) && size++ < limit) {
-      effects.consume(code)
-      return prefix
-    }
-
-    effects.exit(type)
-    return ok(code)
-  }
-}
-
-module.exports = spaceFactory
-
-
-/***/ }),
-
-/***/ 8066:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var factorySpace = __nccwpck_require__(556)
-
-function titleFactory(effects, ok, nok, type, markerType, stringType) {
-  var marker
-  return start
-
-  function start(code) {
-    effects.enter(type)
-    effects.enter(markerType)
-    effects.consume(code)
-    effects.exit(markerType)
-    marker = code === 40 ? 41 : code
-    return atFirstTitleBreak
-  }
-
-  function atFirstTitleBreak(code) {
-    if (code === marker) {
-      effects.enter(markerType)
-      effects.consume(code)
-      effects.exit(markerType)
-      effects.exit(type)
-      return ok
-    }
-
-    effects.enter(stringType)
-    return atTitleBreak(code)
-  }
-
-  function atTitleBreak(code) {
-    if (code === marker) {
-      effects.exit(stringType)
-      return atFirstTitleBreak(marker)
-    }
-
-    if (code === null) {
-      return nok(code)
-    } // Note: blank lines can’t exist in content.
-
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      return factorySpace(effects, atTitleBreak, 'linePrefix')
-    }
-
-    effects.enter('chunkString', {
-      contentType: 'string'
-    })
-    return title(code)
-  }
-
-  function title(code) {
-    if (code === marker || code === null || markdownLineEnding(code)) {
-      effects.exit('chunkString')
-      return atTitleBreak(code)
-    }
-
-    effects.consume(code)
-    return code === 92 ? titleEscape : title
-  }
-
-  function titleEscape(code) {
-    if (code === marker || code === 92) {
-      effects.consume(code)
-      return title
-    }
-
-    return title(code)
-  }
-}
-
-module.exports = titleFactory
-
-
-/***/ }),
-
-/***/ 860:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownSpace = __nccwpck_require__(3155)
-var factorySpace = __nccwpck_require__(556)
-
-function whitespaceFactory(effects, ok) {
-  var seen
-  return start
-
-  function start(code) {
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      seen = true
-      return start
-    }
-
-    if (markdownSpace(code)) {
-      return factorySpace(
-        effects,
-        start,
-        seen ? 'linePrefix' : 'lineSuffix'
-      )(code)
-    }
-
-    return ok(code)
-  }
-}
-
-module.exports = whitespaceFactory
-
-
-/***/ }),
-
-/***/ 4408:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-
-var hardBreakEscape = {
-  name: 'hardBreakEscape',
-  tokenize: tokenizeHardBreakEscape
-}
-
-function tokenizeHardBreakEscape(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    effects.enter('hardBreakEscape')
-    effects.enter('escapeMarker')
-    effects.consume(code)
-    return open
-  }
-
-  function open(code) {
-    if (markdownLineEnding(code)) {
-      effects.exit('escapeMarker')
-      effects.exit('hardBreakEscape')
-      return ok(code)
-    }
-
-    return nok(code)
-  }
-}
-
-module.exports = hardBreakEscape
-
-
-/***/ }),
-
-/***/ 7523:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var markdownSpace = __nccwpck_require__(3155)
-var chunkedSplice = __nccwpck_require__(5810)
-var factorySpace = __nccwpck_require__(556)
-
-var headingAtx = {
-  name: 'headingAtx',
-  tokenize: tokenizeHeadingAtx,
-  resolve: resolveHeadingAtx
-}
-
-function resolveHeadingAtx(events, context) {
-  var contentEnd = events.length - 2
-  var contentStart = 3
-  var content
-  var text // Prefix whitespace, part of the opening.
-
-  if (events[contentStart][1].type === 'whitespace') {
-    contentStart += 2
-  } // Suffix whitespace, part of the closing.
-
-  if (
-    contentEnd - 2 > contentStart &&
-    events[contentEnd][1].type === 'whitespace'
-  ) {
-    contentEnd -= 2
-  }
-
-  if (
-    events[contentEnd][1].type === 'atxHeadingSequence' &&
-    (contentStart === contentEnd - 1 ||
-      (contentEnd - 4 > contentStart &&
-        events[contentEnd - 2][1].type === 'whitespace'))
-  ) {
-    contentEnd -= contentStart + 1 === contentEnd ? 2 : 4
-  }
-
-  if (contentEnd > contentStart) {
-    content = {
-      type: 'atxHeadingText',
-      start: events[contentStart][1].start,
-      end: events[contentEnd][1].end
-    }
-    text = {
-      type: 'chunkText',
-      start: events[contentStart][1].start,
-      end: events[contentEnd][1].end,
-      contentType: 'text'
-    }
-    chunkedSplice(events, contentStart, contentEnd - contentStart + 1, [
-      ['enter', content, context],
-      ['enter', text, context],
-      ['exit', text, context],
-      ['exit', content, context]
-    ])
-  }
-
-  return events
-}
-
-function tokenizeHeadingAtx(effects, ok, nok) {
-  var self = this
-  var size = 0
-  return start
-
-  function start(code) {
-    effects.enter('atxHeading')
-    effects.enter('atxHeadingSequence')
-    return fenceOpenInside(code)
-  }
-
-  function fenceOpenInside(code) {
-    if (code === 35 && size++ < 6) {
-      effects.consume(code)
-      return fenceOpenInside
-    }
-
-    if (code === null || markdownLineEndingOrSpace(code)) {
-      effects.exit('atxHeadingSequence')
-      return self.interrupt ? ok(code) : headingBreak(code)
-    }
-
-    return nok(code)
-  }
-
-  function headingBreak(code) {
-    if (code === 35) {
-      effects.enter('atxHeadingSequence')
-      return sequence(code)
-    }
-
-    if (code === null || markdownLineEnding(code)) {
-      effects.exit('atxHeading')
-      return ok(code)
-    }
-
-    if (markdownSpace(code)) {
-      return factorySpace(effects, headingBreak, 'whitespace')(code)
-    }
-
-    effects.enter('atxHeadingText')
-    return data(code)
-  }
-
-  function sequence(code) {
-    if (code === 35) {
-      effects.consume(code)
-      return sequence
-    }
-
-    effects.exit('atxHeadingSequence')
-    return headingBreak(code)
-  }
-
-  function data(code) {
-    if (code === null || code === 35 || markdownLineEndingOrSpace(code)) {
-      effects.exit('atxHeadingText')
-      return headingBreak(code)
-    }
-
-    effects.consume(code)
-    return data
-  }
-}
-
-module.exports = headingAtx
-
-
-/***/ }),
-
-/***/ 1341:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var asciiAlpha = __nccwpck_require__(8229)
-var asciiAlphanumeric = __nccwpck_require__(209)
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var markdownSpace = __nccwpck_require__(3155)
-var fromCharCode = __nccwpck_require__(54)
-var htmlBlockNames = __nccwpck_require__(2069)
-var htmlRawNames = __nccwpck_require__(9429)
-var partialBlankLine = __nccwpck_require__(5719)
-
-var htmlFlow = {
-  name: 'htmlFlow',
-  tokenize: tokenizeHtmlFlow,
-  resolveTo: resolveToHtmlFlow,
-  concrete: true
-}
-var nextBlankConstruct = {
-  tokenize: tokenizeNextBlank,
-  partial: true
-}
-
-function resolveToHtmlFlow(events) {
-  var index = events.length
-
-  while (index--) {
-    if (events[index][0] === 'enter' && events[index][1].type === 'htmlFlow') {
-      break
-    }
-  }
-
-  if (index > 1 && events[index - 2][1].type === 'linePrefix') {
-    // Add the prefix start to the HTML token.
-    events[index][1].start = events[index - 2][1].start // Add the prefix start to the HTML line token.
-
-    events[index + 1][1].start = events[index - 2][1].start // Remove the line prefix.
-
-    events.splice(index - 2, 2)
-  }
-
-  return events
-}
-
-function tokenizeHtmlFlow(effects, ok, nok) {
-  var self = this
-  var kind
-  var startTag
-  var buffer
-  var index
-  var marker
-  return start
-
-  function start(code) {
-    effects.enter('htmlFlow')
-    effects.enter('htmlFlowData')
-    effects.consume(code)
-    return open
-  }
-
-  function open(code) {
-    if (code === 33) {
-      effects.consume(code)
-      return declarationStart
-    }
-
-    if (code === 47) {
-      effects.consume(code)
-      return tagCloseStart
-    }
-
-    if (code === 63) {
-      effects.consume(code)
-      kind = 3 // While we’re in an instruction instead of a declaration, we’re on a `?`
-      // right now, so we do need to search for `>`, similar to declarations.
-
-      return self.interrupt ? ok : continuationDeclarationInside
-    }
-
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      buffer = fromCharCode(code)
-      startTag = true
-      return tagName
-    }
-
-    return nok(code)
-  }
-
-  function declarationStart(code) {
-    if (code === 45) {
-      effects.consume(code)
-      kind = 2
-      return commentOpenInside
-    }
-
-    if (code === 91) {
-      effects.consume(code)
-      kind = 5
-      buffer = 'CDATA['
-      index = 0
-      return cdataOpenInside
-    }
-
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      kind = 4
-      return self.interrupt ? ok : continuationDeclarationInside
-    }
-
-    return nok(code)
-  }
-
-  function commentOpenInside(code) {
-    if (code === 45) {
-      effects.consume(code)
-      return self.interrupt ? ok : continuationDeclarationInside
-    }
-
-    return nok(code)
-  }
-
-  function cdataOpenInside(code) {
-    if (code === buffer.charCodeAt(index++)) {
-      effects.consume(code)
-      return index === buffer.length
-        ? self.interrupt
-          ? ok
-          : continuation
-        : cdataOpenInside
-    }
-
-    return nok(code)
-  }
-
-  function tagCloseStart(code) {
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      buffer = fromCharCode(code)
-      return tagName
-    }
-
-    return nok(code)
-  }
-
-  function tagName(code) {
-    if (
-      code === null ||
-      code === 47 ||
-      code === 62 ||
-      markdownLineEndingOrSpace(code)
-    ) {
-      if (
-        code !== 47 &&
-        startTag &&
-        htmlRawNames.indexOf(buffer.toLowerCase()) > -1
-      ) {
-        kind = 1
-        return self.interrupt ? ok(code) : continuation(code)
-      }
-
-      if (htmlBlockNames.indexOf(buffer.toLowerCase()) > -1) {
-        kind = 6
-
-        if (code === 47) {
-          effects.consume(code)
-          return basicSelfClosing
-        }
-
-        return self.interrupt ? ok(code) : continuation(code)
-      }
-
-      kind = 7 // Do not support complete HTML when interrupting.
-
-      return self.interrupt
-        ? nok(code)
-        : startTag
-        ? completeAttributeNameBefore(code)
-        : completeClosingTagAfter(code)
-    }
-
-    if (code === 45 || asciiAlphanumeric(code)) {
-      effects.consume(code)
-      buffer += fromCharCode(code)
-      return tagName
-    }
-
-    return nok(code)
-  }
-
-  function basicSelfClosing(code) {
-    if (code === 62) {
-      effects.consume(code)
-      return self.interrupt ? ok : continuation
-    }
-
-    return nok(code)
-  }
-
-  function completeClosingTagAfter(code) {
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return completeClosingTagAfter
-    }
-
-    return completeEnd(code)
-  }
-
-  function completeAttributeNameBefore(code) {
-    if (code === 47) {
-      effects.consume(code)
-      return completeEnd
-    }
-
-    if (code === 58 || code === 95 || asciiAlpha(code)) {
-      effects.consume(code)
-      return completeAttributeName
-    }
-
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return completeAttributeNameBefore
-    }
-
-    return completeEnd(code)
-  }
-
-  function completeAttributeName(code) {
-    if (
-      code === 45 ||
-      code === 46 ||
-      code === 58 ||
-      code === 95 ||
-      asciiAlphanumeric(code)
-    ) {
-      effects.consume(code)
-      return completeAttributeName
-    }
-
-    return completeAttributeNameAfter(code)
-  }
-
-  function completeAttributeNameAfter(code) {
-    if (code === 61) {
-      effects.consume(code)
-      return completeAttributeValueBefore
-    }
-
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return completeAttributeNameAfter
-    }
-
-    return completeAttributeNameBefore(code)
-  }
-
-  function completeAttributeValueBefore(code) {
-    if (
-      code === null ||
-      code === 60 ||
-      code === 61 ||
-      code === 62 ||
-      code === 96
-    ) {
-      return nok(code)
-    }
-
-    if (code === 34 || code === 39) {
-      effects.consume(code)
-      marker = code
-      return completeAttributeValueQuoted
-    }
-
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return completeAttributeValueBefore
-    }
-
-    marker = undefined
-    return completeAttributeValueUnquoted(code)
-  }
-
-  function completeAttributeValueQuoted(code) {
-    if (code === marker) {
-      effects.consume(code)
-      return completeAttributeValueQuotedAfter
-    }
-
-    if (code === null || markdownLineEnding(code)) {
-      return nok(code)
-    }
-
-    effects.consume(code)
-    return completeAttributeValueQuoted
-  }
-
-  function completeAttributeValueUnquoted(code) {
-    if (
-      code === null ||
-      code === 34 ||
-      code === 39 ||
-      code === 60 ||
-      code === 61 ||
-      code === 62 ||
-      code === 96 ||
-      markdownLineEndingOrSpace(code)
-    ) {
-      return completeAttributeNameAfter(code)
-    }
-
-    effects.consume(code)
-    return completeAttributeValueUnquoted
-  }
-
-  function completeAttributeValueQuotedAfter(code) {
-    if (code === 47 || code === 62 || markdownSpace(code)) {
-      return completeAttributeNameBefore(code)
-    }
-
-    return nok(code)
-  }
-
-  function completeEnd(code) {
-    if (code === 62) {
-      effects.consume(code)
-      return completeAfter
-    }
-
-    return nok(code)
-  }
-
-  function completeAfter(code) {
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return completeAfter
-    }
-
-    return code === null || markdownLineEnding(code)
-      ? continuation(code)
-      : nok(code)
-  }
-
-  function continuation(code) {
-    if (code === 45 && kind === 2) {
-      effects.consume(code)
-      return continuationCommentInside
-    }
-
-    if (code === 60 && kind === 1) {
-      effects.consume(code)
-      return continuationRawTagOpen
-    }
-
-    if (code === 62 && kind === 4) {
-      effects.consume(code)
-      return continuationClose
-    }
-
-    if (code === 63 && kind === 3) {
-      effects.consume(code)
-      return continuationDeclarationInside
-    }
-
-    if (code === 93 && kind === 5) {
-      effects.consume(code)
-      return continuationCharacterDataInside
-    }
-
-    if (markdownLineEnding(code) && (kind === 6 || kind === 7)) {
-      return effects.check(
-        nextBlankConstruct,
-        continuationClose,
-        continuationAtLineEnding
-      )(code)
-    }
-
-    if (code === null || markdownLineEnding(code)) {
-      return continuationAtLineEnding(code)
-    }
-
-    effects.consume(code)
-    return continuation
-  }
-
-  function continuationAtLineEnding(code) {
-    effects.exit('htmlFlowData')
-    return htmlContinueStart(code)
-  }
-
-  function htmlContinueStart(code) {
-    if (code === null) {
-      return done(code)
-    }
-
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      return htmlContinueStart
-    }
-
-    effects.enter('htmlFlowData')
-    return continuation(code)
-  }
-
-  function continuationCommentInside(code) {
-    if (code === 45) {
-      effects.consume(code)
-      return continuationDeclarationInside
-    }
-
-    return continuation(code)
-  }
-
-  function continuationRawTagOpen(code) {
-    if (code === 47) {
-      effects.consume(code)
-      buffer = ''
-      return continuationRawEndTag
-    }
-
-    return continuation(code)
-  }
-
-  function continuationRawEndTag(code) {
-    if (code === 62 && htmlRawNames.indexOf(buffer.toLowerCase()) > -1) {
-      effects.consume(code)
-      return continuationClose
-    }
-
-    if (asciiAlpha(code) && buffer.length < 8) {
-      effects.consume(code)
-      buffer += fromCharCode(code)
-      return continuationRawEndTag
-    }
-
-    return continuation(code)
-  }
-
-  function continuationCharacterDataInside(code) {
-    if (code === 93) {
-      effects.consume(code)
-      return continuationDeclarationInside
-    }
-
-    return continuation(code)
-  }
-
-  function continuationDeclarationInside(code) {
-    if (code === 62) {
-      effects.consume(code)
-      return continuationClose
-    }
-
-    return continuation(code)
-  }
-
-  function continuationClose(code) {
-    if (code === null || markdownLineEnding(code)) {
-      effects.exit('htmlFlowData')
-      return done(code)
-    }
-
-    effects.consume(code)
-    return continuationClose
-  }
-
-  function done(code) {
-    effects.exit('htmlFlow')
-    return ok(code)
-  }
-}
-
-function tokenizeNextBlank(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    effects.exit('htmlFlowData')
-    effects.enter('lineEndingBlank')
-    effects.consume(code)
-    effects.exit('lineEndingBlank')
-    return effects.attempt(partialBlankLine, ok, nok)
-  }
-}
-
-module.exports = htmlFlow
-
-
-/***/ }),
-
-/***/ 7411:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var asciiAlpha = __nccwpck_require__(8229)
-var asciiAlphanumeric = __nccwpck_require__(209)
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var markdownSpace = __nccwpck_require__(3155)
-var factorySpace = __nccwpck_require__(556)
-
-var htmlText = {
-  name: 'htmlText',
-  tokenize: tokenizeHtmlText
-}
-
-function tokenizeHtmlText(effects, ok, nok) {
-  var self = this
-  var marker
-  var buffer
-  var index
-  var returnState
-  return start
-
-  function start(code) {
-    effects.enter('htmlText')
-    effects.enter('htmlTextData')
-    effects.consume(code)
-    return open
-  }
-
-  function open(code) {
-    if (code === 33) {
-      effects.consume(code)
-      return declarationOpen
-    }
-
-    if (code === 47) {
-      effects.consume(code)
-      return tagCloseStart
-    }
-
-    if (code === 63) {
-      effects.consume(code)
-      return instruction
-    }
-
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      return tagOpen
-    }
-
-    return nok(code)
-  }
-
-  function declarationOpen(code) {
-    if (code === 45) {
-      effects.consume(code)
-      return commentOpen
-    }
-
-    if (code === 91) {
-      effects.consume(code)
-      buffer = 'CDATA['
-      index = 0
-      return cdataOpen
-    }
-
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      return declaration
-    }
-
-    return nok(code)
-  }
-
-  function commentOpen(code) {
-    if (code === 45) {
-      effects.consume(code)
-      return commentStart
-    }
-
-    return nok(code)
-  }
-
-  function commentStart(code) {
-    if (code === null || code === 62) {
-      return nok(code)
-    }
-
-    if (code === 45) {
-      effects.consume(code)
-      return commentStartDash
-    }
-
-    return comment(code)
-  }
-
-  function commentStartDash(code) {
-    if (code === null || code === 62) {
-      return nok(code)
-    }
-
-    return comment(code)
-  }
-
-  function comment(code) {
-    if (code === null) {
-      return nok(code)
-    }
-
-    if (code === 45) {
-      effects.consume(code)
-      return commentClose
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = comment
-      return atLineEnding(code)
-    }
-
-    effects.consume(code)
-    return comment
-  }
-
-  function commentClose(code) {
-    if (code === 45) {
-      effects.consume(code)
-      return end
-    }
-
-    return comment(code)
-  }
-
-  function cdataOpen(code) {
-    if (code === buffer.charCodeAt(index++)) {
-      effects.consume(code)
-      return index === buffer.length ? cdata : cdataOpen
-    }
-
-    return nok(code)
-  }
-
-  function cdata(code) {
-    if (code === null) {
-      return nok(code)
-    }
-
-    if (code === 93) {
-      effects.consume(code)
-      return cdataClose
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = cdata
-      return atLineEnding(code)
-    }
-
-    effects.consume(code)
-    return cdata
-  }
-
-  function cdataClose(code) {
-    if (code === 93) {
-      effects.consume(code)
-      return cdataEnd
-    }
-
-    return cdata(code)
-  }
-
-  function cdataEnd(code) {
-    if (code === 62) {
-      return end(code)
-    }
-
-    if (code === 93) {
-      effects.consume(code)
-      return cdataEnd
-    }
-
-    return cdata(code)
-  }
-
-  function declaration(code) {
-    if (code === null || code === 62) {
-      return end(code)
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = declaration
-      return atLineEnding(code)
-    }
-
-    effects.consume(code)
-    return declaration
-  }
-
-  function instruction(code) {
-    if (code === null) {
-      return nok(code)
-    }
-
-    if (code === 63) {
-      effects.consume(code)
-      return instructionClose
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = instruction
-      return atLineEnding(code)
-    }
-
-    effects.consume(code)
-    return instruction
-  }
-
-  function instructionClose(code) {
-    return code === 62 ? end(code) : instruction(code)
-  }
-
-  function tagCloseStart(code) {
-    if (asciiAlpha(code)) {
-      effects.consume(code)
-      return tagClose
-    }
-
-    return nok(code)
-  }
-
-  function tagClose(code) {
-    if (code === 45 || asciiAlphanumeric(code)) {
-      effects.consume(code)
-      return tagClose
-    }
-
-    return tagCloseBetween(code)
-  }
-
-  function tagCloseBetween(code) {
-    if (markdownLineEnding(code)) {
-      returnState = tagCloseBetween
-      return atLineEnding(code)
-    }
-
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return tagCloseBetween
-    }
-
-    return end(code)
-  }
-
-  function tagOpen(code) {
-    if (code === 45 || asciiAlphanumeric(code)) {
-      effects.consume(code)
-      return tagOpen
-    }
-
-    if (code === 47 || code === 62 || markdownLineEndingOrSpace(code)) {
-      return tagOpenBetween(code)
-    }
-
-    return nok(code)
-  }
-
-  function tagOpenBetween(code) {
-    if (code === 47) {
-      effects.consume(code)
-      return end
-    }
-
-    if (code === 58 || code === 95 || asciiAlpha(code)) {
-      effects.consume(code)
-      return tagOpenAttributeName
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = tagOpenBetween
-      return atLineEnding(code)
-    }
-
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return tagOpenBetween
-    }
-
-    return end(code)
-  }
-
-  function tagOpenAttributeName(code) {
-    if (
-      code === 45 ||
-      code === 46 ||
-      code === 58 ||
-      code === 95 ||
-      asciiAlphanumeric(code)
-    ) {
-      effects.consume(code)
-      return tagOpenAttributeName
-    }
-
-    return tagOpenAttributeNameAfter(code)
-  }
-
-  function tagOpenAttributeNameAfter(code) {
-    if (code === 61) {
-      effects.consume(code)
-      return tagOpenAttributeValueBefore
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = tagOpenAttributeNameAfter
-      return atLineEnding(code)
-    }
-
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return tagOpenAttributeNameAfter
-    }
-
-    return tagOpenBetween(code)
-  }
-
-  function tagOpenAttributeValueBefore(code) {
-    if (
-      code === null ||
-      code === 60 ||
-      code === 61 ||
-      code === 62 ||
-      code === 96
-    ) {
-      return nok(code)
-    }
-
-    if (code === 34 || code === 39) {
-      effects.consume(code)
-      marker = code
-      return tagOpenAttributeValueQuoted
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = tagOpenAttributeValueBefore
-      return atLineEnding(code)
-    }
-
-    if (markdownSpace(code)) {
-      effects.consume(code)
-      return tagOpenAttributeValueBefore
-    }
-
-    effects.consume(code)
-    marker = undefined
-    return tagOpenAttributeValueUnquoted
-  }
-
-  function tagOpenAttributeValueQuoted(code) {
-    if (code === marker) {
-      effects.consume(code)
-      return tagOpenAttributeValueQuotedAfter
-    }
-
-    if (code === null) {
-      return nok(code)
-    }
-
-    if (markdownLineEnding(code)) {
-      returnState = tagOpenAttributeValueQuoted
-      return atLineEnding(code)
-    }
-
-    effects.consume(code)
-    return tagOpenAttributeValueQuoted
-  }
-
-  function tagOpenAttributeValueQuotedAfter(code) {
-    if (code === 62 || code === 47 || markdownLineEndingOrSpace(code)) {
-      return tagOpenBetween(code)
-    }
-
-    return nok(code)
-  }
-
-  function tagOpenAttributeValueUnquoted(code) {
-    if (
-      code === null ||
-      code === 34 ||
-      code === 39 ||
-      code === 60 ||
-      code === 61 ||
-      code === 96
-    ) {
-      return nok(code)
-    }
-
-    if (code === 62 || markdownLineEndingOrSpace(code)) {
-      return tagOpenBetween(code)
-    }
-
-    effects.consume(code)
-    return tagOpenAttributeValueUnquoted
-  } // We can’t have blank lines in content, so no need to worry about empty
-  // tokens.
-
-  function atLineEnding(code) {
-    effects.exit('htmlTextData')
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-    return factorySpace(
-      effects,
-      afterPrefix,
-      'linePrefix',
-      self.parser.constructs.disable.null.indexOf('codeIndented') > -1
-        ? undefined
-        : 4
-    )
-  }
-
-  function afterPrefix(code) {
-    effects.enter('htmlTextData')
-    return returnState(code)
-  }
-
-  function end(code) {
-    if (code === 62) {
-      effects.consume(code)
-      effects.exit('htmlTextData')
-      effects.exit('htmlText')
-      return ok
-    }
-
-    return nok(code)
-  }
-}
-
-module.exports = htmlText
-
-
-/***/ }),
-
-/***/ 2546:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var chunkedPush = __nccwpck_require__(2029)
-var chunkedSplice = __nccwpck_require__(5810)
-var normalizeIdentifier = __nccwpck_require__(3909)
-var resolveAll = __nccwpck_require__(3418)
-var shallow = __nccwpck_require__(7766)
-var factoryDestination = __nccwpck_require__(9839)
-var factoryLabel = __nccwpck_require__(8106)
-var factoryTitle = __nccwpck_require__(8066)
-var factoryWhitespace = __nccwpck_require__(860)
-
-var labelEnd = {
-  name: 'labelEnd',
-  tokenize: tokenizeLabelEnd,
-  resolveTo: resolveToLabelEnd,
-  resolveAll: resolveAllLabelEnd
-}
-var resourceConstruct = {
-  tokenize: tokenizeResource
-}
-var fullReferenceConstruct = {
-  tokenize: tokenizeFullReference
-}
-var collapsedReferenceConstruct = {
-  tokenize: tokenizeCollapsedReference
-}
-
-function resolveAllLabelEnd(events) {
-  var index = -1
-  var token
-
-  while (++index < events.length) {
-    token = events[index][1]
-
-    if (
-      !token._used &&
-      (token.type === 'labelImage' ||
-        token.type === 'labelLink' ||
-        token.type === 'labelEnd')
-    ) {
-      // Remove the marker.
-      events.splice(index + 1, token.type === 'labelImage' ? 4 : 2)
-      token.type = 'data'
-      index++
-    }
-  }
-
-  return events
-}
-
-function resolveToLabelEnd(events, context) {
-  var index = events.length
-  var offset = 0
-  var group
-  var label
-  var text
-  var token
-  var open
-  var close
-  var media // Find an opening.
-
-  while (index--) {
-    token = events[index][1]
-
-    if (open) {
-      // If we see another link, or inactive link label, we’ve been here before.
-      if (
-        token.type === 'link' ||
-        (token.type === 'labelLink' && token._inactive)
-      ) {
-        break
-      } // Mark other link openings as inactive, as we can’t have links in
-      // links.
-
-      if (events[index][0] === 'enter' && token.type === 'labelLink') {
-        token._inactive = true
-      }
-    } else if (close) {
-      if (
-        events[index][0] === 'enter' &&
-        (token.type === 'labelImage' || token.type === 'labelLink') &&
-        !token._balanced
-      ) {
-        open = index
-
-        if (token.type !== 'labelLink') {
-          offset = 2
-          break
-        }
-      }
-    } else if (token.type === 'labelEnd') {
-      close = index
-    }
-  }
-
-  group = {
-    type: events[open][1].type === 'labelLink' ? 'link' : 'image',
-    start: shallow(events[open][1].start),
-    end: shallow(events[events.length - 1][1].end)
-  }
-  label = {
-    type: 'label',
-    start: shallow(events[open][1].start),
-    end: shallow(events[close][1].end)
-  }
-  text = {
-    type: 'labelText',
-    start: shallow(events[open + offset + 2][1].end),
-    end: shallow(events[close - 2][1].start)
-  }
-  media = [
-    ['enter', group, context],
-    ['enter', label, context]
-  ] // Opening marker.
-
-  media = chunkedPush(media, events.slice(open + 1, open + offset + 3)) // Text open.
-
-  media = chunkedPush(media, [['enter', text, context]]) // Between.
-
-  media = chunkedPush(
-    media,
-    resolveAll(
-      context.parser.constructs.insideSpan.null,
-      events.slice(open + offset + 4, close - 3),
-      context
-    )
-  ) // Text close, marker close, label close.
-
-  media = chunkedPush(media, [
-    ['exit', text, context],
-    events[close - 2],
-    events[close - 1],
-    ['exit', label, context]
-  ]) // Reference, resource, or so.
-
-  media = chunkedPush(media, events.slice(close + 1)) // Media close.
-
-  media = chunkedPush(media, [['exit', group, context]])
-  chunkedSplice(events, open, events.length, media)
-  return events
-}
-
-function tokenizeLabelEnd(effects, ok, nok) {
-  var self = this
-  var index = self.events.length
-  var labelStart
-  var defined // Find an opening.
-
-  while (index--) {
-    if (
-      (self.events[index][1].type === 'labelImage' ||
-        self.events[index][1].type === 'labelLink') &&
-      !self.events[index][1]._balanced
-    ) {
-      labelStart = self.events[index][1]
-      break
-    }
-  }
-
-  return start
-
-  function start(code) {
-    if (!labelStart) {
-      return nok(code)
-    } // It’s a balanced bracket, but contains a link.
-
-    if (labelStart._inactive) return balanced(code)
-    defined =
-      self.parser.defined.indexOf(
-        normalizeIdentifier(
-          self.sliceSerialize({
-            start: labelStart.end,
-            end: self.now()
-          })
-        )
-      ) > -1
-    effects.enter('labelEnd')
-    effects.enter('labelMarker')
-    effects.consume(code)
-    effects.exit('labelMarker')
-    effects.exit('labelEnd')
-    return afterLabelEnd
-  }
-
-  function afterLabelEnd(code) {
-    // Resource: `[asd](fgh)`.
-    if (code === 40) {
-      return effects.attempt(
-        resourceConstruct,
-        ok,
-        defined ? ok : balanced
-      )(code)
-    } // Collapsed (`[asd][]`) or full (`[asd][fgh]`) reference?
-
-    if (code === 91) {
-      return effects.attempt(
-        fullReferenceConstruct,
-        ok,
-        defined
-          ? effects.attempt(collapsedReferenceConstruct, ok, balanced)
-          : balanced
-      )(code)
-    } // Shortcut reference: `[asd]`?
-
-    return defined ? ok(code) : balanced(code)
-  }
-
-  function balanced(code) {
-    labelStart._balanced = true
-    return nok(code)
-  }
-}
-
-function tokenizeResource(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    effects.enter('resource')
-    effects.enter('resourceMarker')
-    effects.consume(code)
-    effects.exit('resourceMarker')
-    return factoryWhitespace(effects, open)
-  }
-
-  function open(code) {
-    if (code === 41) {
-      return end(code)
-    }
-
-    return factoryDestination(
-      effects,
-      destinationAfter,
-      nok,
-      'resourceDestination',
-      'resourceDestinationLiteral',
-      'resourceDestinationLiteralMarker',
-      'resourceDestinationRaw',
-      'resourceDestinationString',
-      3
-    )(code)
-  }
-
-  function destinationAfter(code) {
-    return markdownLineEndingOrSpace(code)
-      ? factoryWhitespace(effects, between)(code)
-      : end(code)
-  }
-
-  function between(code) {
-    if (code === 34 || code === 39 || code === 40) {
-      return factoryTitle(
-        effects,
-        factoryWhitespace(effects, end),
-        nok,
-        'resourceTitle',
-        'resourceTitleMarker',
-        'resourceTitleString'
-      )(code)
-    }
-
-    return end(code)
-  }
-
-  function end(code) {
-    if (code === 41) {
-      effects.enter('resourceMarker')
-      effects.consume(code)
-      effects.exit('resourceMarker')
-      effects.exit('resource')
-      return ok
-    }
-
-    return nok(code)
-  }
-}
-
-function tokenizeFullReference(effects, ok, nok) {
-  var self = this
-  return start
-
-  function start(code) {
-    return factoryLabel.call(
-      self,
-      effects,
-      afterLabel,
-      nok,
-      'reference',
-      'referenceMarker',
-      'referenceString'
-    )(code)
-  }
-
-  function afterLabel(code) {
-    return self.parser.defined.indexOf(
-      normalizeIdentifier(
-        self.sliceSerialize(self.events[self.events.length - 1][1]).slice(1, -1)
-      )
-    ) < 0
-      ? nok(code)
-      : ok(code)
-  }
-}
-
-function tokenizeCollapsedReference(effects, ok, nok) {
-  return start
-
-  function start(code) {
-    effects.enter('reference')
-    effects.enter('referenceMarker')
-    effects.consume(code)
-    effects.exit('referenceMarker')
-    return open
-  }
-
-  function open(code) {
-    if (code === 93) {
-      effects.enter('referenceMarker')
-      effects.consume(code)
-      effects.exit('referenceMarker')
-      effects.exit('reference')
-      return ok
-    }
-
-    return nok(code)
-  }
-}
-
-module.exports = labelEnd
-
-
-/***/ }),
-
-/***/ 7634:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var labelEnd = __nccwpck_require__(2546)
-
-var labelStartImage = {
-  name: 'labelStartImage',
-  tokenize: tokenizeLabelStartImage,
-  resolveAll: labelEnd.resolveAll
-}
-
-function tokenizeLabelStartImage(effects, ok, nok) {
-  var self = this
-  return start
-
-  function start(code) {
-    effects.enter('labelImage')
-    effects.enter('labelImageMarker')
-    effects.consume(code)
-    effects.exit('labelImageMarker')
-    return open
-  }
-
-  function open(code) {
-    if (code === 91) {
-      effects.enter('labelMarker')
-      effects.consume(code)
-      effects.exit('labelMarker')
-      effects.exit('labelImage')
-      return after
-    }
-
-    return nok(code)
-  }
-
-  function after(code) {
-    /* c8 ignore next */
-    return code === 94 &&
-      /* c8 ignore next */
-      '_hiddenFootnoteSupport' in self.parser.constructs
-      ? /* c8 ignore next */
-        nok(code)
-      : ok(code)
-  }
-}
-
-module.exports = labelStartImage
-
-
-/***/ }),
-
-/***/ 449:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var labelEnd = __nccwpck_require__(2546)
-
-var labelStartLink = {
-  name: 'labelStartLink',
-  tokenize: tokenizeLabelStartLink,
-  resolveAll: labelEnd.resolveAll
-}
-
-function tokenizeLabelStartLink(effects, ok, nok) {
-  var self = this
-  return start
-
-  function start(code) {
-    effects.enter('labelLink')
-    effects.enter('labelMarker')
-    effects.consume(code)
-    effects.exit('labelMarker')
-    effects.exit('labelLink')
-    return after
-  }
-
-  function after(code) {
-    /* c8 ignore next */
-    return code === 94 &&
-      /* c8 ignore next */
-      '_hiddenFootnoteSupport' in self.parser.constructs
-      ? /* c8 ignore next */
-        nok(code)
-      : ok(code)
-  }
-}
-
-module.exports = labelStartLink
-
-
-/***/ }),
-
-/***/ 4044:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var factorySpace = __nccwpck_require__(556)
-
-var lineEnding = {
-  name: 'lineEnding',
-  tokenize: tokenizeLineEnding
-}
-
-function tokenizeLineEnding(effects, ok) {
-  return start
-
-  function start(code) {
-    effects.enter('lineEnding')
-    effects.consume(code)
-    effects.exit('lineEnding')
-    return factorySpace(effects, ok, 'linePrefix')
-  }
-}
-
-module.exports = lineEnding
-
-
-/***/ }),
-
-/***/ 1208:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var asciiDigit = __nccwpck_require__(2090)
-var markdownSpace = __nccwpck_require__(3155)
-var prefixSize = __nccwpck_require__(7208)
-var sizeChunks = __nccwpck_require__(7949)
-var factorySpace = __nccwpck_require__(556)
-var partialBlankLine = __nccwpck_require__(5719)
-var thematicBreak = __nccwpck_require__(6318)
-
-var list = {
-  name: 'list',
-  tokenize: tokenizeListStart,
-  continuation: {
-    tokenize: tokenizeListContinuation
-  },
-  exit: tokenizeListEnd
-}
-var listItemPrefixWhitespaceConstruct = {
-  tokenize: tokenizeListItemPrefixWhitespace,
-  partial: true
-}
-var indentConstruct = {
-  tokenize: tokenizeIndent,
-  partial: true
-}
-
-function tokenizeListStart(effects, ok, nok) {
-  var self = this
-  var initialSize = prefixSize(self.events, 'linePrefix')
-  var size = 0
-  return start
-
-  function start(code) {
-    var kind =
-      self.containerState.type ||
-      (code === 42 || code === 43 || code === 45
-        ? 'listUnordered'
-        : 'listOrdered')
-
-    if (
-      kind === 'listUnordered'
-        ? !self.containerState.marker || code === self.containerState.marker
-        : asciiDigit(code)
-    ) {
-      if (!self.containerState.type) {
-        self.containerState.type = kind
-        effects.enter(kind, {
-          _container: true
-        })
-      }
-
-      if (kind === 'listUnordered') {
-        effects.enter('listItemPrefix')
-        return code === 42 || code === 45
-          ? effects.check(thematicBreak, nok, atMarker)(code)
-          : atMarker(code)
-      }
-
-      if (!self.interrupt || code === 49) {
-        effects.enter('listItemPrefix')
-        effects.enter('listItemValue')
-        return inside(code)
-      }
-    }
-
-    return nok(code)
-  }
-
-  function inside(code) {
-    if (asciiDigit(code) && ++size < 10) {
-      effects.consume(code)
-      return inside
-    }
-
-    if (
-      (!self.interrupt || size < 2) &&
-      (self.containerState.marker
-        ? code === self.containerState.marker
-        : code === 41 || code === 46)
-    ) {
-      effects.exit('listItemValue')
-      return atMarker(code)
-    }
-
-    return nok(code)
-  }
-
-  function atMarker(code) {
-    effects.enter('listItemMarker')
-    effects.consume(code)
-    effects.exit('listItemMarker')
-    self.containerState.marker = self.containerState.marker || code
-    return effects.check(
-      partialBlankLine, // Can’t be empty when interrupting.
-      self.interrupt ? nok : onBlank,
-      effects.attempt(
-        listItemPrefixWhitespaceConstruct,
-        endOfPrefix,
-        otherPrefix
-      )
-    )
-  }
-
-  function onBlank(code) {
-    self.containerState.initialBlankLine = true
-    initialSize++
-    return endOfPrefix(code)
-  }
-
-  function otherPrefix(code) {
-    if (markdownSpace(code)) {
-      effects.enter('listItemPrefixWhitespace')
-      effects.consume(code)
-      effects.exit('listItemPrefixWhitespace')
-      return endOfPrefix
-    }
-
-    return nok(code)
-  }
-
-  function endOfPrefix(code) {
-    self.containerState.size =
-      initialSize + sizeChunks(self.sliceStream(effects.exit('listItemPrefix')))
-    return ok(code)
-  }
-}
-
-function tokenizeListContinuation(effects, ok, nok) {
-  var self = this
-  self.containerState._closeFlow = undefined
-  return effects.check(partialBlankLine, onBlank, notBlank)
-
-  function onBlank(code) {
-    self.containerState.furtherBlankLines =
-      self.containerState.furtherBlankLines ||
-      self.containerState.initialBlankLine // We have a blank line.
-    // Still, try to consume at most the items size.
-
-    return factorySpace(
-      effects,
-      ok,
-      'listItemIndent',
-      self.containerState.size + 1
-    )(code)
-  }
-
-  function notBlank(code) {
-    if (self.containerState.furtherBlankLines || !markdownSpace(code)) {
-      self.containerState.furtherBlankLines = self.containerState.initialBlankLine = undefined
-      return notInCurrentItem(code)
-    }
-
-    self.containerState.furtherBlankLines = self.containerState.initialBlankLine = undefined
-    return effects.attempt(indentConstruct, ok, notInCurrentItem)(code)
-  }
-
-  function notInCurrentItem(code) {
-    // While we do continue, we signal that the flow should be closed.
-    self.containerState._closeFlow = true // As we’re closing flow, we’re no longer interrupting.
-
-    self.interrupt = undefined
-    return factorySpace(
-      effects,
-      effects.attempt(list, ok, nok),
-      'linePrefix',
-      self.parser.constructs.disable.null.indexOf('codeIndented') > -1
-        ? undefined
-        : 4
-    )(code)
-  }
-}
-
-function tokenizeIndent(effects, ok, nok) {
-  var self = this
-  return factorySpace(
-    effects,
-    afterPrefix,
-    'listItemIndent',
-    self.containerState.size + 1
-  )
-
-  function afterPrefix(code) {
-    return prefixSize(self.events, 'listItemIndent') ===
-      self.containerState.size
-      ? ok(code)
-      : nok(code)
-  }
-}
-
-function tokenizeListEnd(effects) {
-  effects.exit(this.containerState.type)
-}
-
-function tokenizeListItemPrefixWhitespace(effects, ok, nok) {
-  var self = this
-  return factorySpace(
-    effects,
-    afterPrefix,
-    'listItemPrefixWhitespace',
-    self.parser.constructs.disable.null.indexOf('codeIndented') > -1
-      ? undefined
-      : 4 + 1
-  )
-
-  function afterPrefix(code) {
-    return markdownSpace(code) ||
-      !prefixSize(self.events, 'listItemPrefixWhitespace')
-      ? nok(code)
-      : ok(code)
-  }
-}
-
-module.exports = list
-
-
-/***/ }),
-
-/***/ 5719:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var factorySpace = __nccwpck_require__(556)
-
-var partialBlankLine = {
-  tokenize: tokenizePartialBlankLine,
-  partial: true
-}
-
-function tokenizePartialBlankLine(effects, ok, nok) {
-  return factorySpace(effects, afterWhitespace, 'linePrefix')
-
-  function afterWhitespace(code) {
-    return code === null || markdownLineEnding(code) ? ok(code) : nok(code)
-  }
-}
-
-module.exports = partialBlankLine
-
-
-/***/ }),
-
-/***/ 1079:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var shallow = __nccwpck_require__(7766)
-var factorySpace = __nccwpck_require__(556)
-
-var setextUnderline = {
-  name: 'setextUnderline',
-  tokenize: tokenizeSetextUnderline,
-  resolveTo: resolveToSetextUnderline
-}
-
-function resolveToSetextUnderline(events, context) {
-  var index = events.length
-  var content
-  var text
-  var definition
-  var heading // Find the opening of the content.
-  // It’ll always exist: we don’t tokenize if it isn’t there.
-
-  while (index--) {
-    if (events[index][0] === 'enter') {
-      if (events[index][1].type === 'content') {
-        content = index
-        break
-      }
-
-      if (events[index][1].type === 'paragraph') {
-        text = index
-      }
-    } // Exit
-    else {
-      if (events[index][1].type === 'content') {
-        // Remove the content end (if needed we’ll add it later)
-        events.splice(index, 1)
-      }
-
-      if (!definition && events[index][1].type === 'definition') {
-        definition = index
-      }
-    }
-  }
-
-  heading = {
-    type: 'setextHeading',
-    start: shallow(events[text][1].start),
-    end: shallow(events[events.length - 1][1].end)
-  } // Change the paragraph to setext heading text.
-
-  events[text][1].type = 'setextHeadingText' // If we have definitions in the content, we’ll keep on having content,
-  // but we need move it.
-
-  if (definition) {
-    events.splice(text, 0, ['enter', heading, context])
-    events.splice(definition + 1, 0, ['exit', events[content][1], context])
-    events[content][1].end = shallow(events[definition][1].end)
-  } else {
-    events[content][1] = heading
-  } // Add the heading exit at the end.
-
-  events.push(['exit', heading, context])
-  return events
-}
-
-function tokenizeSetextUnderline(effects, ok, nok) {
-  var self = this
-  var index = self.events.length
-  var marker
-  var paragraph // Find an opening.
-
-  while (index--) {
-    // Skip enter/exit of line ending, line prefix, and content.
-    // We can now either have a definition or a paragraph.
-    if (
-      self.events[index][1].type !== 'lineEnding' &&
-      self.events[index][1].type !== 'linePrefix' &&
-      self.events[index][1].type !== 'content'
-    ) {
-      paragraph = self.events[index][1].type === 'paragraph'
-      break
-    }
-  }
-
-  return start
-
-  function start(code) {
-    if (!self.lazy && (self.interrupt || paragraph)) {
-      effects.enter('setextHeadingLine')
-      effects.enter('setextHeadingLineSequence')
-      marker = code
-      return closingSequence(code)
-    }
-
-    return nok(code)
-  }
-
-  function closingSequence(code) {
-    if (code === marker) {
-      effects.consume(code)
-      return closingSequence
-    }
-
-    effects.exit('setextHeadingLineSequence')
-    return factorySpace(effects, closingSequenceEnd, 'lineSuffix')(code)
-  }
-
-  function closingSequenceEnd(code) {
-    if (code === null || markdownLineEnding(code)) {
-      effects.exit('setextHeadingLine')
-      return ok(code)
-    }
-
-    return nok(code)
-  }
-}
-
-module.exports = setextUnderline
-
-
-/***/ }),
-
-/***/ 6318:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEnding = __nccwpck_require__(4196)
-var markdownSpace = __nccwpck_require__(3155)
-var factorySpace = __nccwpck_require__(556)
-
-var thematicBreak = {
-  name: 'thematicBreak',
-  tokenize: tokenizeThematicBreak
-}
-
-function tokenizeThematicBreak(effects, ok, nok) {
-  var size = 0
-  var marker
-  return start
-
-  function start(code) {
-    effects.enter('thematicBreak')
-    marker = code
-    return atBreak(code)
-  }
-
-  function atBreak(code) {
-    if (code === marker) {
-      effects.enter('thematicBreakSequence')
-      return sequence(code)
-    }
-
-    if (markdownSpace(code)) {
-      return factorySpace(effects, atBreak, 'whitespace')(code)
-    }
-
-    if (size < 3 || (code !== null && !markdownLineEnding(code))) {
-      return nok(code)
-    }
-
-    effects.exit('thematicBreak')
-    return ok(code)
-  }
-
-  function sequence(code) {
-    if (code === marker) {
-      effects.consume(code)
-      size++
-      return sequence
-    }
-
-    effects.exit('thematicBreakSequence')
-    return atBreak(code)
-  }
-}
-
-module.exports = thematicBreak
-
-
-/***/ }),
-
-/***/ 2029:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var chunkedSplice = __nccwpck_require__(5810)
-
-function chunkedPush(list, items) {
-  if (list.length) {
-    chunkedSplice(list, list.length, 0, items)
-    return list
-  }
-
-  return items
-}
-
-module.exports = chunkedPush
-
-
-/***/ }),
-
-/***/ 5810:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var splice = __nccwpck_require__(4593)
-
-// causes a stack overflow in V8 when trying to insert 100k items for instance.
-
-function chunkedSplice(list, start, remove, items) {
-  var end = list.length
-  var chunkStart = 0
-  var parameters // Make start between zero and `end` (included).
-
-  if (start < 0) {
-    start = -start > end ? 0 : end + start
-  } else {
-    start = start > end ? end : start
-  }
-
-  remove = remove > 0 ? remove : 0 // No need to chunk the items if there’s only a couple (10k) items.
-
-  if (items.length < 10000) {
-    parameters = Array.from(items)
-    parameters.unshift(start, remove)
-    splice.apply(list, parameters)
-  } else {
-    // Delete `remove` items starting from `start`
-    if (remove) splice.apply(list, [start, remove]) // Insert the items in chunks to not cause stack overflows.
-
-    while (chunkStart < items.length) {
-      parameters = items.slice(chunkStart, chunkStart + 10000)
-      parameters.unshift(start, 0)
-      splice.apply(list, parameters)
-      chunkStart += 10000
-      start += 10000
-    }
-  }
-}
-
-module.exports = chunkedSplice
-
-
-/***/ }),
-
-/***/ 8086:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var markdownLineEndingOrSpace = __nccwpck_require__(416)
-var unicodePunctuation = __nccwpck_require__(4409)
-var unicodeWhitespace = __nccwpck_require__(3284)
-
-// Classify whether a character is unicode whitespace, unicode punctuation, or
-// anything else.
-// Used for attention (emphasis, strong), whose sequences can open or close
-// based on the class of surrounding characters.
-function classifyCharacter(code) {
-  if (
-    code === null ||
-    markdownLineEndingOrSpace(code) ||
-    unicodeWhitespace(code)
-  ) {
-    return 1
-  }
-
-  if (unicodePunctuation(code)) {
-    return 2
-  }
-}
-
-module.exports = classifyCharacter
-
-
-/***/ }),
-
-/***/ 3390:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var hasOwnProperty = __nccwpck_require__(4396)
-var chunkedSplice = __nccwpck_require__(5810)
-var miniflat = __nccwpck_require__(7150)
-
-function combineExtensions(extensions) {
-  var all = {}
-  var index = -1
-
-  while (++index < extensions.length) {
-    extension(all, extensions[index])
-  }
-
-  return all
-}
-
-function extension(all, extension) {
-  var hook
-  var left
-  var right
-  var code
-
-  for (hook in extension) {
-    left = hasOwnProperty.call(all, hook) ? all[hook] : (all[hook] = {})
-    right = extension[hook]
-
-    for (code in right) {
-      left[code] = constructs(
-        miniflat(right[code]),
-        hasOwnProperty.call(left, code) ? left[code] : []
-      )
-    }
-  }
-}
-
-function constructs(list, existing) {
-  var index = -1
-  var before = []
-
-  while (++index < list.length) {
-    ;(list[index].add === 'after' ? existing : before).push(list[index])
-  }
-
-  chunkedSplice(existing, 0, 0, before)
-  return existing
-}
-
-module.exports = combineExtensions
-
-
-/***/ }),
-
-/***/ 5711:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var assign = __nccwpck_require__(9045)
-var markdownLineEnding = __nccwpck_require__(4196)
-var chunkedPush = __nccwpck_require__(2029)
-var chunkedSplice = __nccwpck_require__(5810)
-var miniflat = __nccwpck_require__(7150)
-var resolveAll = __nccwpck_require__(3418)
-var serializeChunks = __nccwpck_require__(9995)
-var shallow = __nccwpck_require__(7766)
-var sliceChunks = __nccwpck_require__(8259)
-
-// Create a tokenizer.
-// Tokenizers deal with one type of data (e.g., containers, flow, text).
-// The parser is the object dealing with it all.
-// `initialize` works like other constructs, except that only its `tokenize`
-// function is used, in which case it doesn’t receive an `ok` or `nok`.
-// `from` can be given to set the point before the first character, although
-// when further lines are indented, they must be set with `defineSkip`.
-function createTokenizer(parser, initialize, from) {
-  var point = from
-    ? shallow(from)
-    : {
-        line: 1,
-        column: 1,
-        offset: 0
-      }
-  var columnStart = {}
-  var resolveAllConstructs = []
-  var chunks = []
-  var stack = []
-
-  var effects = {
-    consume: consume,
-    enter: enter,
-    exit: exit,
-    attempt: constructFactory(onsuccessfulconstruct),
-    check: constructFactory(onsuccessfulcheck),
-    interrupt: constructFactory(onsuccessfulcheck, {
-      interrupt: true
-    }),
-    lazy: constructFactory(onsuccessfulcheck, {
-      lazy: true
-    })
-  } // State and tools for resolving and serializing.
-
-  var context = {
-    previous: null,
-    events: [],
-    parser: parser,
-    sliceStream: sliceStream,
-    sliceSerialize: sliceSerialize,
-    now: now,
-    defineSkip: skip,
-    write: write
-  } // The state function.
-
-  var state = initialize.tokenize.call(context, effects) // Track which character we expect to be consumed, to catch bugs.
-
-  if (initialize.resolveAll) {
-    resolveAllConstructs.push(initialize)
-  } // Store where we are in the input stream.
-
-  point._index = 0
-  point._bufferIndex = -1
-  return context
-
-  function write(slice) {
-    chunks = chunkedPush(chunks, slice)
-    main() // Exit if we’re not done, resolve might change stuff.
-
-    if (chunks[chunks.length - 1] !== null) {
-      return []
-    }
-
-    addResult(initialize, 0) // Otherwise, resolve, and exit.
-
-    context.events = resolveAll(resolveAllConstructs, context.events, context)
-    return context.events
-  } //
-  // Tools.
-  //
-
-  function sliceSerialize(token) {
-    return serializeChunks(sliceStream(token))
-  }
-
-  function sliceStream(token) {
-    return sliceChunks(chunks, token)
-  }
-
-  function now() {
-    return shallow(point)
-  }
-
-  function skip(value) {
-    columnStart[value.line] = value.column
-    accountForPotentialSkip()
-  } //
-  // State management.
-  //
-  // Main loop (note that `_index` and `_bufferIndex` in `point` are modified by
-  // `consume`).
-  // Here is where we walk through the chunks, which either include strings of
-  // several characters, or numerical character codes.
-  // The reason to do this in a loop instead of a call is so the stack can
-  // drain.
-
-  function main() {
-    var chunkIndex
-    var chunk
-
-    while (point._index < chunks.length) {
-      chunk = chunks[point._index] // If we’re in a buffer chunk, loop through it.
-
-      if (typeof chunk === 'string') {
-        chunkIndex = point._index
-
-        if (point._bufferIndex < 0) {
-          point._bufferIndex = 0
-        }
-
-        while (
-          point._index === chunkIndex &&
-          point._bufferIndex < chunk.length
-        ) {
-          go(chunk.charCodeAt(point._bufferIndex))
-        }
-      } else {
-        go(chunk)
-      }
-    }
-  } // Deal with one code.
-
-  function go(code) {
-    state = state(code)
-  } // Move a character forward.
-
-  function consume(code) {
-    if (markdownLineEnding(code)) {
-      point.line++
-      point.column = 1
-      point.offset += code === -3 ? 2 : 1
-      accountForPotentialSkip()
-    } else if (code !== -1) {
-      point.column++
-      point.offset++
-    } // Not in a string chunk.
-
-    if (point._bufferIndex < 0) {
-      point._index++
-    } else {
-      point._bufferIndex++ // At end of string chunk.
-
-      if (point._bufferIndex === chunks[point._index].length) {
-        point._bufferIndex = -1
-        point._index++
-      }
-    } // Expose the previous character.
-
-    context.previous = code // Mark as consumed.
-  } // Start a token.
-
-  function enter(type, fields) {
-    var token = fields || {}
-    token.type = type
-    token.start = now()
-    context.events.push(['enter', token, context])
-    stack.push(token)
-    return token
-  } // Stop a token.
-
-  function exit(type) {
-    var token = stack.pop()
-    token.end = now()
-    context.events.push(['exit', token, context])
-    return token
-  } // Use results.
-
-  function onsuccessfulconstruct(construct, info) {
-    addResult(construct, info.from)
-  } // Discard results.
-
-  function onsuccessfulcheck(construct, info) {
-    info.restore()
-  } // Factory to attempt/check/interrupt.
-
-  function constructFactory(onreturn, fields) {
-    return hook // Handle either an object mapping codes to constructs, a list of
-    // constructs, or a single construct.
-
-    function hook(constructs, returnState, bogusState) {
-      var listOfConstructs
-      var constructIndex
-      var currentConstruct
-      var info
-      return constructs.tokenize || 'length' in constructs
-        ? handleListOfConstructs(miniflat(constructs))
-        : handleMapOfConstructs
-
-      function handleMapOfConstructs(code) {
-        if (code in constructs || null in constructs) {
-          return handleListOfConstructs(
-            constructs.null
-              ? /* c8 ignore next */
-                miniflat(constructs[code]).concat(miniflat(constructs.null))
-              : constructs[code]
-          )(code)
-        }
-
-        return bogusState(code)
-      }
-
-      function handleListOfConstructs(list) {
-        listOfConstructs = list
-        constructIndex = 0
-        return handleConstruct(list[constructIndex])
-      }
-
-      function handleConstruct(construct) {
-        return start
-
-        function start(code) {
-          // To do: not nede to store if there is no bogus state, probably?
-          // Currently doesn’t work because `inspect` in document does a check
-          // w/o a bogus, which doesn’t make sense. But it does seem to help perf
-          // by not storing.
-          info = store()
-          currentConstruct = construct
-
-          if (!construct.partial) {
-            context.currentConstruct = construct
-          }
-
-          if (
-            construct.name &&
-            context.parser.constructs.disable.null.indexOf(construct.name) > -1
-          ) {
-            return nok()
-          }
-
-          return construct.tokenize.call(
-            fields ? assign({}, context, fields) : context,
-            effects,
-            ok,
-            nok
-          )(code)
-        }
-      }
-
-      function ok(code) {
-        onreturn(currentConstruct, info)
-        return returnState
-      }
-
-      function nok(code) {
-        info.restore()
-
-        if (++constructIndex < listOfConstructs.length) {
-          return handleConstruct(listOfConstructs[constructIndex])
-        }
-
-        return bogusState
-      }
-    }
-  }
-
-  function addResult(construct, from) {
-    if (construct.resolveAll && resolveAllConstructs.indexOf(construct) < 0) {
-      resolveAllConstructs.push(construct)
-    }
-
-    if (construct.resolve) {
-      chunkedSplice(
-        context.events,
-        from,
-        context.events.length - from,
-        construct.resolve(context.events.slice(from), context)
-      )
-    }
-
-    if (construct.resolveTo) {
-      context.events = construct.resolveTo(context.events, context)
-    }
-  }
-
-  function store() {
-    var startPoint = now()
-    var startPrevious = context.previous
-    var startCurrentConstruct = context.currentConstruct
-    var startEventsIndex = context.events.length
-    var startStack = Array.from(stack)
-    return {
-      restore: restore,
-      from: startEventsIndex
-    }
-
-    function restore() {
-      point = startPoint
-      context.previous = startPrevious
-      context.currentConstruct = startCurrentConstruct
-      context.events.length = startEventsIndex
-      stack = startStack
-      accountForPotentialSkip()
-    }
-  }
-
-  function accountForPotentialSkip() {
-    if (point.line in columnStart && point.column < 2) {
-      point.column = columnStart[point.line]
-      point.offset += columnStart[point.line] - 1
-    }
-  }
-}
-
-module.exports = createTokenizer
-
-
-/***/ }),
-
-/***/ 7150:
 /***/ ((module) => {
 
-"use strict";
+/**
+ * Helpers.
+ */
 
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var w = d * 7;
+var y = d * 365.25;
 
-function miniflat(value) {
-  return value === null || value === undefined
-    ? []
-    : 'length' in value
-    ? value
-    : [value]
-}
+/**
+ * Parse or format the given `val`.
+ *
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} [options]
+ * @throws {Error} throw an error if val is not a non-empty string or a number
+ * @return {String|Number}
+ * @api public
+ */
 
-module.exports = miniflat
+module.exports = function(val, options) {
+  options = options || {};
+  var type = typeof val;
+  if (type === 'string' && val.length > 0) {
+    return parse(val);
+  } else if (type === 'number' && isFinite(val)) {
+    return options.long ? fmtLong(val) : fmtShort(val);
+  }
+  throw new Error(
+    'val is not a non-empty string or a valid number. val=' +
+      JSON.stringify(val)
+  );
+};
 
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
 
-/***/ }),
-
-/***/ 695:
-/***/ ((module) => {
-
-"use strict";
-
-
-// chunks (replacement characters, tabs, or line endings).
-
-function movePoint(point, offset) {
-  point.column += offset
-  point.offset += offset
-  point._bufferIndex += offset
-  return point
-}
-
-module.exports = movePoint
-
-
-/***/ }),
-
-/***/ 3909:
-/***/ ((module) => {
-
-"use strict";
-
-
-function normalizeIdentifier(value) {
-  return (
-    value // Collapse Markdown whitespace.
-      .replace(/[\t\n\r ]+/g, ' ') // Trim.
-      .replace(/^ | $/g, '') // Some characters are considered “uppercase”, but if their lowercase
-      // counterpart is uppercased will result in a different uppercase
-      // character.
-      // Hence, to get that form, we perform both lower- and uppercase.
-      // Upper case makes sure keys will not interact with default prototypal
-      // methods: no object method is uppercase.
-      .toLowerCase()
-      .toUpperCase()
-  )
-}
-
-module.exports = normalizeIdentifier
-
-
-/***/ }),
-
-/***/ 7208:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var sizeChunks = __nccwpck_require__(7949)
-
-function prefixSize(events, type) {
-  var tail = events[events.length - 1]
-  if (!tail || tail[1].type !== type) return 0
-  return sizeChunks(tail[2].sliceStream(tail[1]))
-}
-
-module.exports = prefixSize
-
-
-/***/ }),
-
-/***/ 2180:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var fromCharCode = __nccwpck_require__(54)
-
-function regexCheck(regex) {
-  return check
-
-  function check(code) {
-    return regex.test(fromCharCode(code))
+function parse(str) {
+  str = String(str);
+  if (str.length > 100) {
+    return;
+  }
+  var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
+    str
+  );
+  if (!match) {
+    return;
+  }
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'yrs':
+    case 'yr':
+    case 'y':
+      return n * y;
+    case 'weeks':
+    case 'week':
+    case 'w':
+      return n * w;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'hrs':
+    case 'hr':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'mins':
+    case 'min':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 'secs':
+    case 'sec':
+    case 's':
+      return n * s;
+    case 'milliseconds':
+    case 'millisecond':
+    case 'msecs':
+    case 'msec':
+    case 'ms':
+      return n;
+    default:
+      return undefined;
   }
 }
 
-module.exports = regexCheck
+/**
+ * Short format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
 
-
-/***/ }),
-
-/***/ 3418:
-/***/ ((module) => {
-
-"use strict";
-
-
-function resolveAll(constructs, events, context) {
-  var called = []
-  var index = -1
-  var resolve
-
-  while (++index < constructs.length) {
-    resolve = constructs[index].resolveAll
-
-    if (resolve && called.indexOf(resolve) < 0) {
-      events = resolve(events, context)
-      called.push(resolve)
-    }
+function fmtShort(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return Math.round(ms / d) + 'd';
   }
-
-  return events
+  if (msAbs >= h) {
+    return Math.round(ms / h) + 'h';
+  }
+  if (msAbs >= m) {
+    return Math.round(ms / m) + 'm';
+  }
+  if (msAbs >= s) {
+    return Math.round(ms / s) + 's';
+  }
+  return ms + 'ms';
 }
 
-module.exports = resolveAll
+/**
+ * Long format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
 
-
-/***/ }),
-
-/***/ 2191:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var fromCharCode = __nccwpck_require__(54)
-
-function safeFromInt(value, base) {
-  var code = parseInt(value, base)
-
-  if (
-    // C0 except for HT, LF, FF, CR, space
-    code < 9 ||
-    code === 11 ||
-    (code > 13 && code < 32) || // Control character (DEL) of the basic block and C1 controls.
-    (code > 126 && code < 160) || // Lone high surrogates and low surrogates.
-    (code > 55295 && code < 57344) || // Noncharacters.
-    (code > 64975 && code < 65008) ||
-    (code & 65535) === 65535 ||
-    (code & 65535) === 65534 || // Out of range
-    code > 1114111
-  ) {
-    return '\uFFFD'
+function fmtLong(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return plural(ms, msAbs, d, 'day');
   }
-
-  return fromCharCode(code)
+  if (msAbs >= h) {
+    return plural(ms, msAbs, h, 'hour');
+  }
+  if (msAbs >= m) {
+    return plural(ms, msAbs, m, 'minute');
+  }
+  if (msAbs >= s) {
+    return plural(ms, msAbs, s, 'second');
+  }
+  return ms + ' ms';
 }
 
-module.exports = safeFromInt
+/**
+ * Pluralization helper.
+ */
 
-
-/***/ }),
-
-/***/ 9995:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var fromCharCode = __nccwpck_require__(54)
-
-function serializeChunks(chunks) {
-  var index = -1
-  var result = []
-  var chunk
-  var value
-  var atTab
-
-  while (++index < chunks.length) {
-    chunk = chunks[index]
-
-    if (typeof chunk === 'string') {
-      value = chunk
-    } else if (chunk === -5) {
-      value = '\r'
-    } else if (chunk === -4) {
-      value = '\n'
-    } else if (chunk === -3) {
-      value = '\r' + '\n'
-    } else if (chunk === -2) {
-      value = '\t'
-    } else if (chunk === -1) {
-      if (atTab) continue
-      value = ' '
-    } else {
-      // Currently only replacement character.
-      value = fromCharCode(chunk)
-    }
-
-    atTab = chunk === -2
-    result.push(value)
-  }
-
-  return result.join('')
+function plural(ms, msAbs, n, name) {
+  var isPlural = msAbs >= n * 1.5;
+  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
 }
-
-module.exports = serializeChunks
-
-
-/***/ }),
-
-/***/ 7766:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var assign = __nccwpck_require__(9045)
-
-function shallow(object) {
-  return assign({}, object)
-}
-
-module.exports = shallow
-
-
-/***/ }),
-
-/***/ 7949:
-/***/ ((module) => {
-
-"use strict";
-
-
-// Counts tabs based on their expanded size, and CR+LF as one character.
-
-function sizeChunks(chunks) {
-  var index = -1
-  var size = 0
-
-  while (++index < chunks.length) {
-    size += typeof chunks[index] === 'string' ? chunks[index].length : 1
-  }
-
-  return size
-}
-
-module.exports = sizeChunks
-
-
-/***/ }),
-
-/***/ 8259:
-/***/ ((module) => {
-
-"use strict";
-
-
-function sliceChunks(chunks, token) {
-  var startIndex = token.start._index
-  var startBufferIndex = token.start._bufferIndex
-  var endIndex = token.end._index
-  var endBufferIndex = token.end._bufferIndex
-  var view
-
-  if (startIndex === endIndex) {
-    view = [chunks[startIndex].slice(startBufferIndex, endBufferIndex)]
-  } else {
-    view = chunks.slice(startIndex, endIndex)
-
-    if (startBufferIndex > -1) {
-      view[0] = view[0].slice(startBufferIndex)
-    }
-
-    if (endBufferIndex > 0) {
-      view.push(chunks[endIndex].slice(0, endBufferIndex))
-    }
-  }
-
-  return view
-}
-
-module.exports = sliceChunks
-
-
-/***/ }),
-
-/***/ 4737:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var assign = __nccwpck_require__(9045)
-var chunkedSplice = __nccwpck_require__(5810)
-var shallow = __nccwpck_require__(7766)
-
-function subtokenize(events) {
-  var jumps = {}
-  var index = -1
-  var event
-  var lineIndex
-  var otherIndex
-  var otherEvent
-  var parameters
-  var subevents
-  var more
-
-  while (++index < events.length) {
-    while (index in jumps) {
-      index = jumps[index]
-    }
-
-    event = events[index] // Add a hook for the GFM tasklist extension, which needs to know if text
-    // is in the first content of a list item.
-
-    if (
-      index &&
-      event[1].type === 'chunkFlow' &&
-      events[index - 1][1].type === 'listItemPrefix'
-    ) {
-      subevents = event[1]._tokenizer.events
-      otherIndex = 0
-
-      if (
-        otherIndex < subevents.length &&
-        subevents[otherIndex][1].type === 'lineEndingBlank'
-      ) {
-        otherIndex += 2
-      }
-
-      if (
-        otherIndex < subevents.length &&
-        subevents[otherIndex][1].type === 'content'
-      ) {
-        while (++otherIndex < subevents.length) {
-          if (subevents[otherIndex][1].type === 'content') {
-            break
-          }
-
-          if (subevents[otherIndex][1].type === 'chunkText') {
-            subevents[otherIndex][1].isInFirstContentOfListItem = true
-            otherIndex++
-          }
-        }
-      }
-    } // Enter.
-
-    if (event[0] === 'enter') {
-      if (event[1].contentType) {
-        assign(jumps, subcontent(events, index))
-        index = jumps[index]
-        more = true
-      }
-    } // Exit.
-    else if (event[1]._container || event[1]._movePreviousLineEndings) {
-      otherIndex = index
-      lineIndex = undefined
-
-      while (otherIndex--) {
-        otherEvent = events[otherIndex]
-
-        if (
-          otherEvent[1].type === 'lineEnding' ||
-          otherEvent[1].type === 'lineEndingBlank'
-        ) {
-          if (otherEvent[0] === 'enter') {
-            if (lineIndex) {
-              events[lineIndex][1].type = 'lineEndingBlank'
-            }
-
-            otherEvent[1].type = 'lineEnding'
-            lineIndex = otherIndex
-          }
-        } else {
-          break
-        }
-      }
-
-      if (lineIndex) {
-        // Fix position.
-        event[1].end = shallow(events[lineIndex][1].start) // Switch container exit w/ line endings.
-
-        parameters = events.slice(lineIndex, index)
-        parameters.unshift(event)
-        chunkedSplice(events, lineIndex, index - lineIndex + 1, parameters)
-      }
-    }
-  }
-
-  return !more
-}
-
-function subcontent(events, eventIndex) {
-  var token = events[eventIndex][1]
-  var context = events[eventIndex][2]
-  var startPosition = eventIndex - 1
-  var startPositions = []
-  var tokenizer =
-    token._tokenizer || context.parser[token.contentType](token.start)
-  var childEvents = tokenizer.events
-  var jumps = []
-  var gaps = {}
-  var stream
-  var previous
-  var index
-  var entered
-  var end
-  var adjust // Loop forward through the linked tokens to pass them in order to the
-  // subtokenizer.
-
-  while (token) {
-    // Find the position of the event for this token.
-    while (events[++startPosition][1] !== token) {
-      // Empty.
-    }
-
-    startPositions.push(startPosition)
-
-    if (!token._tokenizer) {
-      stream = context.sliceStream(token)
-
-      if (!token.next) {
-        stream.push(null)
-      }
-
-      if (previous) {
-        tokenizer.defineSkip(token.start)
-      }
-
-      if (token.isInFirstContentOfListItem) {
-        tokenizer._gfmTasklistFirstContentOfListItem = true
-      }
-
-      tokenizer.write(stream)
-
-      if (token.isInFirstContentOfListItem) {
-        tokenizer._gfmTasklistFirstContentOfListItem = undefined
-      }
-    } // Unravel the next token.
-
-    previous = token
-    token = token.next
-  } // Now, loop back through all events (and linked tokens), to figure out which
-  // parts belong where.
-
-  token = previous
-  index = childEvents.length
-
-  while (index--) {
-    // Make sure we’ve at least seen something (final eol is part of the last
-    // token).
-    if (childEvents[index][0] === 'enter') {
-      entered = true
-    } else if (
-      // Find a void token that includes a break.
-      entered &&
-      childEvents[index][1].type === childEvents[index - 1][1].type &&
-      childEvents[index][1].start.line !== childEvents[index][1].end.line
-    ) {
-      add(childEvents.slice(index + 1, end))
-      // Help GC.
-      token._tokenizer = token.next = undefined
-      token = token.previous
-      end = index + 1
-    }
-  }
-
-  // Help GC.
-  tokenizer.events = token._tokenizer = token.next = undefined // Do head:
-
-  add(childEvents.slice(0, end))
-  index = -1
-  adjust = 0
-
-  while (++index < jumps.length) {
-    gaps[adjust + jumps[index][0]] = adjust + jumps[index][1]
-    adjust += jumps[index][1] - jumps[index][0] - 1
-  }
-
-  return gaps
-
-  function add(slice) {
-    var start = startPositions.pop()
-    jumps.unshift([start, start + slice.length - 1])
-    chunkedSplice(events, start, 2, slice)
-  }
-}
-
-module.exports = subtokenize
 
 
 /***/ }),
@@ -14124,179 +17152,187 @@ exports.FetchError = FetchError;
 
 /***/ }),
 
-/***/ 4898:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ 7223:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var characterEntities = __nccwpck_require__(2661)
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-module.exports = decodeEntity
+var core = __nccwpck_require__(5251);
+var pluginPaginateRest = __nccwpck_require__(6647);
+var pluginRestEndpointMethods = __nccwpck_require__(1492);
+var pluginRetry = __nccwpck_require__(3741);
+var app = __nccwpck_require__(4373);
+var oauthApp = __nccwpck_require__(4860);
 
-var own = {}.hasOwnProperty
+const VERSION = "1.7.1";
 
-function decodeEntity(characters) {
-  return own.call(characterEntities, characters)
-    ? characterEntities[characters]
-    : false
-}
-
-
-/***/ }),
-
-/***/ 4496:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var syntax = __nccwpck_require__(578)
-var fromMarkdown = __nccwpck_require__(7000)
-var toMarkdown = __nccwpck_require__(8678)
-
-var warningIssued
-
-module.exports = gfm
-
-function gfm(options) {
-  var data = this.data()
-
-  /* istanbul ignore next - old remark. */
-  if (
-    !warningIssued &&
-    ((this.Parser &&
-      this.Parser.prototype &&
-      this.Parser.prototype.blockTokenizers) ||
-      (this.Compiler &&
-        this.Compiler.prototype &&
-        this.Compiler.prototype.visitors))
-  ) {
-    warningIssued = true
-    console.warn(
-      '[remark-gfm] Warning: please upgrade to remark 13 to use this plugin'
-    )
+const Octokit = core.Octokit.plugin(pluginRestEndpointMethods.restEndpointMethods, pluginPaginateRest.paginateRest, pluginRetry.retry // throttling
+).defaults({
+  userAgent: `octokit-rest.js/${VERSION}`,
+  throttle: {
+    onRateLimit,
+    onAbuseLimit
   }
+}); // istanbul ignore next no need to test internals of the throttle plugin
 
-  add('micromarkExtensions', syntax(options))
-  add('fromMarkdownExtensions', fromMarkdown)
-  add('toMarkdownExtensions', toMarkdown(options))
+function onRateLimit(retryAfter, options, octokit) {
+  octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
 
-  function add(field, value) {
-    /* istanbul ignore if - other extensions. */
-    if (data[field]) data[field].push(value)
-    else data[field] = [value]
+  if (options.request.retryCount === 0) {
+    // only retries once
+    octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+    return true;
+  }
+} // istanbul ignore next no need to test internals of the throttle plugin
+
+
+function onAbuseLimit(retryAfter, options, octokit) {
+  octokit.log.warn(`Abuse detected for request ${options.method} ${options.url}`);
+
+  if (options.request.retryCount === 0) {
+    // only retries once
+    octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+    return true;
   }
 }
 
+const App = app.App.defaults({
+  Octokit
+});
+const OAuthApp = oauthApp.OAuthApp.defaults({
+  Octokit
+});
 
-/***/ }),
-
-/***/ 6882:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = parse
-
-var fromMarkdown = __nccwpck_require__(6611)
-
-function parse(options) {
-  var self = this
-
-  this.Parser = parse
-
-  function parse(doc) {
-    return fromMarkdown(
-      doc,
-      Object.assign({}, self.data('settings'), options, {
-        // Note: these options are not in the readme.
-        // The goal is for them to be set by plugins on `data` instead of being
-        // passed by users.
-        extensions: self.data('micromarkExtensions') || [],
-        mdastExtensions: self.data('fromMarkdownExtensions') || []
-      })
-    )
-  }
-}
-
-
-/***/ }),
-
-/***/ 8381:
-/***/ ((module) => {
-
-"use strict";
-/*!
- * repeat-string <https://github.com/jonschlinkert/repeat-string>
- *
- * Copyright (c) 2014-2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
-
-
-/**
- * Results cache
- */
-
-var res = '';
-var cache;
-
-/**
- * Expose `repeat`
- */
-
-module.exports = repeat;
-
-/**
- * Repeat the given `string` the specified `number`
- * of times.
- *
- * **Example:**
- *
- * ```js
- * var repeat = require('repeat-string');
- * repeat('A', 5);
- * //=> AAAAA
- * ```
- *
- * @param {String} `string` The string to repeat
- * @param {Number} `number` The number of times to repeat the string
- * @return {String} Repeated string
- * @api public
- */
-
-function repeat(str, num) {
-  if (typeof str !== 'string') {
-    throw new TypeError('expected a string');
-  }
-
-  // cover common, quick use cases
-  if (num === 1) return str;
-  if (num === 2) return str + str;
-
-  var max = str.length * num;
-  if (cache !== str || typeof cache === 'undefined') {
-    cache = str;
-    res = '';
-  } else if (res.length >= max) {
-    return res.substr(0, max);
-  }
-
-  while (max > res.length && num > 1) {
-    if (num & 1) {
-      res += str;
+Object.defineProperty(exports, "createNodeMiddleware", ({
+    enumerable: true,
+    get: function () {
+        return app.createNodeMiddleware;
     }
+}));
+exports.App = App;
+exports.OAuthApp = OAuthApp;
+exports.Octokit = Octokit;
+//# sourceMappingURL=index.js.map
 
-    num >>= 1;
-    str += str;
+
+/***/ }),
+
+/***/ 5847:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var wrappy = __nccwpck_require__(433)
+module.exports = wrappy(once)
+module.exports.strict = wrappy(onceStrict)
+
+once.proto = once(function () {
+  Object.defineProperty(Function.prototype, 'once', {
+    value: function () {
+      return once(this)
+    },
+    configurable: true
+  })
+
+  Object.defineProperty(Function.prototype, 'onceStrict', {
+    value: function () {
+      return onceStrict(this)
+    },
+    configurable: true
+  })
+})
+
+function once (fn) {
+  var f = function () {
+    if (f.called) return f.value
+    f.called = true
+    return f.value = fn.apply(this, arguments)
   }
+  f.called = false
+  return f
+}
 
-  res += str;
-  res = res.substr(0, max);
-  return res;
+function onceStrict (fn) {
+  var f = function () {
+    if (f.called)
+      throw new Error(f.onceError)
+    f.called = true
+    return f.value = fn.apply(this, arguments)
+  }
+  var name = fn.name || 'Function wrapped with `once`'
+  f.onceError = name + " shouldn't be called more than once"
+  f.called = false
+  return f
+}
+
+
+/***/ }),
+
+/***/ 2824:
+/***/ ((module, exports, __nccwpck_require__) => {
+
+/* eslint-disable node/no-deprecated-api */
+var buffer = __nccwpck_require__(4300)
+var Buffer = buffer.Buffer
+
+// alternative to using Object.keys for old browsers
+function copyProps (src, dst) {
+  for (var key in src) {
+    dst[key] = src[key]
+  }
+}
+if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
+  module.exports = buffer
+} else {
+  // Copy properties from require('buffer')
+  copyProps(buffer, exports)
+  exports.Buffer = SafeBuffer
+}
+
+function SafeBuffer (arg, encodingOrOffset, length) {
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+// Copy static methods from Buffer
+copyProps(Buffer, SafeBuffer)
+
+SafeBuffer.from = function (arg, encodingOrOffset, length) {
+  if (typeof arg === 'number') {
+    throw new TypeError('Argument must not be a number')
+  }
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+SafeBuffer.alloc = function (size, fill, encoding) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  var buf = Buffer(size)
+  if (fill !== undefined) {
+    if (typeof encoding === 'string') {
+      buf.fill(fill, encoding)
+    } else {
+      buf.fill(fill)
+    }
+  } else {
+    buf.fill(0)
+  }
+  return buf
+}
+
+SafeBuffer.allocUnsafe = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return Buffer(size)
+}
+
+SafeBuffer.allocUnsafeSlow = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return buffer.SlowBuffer(size)
 }
 
 
@@ -14499,160 +17535,6 @@ module.exports.toUnicode = function(domain_name, useSTD3) {
 };
 
 module.exports.PROCESSING_OPTIONS = PROCESSING_OPTIONS;
-
-
-/***/ }),
-
-/***/ 7841:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var wrap = __nccwpck_require__(2938)
-
-module.exports = trough
-
-trough.wrap = wrap
-
-var slice = [].slice
-
-// Create new middleware.
-function trough() {
-  var fns = []
-  var middleware = {}
-
-  middleware.run = run
-  middleware.use = use
-
-  return middleware
-
-  // Run `fns`.  Last argument must be a completion handler.
-  function run() {
-    var index = -1
-    var input = slice.call(arguments, 0, -1)
-    var done = arguments[arguments.length - 1]
-
-    if (typeof done !== 'function') {
-      throw new Error('Expected function as last argument, not ' + done)
-    }
-
-    next.apply(null, [null].concat(input))
-
-    // Run the next `fn`, if any.
-    function next(err) {
-      var fn = fns[++index]
-      var params = slice.call(arguments, 0)
-      var values = params.slice(1)
-      var length = input.length
-      var pos = -1
-
-      if (err) {
-        done(err)
-        return
-      }
-
-      // Copy non-nully input into values.
-      while (++pos < length) {
-        if (values[pos] === null || values[pos] === undefined) {
-          values[pos] = input[pos]
-        }
-      }
-
-      input = values
-
-      // Next or done.
-      if (fn) {
-        wrap(fn, next).apply(null, input)
-      } else {
-        done.apply(null, [null].concat(input))
-      }
-    }
-  }
-
-  // Add `fn` to the list.
-  function use(fn) {
-    if (typeof fn !== 'function') {
-      throw new Error('Expected `fn` to be a function, not ' + fn)
-    }
-
-    fns.push(fn)
-
-    return middleware
-  }
-}
-
-
-/***/ }),
-
-/***/ 2938:
-/***/ ((module) => {
-
-"use strict";
-
-
-var slice = [].slice
-
-module.exports = wrap
-
-// Wrap `fn`.
-// Can be sync or async; return a promise, receive a completion handler, return
-// new values and errors.
-function wrap(fn, callback) {
-  var invoked
-
-  return wrapped
-
-  function wrapped() {
-    var params = slice.call(arguments, 0)
-    var callback = fn.length > params.length
-    var result
-
-    if (callback) {
-      params.push(done)
-    }
-
-    try {
-      result = fn.apply(null, params)
-    } catch (error) {
-      // Well, this is quite the pickle.
-      // `fn` received a callback and invoked it (thus continuing the pipeline),
-      // but later also threw an error.
-      // We’re not about to restart the pipeline again, so the only thing left
-      // to do is to throw the thing instead.
-      if (callback && invoked) {
-        throw error
-      }
-
-      return done(error)
-    }
-
-    if (!callback) {
-      if (result && typeof result.then === 'function') {
-        result.then(then, done)
-      } else if (result instanceof Error) {
-        done(result)
-      } else {
-        then(result)
-      }
-    }
-  }
-
-  // Invoke `next`, only once.
-  function done() {
-    if (!invoked) {
-      invoked = true
-
-      callback.apply(null, arguments)
-    }
-  }
-
-  // Invoke `done` with one value.
-  // Tracks if an error is passed, too.
-  function then(value) {
-    done(null, value)
-  }
-}
 
 
 /***/ }),
@@ -14937,1095 +17819,83 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 8893:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ 3185:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var bail = __nccwpck_require__(7746)
-var buffer = __nccwpck_require__(2096)
-var extend = __nccwpck_require__(1939)
-var plain = __nccwpck_require__(9411)
-var trough = __nccwpck_require__(7841)
-var vfile = __nccwpck_require__(6661)
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-// Expose a frozen processor.
-module.exports = unified().freeze()
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var slice = [].slice
-var own = {}.hasOwnProperty
+var jsonwebtoken = _interopDefault(__nccwpck_require__(2917));
 
-// Process pipeline.
-var pipeline = trough()
-  .use(pipelineParse)
-  .use(pipelineRun)
-  .use(pipelineStringify)
-
-function pipelineParse(p, ctx) {
-  ctx.tree = p.parse(ctx.file)
+async function getToken({
+  privateKey,
+  payload
+}) {
+  return jsonwebtoken.sign(payload, privateKey, {
+    algorithm: "RS256"
+  });
 }
 
-function pipelineRun(p, ctx, next) {
-  p.run(ctx.tree, ctx.file, done)
+async function githubAppJwt({
+  id,
+  privateKey,
+  now = Math.floor(Date.now() / 1000)
+}) {
+  // When creating a JSON Web Token, it sets the "issued at time" (iat) to 30s
+  // in the past as we have seen people running situations where the GitHub API
+  // claimed the iat would be in future. It turned out the clocks on the
+  // different machine were not in sync.
+  const nowWithSafetyMargin = now - 30;
+  const expiration = nowWithSafetyMargin + 60 * 10; // JWT expiration time (10 minute maximum)
 
-  function done(error, tree, file) {
-    if (error) {
-      next(error)
-    } else {
-      ctx.tree = tree
-      ctx.file = file
-      next()
-    }
-  }
+  const payload = {
+    iat: nowWithSafetyMargin,
+    exp: expiration,
+    iss: id
+  };
+  const token = await getToken({
+    privateKey,
+    payload
+  });
+  return {
+    appId: id,
+    expiration,
+    token
+  };
 }
 
-function pipelineStringify(p, ctx) {
-  var result = p.stringify(ctx.tree, ctx.file)
-
-  if (result === undefined || result === null) {
-    // Empty.
-  } else if (typeof result === 'string' || buffer(result)) {
-    if ('value' in ctx.file) {
-      ctx.file.value = result
-    }
-
-    ctx.file.contents = result
-  } else {
-    ctx.file.result = result
-  }
-}
-
-// Function to create the first processor.
-function unified() {
-  var attachers = []
-  var transformers = trough()
-  var namespace = {}
-  var freezeIndex = -1
-  var frozen
-
-  // Data management.
-  processor.data = data
-
-  // Lock.
-  processor.freeze = freeze
-
-  // Plugins.
-  processor.attachers = attachers
-  processor.use = use
-
-  // API.
-  processor.parse = parse
-  processor.stringify = stringify
-  processor.run = run
-  processor.runSync = runSync
-  processor.process = process
-  processor.processSync = processSync
-
-  // Expose.
-  return processor
-
-  // Create a new processor based on the processor in the current scope.
-  function processor() {
-    var destination = unified()
-    var index = -1
-
-    while (++index < attachers.length) {
-      destination.use.apply(null, attachers[index])
-    }
-
-    destination.data(extend(true, {}, namespace))
-
-    return destination
-  }
-
-  // Freeze: used to signal a processor that has finished configuration.
-  //
-  // For example, take unified itself: it’s frozen.
-  // Plugins should not be added to it.
-  // Rather, it should be extended, by invoking it, before modifying it.
-  //
-  // In essence, always invoke this when exporting a processor.
-  function freeze() {
-    var values
-    var transformer
-
-    if (frozen) {
-      return processor
-    }
-
-    while (++freezeIndex < attachers.length) {
-      values = attachers[freezeIndex]
-
-      if (values[1] === false) {
-        continue
-      }
-
-      if (values[1] === true) {
-        values[1] = undefined
-      }
-
-      transformer = values[0].apply(processor, values.slice(1))
-
-      if (typeof transformer === 'function') {
-        transformers.use(transformer)
-      }
-    }
-
-    frozen = true
-    freezeIndex = Infinity
-
-    return processor
-  }
-
-  // Data management.
-  // Getter / setter for processor-specific informtion.
-  function data(key, value) {
-    if (typeof key === 'string') {
-      // Set `key`.
-      if (arguments.length === 2) {
-        assertUnfrozen('data', frozen)
-        namespace[key] = value
-        return processor
-      }
-
-      // Get `key`.
-      return (own.call(namespace, key) && namespace[key]) || null
-    }
-
-    // Set space.
-    if (key) {
-      assertUnfrozen('data', frozen)
-      namespace = key
-      return processor
-    }
-
-    // Get space.
-    return namespace
-  }
-
-  // Plugin management.
-  //
-  // Pass it:
-  // *   an attacher and options,
-  // *   a preset,
-  // *   a list of presets, attachers, and arguments (list of attachers and
-  //     options).
-  function use(value) {
-    var settings
-
-    assertUnfrozen('use', frozen)
-
-    if (value === null || value === undefined) {
-      // Empty.
-    } else if (typeof value === 'function') {
-      addPlugin.apply(null, arguments)
-    } else if (typeof value === 'object') {
-      if ('length' in value) {
-        addList(value)
-      } else {
-        addPreset(value)
-      }
-    } else {
-      throw new Error('Expected usable value, not `' + value + '`')
-    }
-
-    if (settings) {
-      namespace.settings = extend(namespace.settings || {}, settings)
-    }
-
-    return processor
-
-    function addPreset(result) {
-      addList(result.plugins)
-
-      if (result.settings) {
-        settings = extend(settings || {}, result.settings)
-      }
-    }
-
-    function add(value) {
-      if (typeof value === 'function') {
-        addPlugin(value)
-      } else if (typeof value === 'object') {
-        if ('length' in value) {
-          addPlugin.apply(null, value)
-        } else {
-          addPreset(value)
-        }
-      } else {
-        throw new Error('Expected usable value, not `' + value + '`')
-      }
-    }
-
-    function addList(plugins) {
-      var index = -1
-
-      if (plugins === null || plugins === undefined) {
-        // Empty.
-      } else if (typeof plugins === 'object' && 'length' in plugins) {
-        while (++index < plugins.length) {
-          add(plugins[index])
-        }
-      } else {
-        throw new Error('Expected a list of plugins, not `' + plugins + '`')
-      }
-    }
-
-    function addPlugin(plugin, value) {
-      var entry = find(plugin)
-
-      if (entry) {
-        if (plain(entry[1]) && plain(value)) {
-          value = extend(true, entry[1], value)
-        }
-
-        entry[1] = value
-      } else {
-        attachers.push(slice.call(arguments))
-      }
-    }
-  }
-
-  function find(plugin) {
-    var index = -1
-
-    while (++index < attachers.length) {
-      if (attachers[index][0] === plugin) {
-        return attachers[index]
-      }
-    }
-  }
-
-  // Parse a file (in string or vfile representation) into a unist node using
-  // the `Parser` on the processor.
-  function parse(doc) {
-    var file = vfile(doc)
-    var Parser
-
-    freeze()
-    Parser = processor.Parser
-    assertParser('parse', Parser)
-
-    if (newable(Parser, 'parse')) {
-      return new Parser(String(file), file).parse()
-    }
-
-    return Parser(String(file), file) // eslint-disable-line new-cap
-  }
-
-  // Run transforms on a unist node representation of a file (in string or
-  // vfile representation), async.
-  function run(node, file, cb) {
-    assertNode(node)
-    freeze()
-
-    if (!cb && typeof file === 'function') {
-      cb = file
-      file = null
-    }
-
-    if (!cb) {
-      return new Promise(executor)
-    }
-
-    executor(null, cb)
-
-    function executor(resolve, reject) {
-      transformers.run(node, vfile(file), done)
-
-      function done(error, tree, file) {
-        tree = tree || node
-        if (error) {
-          reject(error)
-        } else if (resolve) {
-          resolve(tree)
-        } else {
-          cb(null, tree, file)
-        }
-      }
-    }
-  }
-
-  // Run transforms on a unist node representation of a file (in string or
-  // vfile representation), sync.
-  function runSync(node, file) {
-    var result
-    var complete
-
-    run(node, file, done)
-
-    assertDone('runSync', 'run', complete)
-
-    return result
-
-    function done(error, tree) {
-      complete = true
-      result = tree
-      bail(error)
-    }
-  }
-
-  // Stringify a unist node representation of a file (in string or vfile
-  // representation) into a string using the `Compiler` on the processor.
-  function stringify(node, doc) {
-    var file = vfile(doc)
-    var Compiler
-
-    freeze()
-    Compiler = processor.Compiler
-    assertCompiler('stringify', Compiler)
-    assertNode(node)
-
-    if (newable(Compiler, 'compile')) {
-      return new Compiler(node, file).compile()
-    }
-
-    return Compiler(node, file) // eslint-disable-line new-cap
-  }
-
-  // Parse a file (in string or vfile representation) into a unist node using
-  // the `Parser` on the processor, then run transforms on that node, and
-  // compile the resulting node using the `Compiler` on the processor, and
-  // store that result on the vfile.
-  function process(doc, cb) {
-    freeze()
-    assertParser('process', processor.Parser)
-    assertCompiler('process', processor.Compiler)
-
-    if (!cb) {
-      return new Promise(executor)
-    }
-
-    executor(null, cb)
-
-    function executor(resolve, reject) {
-      var file = vfile(doc)
-
-      pipeline.run(processor, {file: file}, done)
-
-      function done(error) {
-        if (error) {
-          reject(error)
-        } else if (resolve) {
-          resolve(file)
-        } else {
-          cb(null, file)
-        }
-      }
-    }
-  }
-
-  // Process the given document (in string or vfile representation), sync.
-  function processSync(doc) {
-    var file
-    var complete
-
-    freeze()
-    assertParser('processSync', processor.Parser)
-    assertCompiler('processSync', processor.Compiler)
-    file = vfile(doc)
-
-    process(file, done)
-
-    assertDone('processSync', 'process', complete)
-
-    return file
-
-    function done(error) {
-      complete = true
-      bail(error)
-    }
-  }
-}
-
-// Check if `value` is a constructor.
-function newable(value, name) {
-  return (
-    typeof value === 'function' &&
-    value.prototype &&
-    // A function with keys in its prototype is probably a constructor.
-    // Classes’ prototype methods are not enumerable, so we check if some value
-    // exists in the prototype.
-    (keys(value.prototype) || name in value.prototype)
-  )
-}
-
-// Check if `value` is an object with keys.
-function keys(value) {
-  var key
-  for (key in value) {
-    return true
-  }
-
-  return false
-}
-
-// Assert a parser is available.
-function assertParser(name, Parser) {
-  if (typeof Parser !== 'function') {
-    throw new Error('Cannot `' + name + '` without `Parser`')
-  }
-}
-
-// Assert a compiler is available.
-function assertCompiler(name, Compiler) {
-  if (typeof Compiler !== 'function') {
-    throw new Error('Cannot `' + name + '` without `Compiler`')
-  }
-}
-
-// Assert the processor is not frozen.
-function assertUnfrozen(name, frozen) {
-  if (frozen) {
-    throw new Error(
-      'Cannot invoke `' +
-        name +
-        '` on a frozen processor.\nCreate a new processor first, by invoking it: use `processor()` instead of `processor`.'
-    )
-  }
-}
-
-// Assert `node` is a unist node.
-function assertNode(node) {
-  if (!node || typeof node.type !== 'string') {
-    throw new Error('Expected node, got `' + node + '`')
-  }
-}
-
-// Assert that `complete` is `true`.
-function assertDone(name, asyncName, complete) {
-  if (!complete) {
-    throw new Error(
-      '`' + name + '` finished async. Use `' + asyncName + '` instead'
-    )
-  }
-}
+exports.githubAppJwt = githubAppJwt;
+//# sourceMappingURL=index.js.map
 
 
 /***/ }),
 
-/***/ 4791:
-/***/ ((module) => {
+/***/ 7259:
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 
-module.exports = convert
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-function convert(test) {
-  if (test == null) {
-    return ok
+function getUserAgent() {
+  if (typeof navigator === "object" && "userAgent" in navigator) {
+    return navigator.userAgent;
   }
 
-  if (typeof test === 'string') {
-    return typeFactory(test)
+  if (typeof process === "object" && "version" in process) {
+    return `Node.js/${process.version.substr(1)} (${process.platform}; ${process.arch})`;
   }
 
-  if (typeof test === 'object') {
-    return 'length' in test ? anyFactory(test) : allFactory(test)
-  }
-
-  if (typeof test === 'function') {
-    return test
-  }
-
-  throw new Error('Expected function, string, or object as test')
+  return "<environment undetectable>";
 }
 
-// Utility assert each property in `test` is represented in `node`, and each
-// values are strictly equal.
-function allFactory(test) {
-  return all
-
-  function all(node) {
-    var key
-
-    for (key in test) {
-      if (node[key] !== test[key]) return false
-    }
-
-    return true
-  }
-}
-
-function anyFactory(tests) {
-  var checks = []
-  var index = -1
-
-  while (++index < tests.length) {
-    checks[index] = convert(tests[index])
-  }
-
-  return any
-
-  function any() {
-    var index = -1
-
-    while (++index < checks.length) {
-      if (checks[index].apply(this, arguments)) {
-        return true
-      }
-    }
-
-    return false
-  }
-}
-
-// Utility to convert a string into a function which checks a given node’s type
-// for said string.
-function typeFactory(test) {
-  return type
-
-  function type(node) {
-    return Boolean(node && node.type === test)
-  }
-}
-
-// Utility to return true.
-function ok() {
-  return true
-}
-
-
-/***/ }),
-
-/***/ 3085:
-/***/ ((module) => {
-
-"use strict";
-
-
-var own = {}.hasOwnProperty
-
-module.exports = stringify
-
-function stringify(value) {
-  // Nothing.
-  if (!value || typeof value !== 'object') {
-    return ''
-  }
-
-  // Node.
-  if (own.call(value, 'position') || own.call(value, 'type')) {
-    return position(value.position)
-  }
-
-  // Position.
-  if (own.call(value, 'start') || own.call(value, 'end')) {
-    return position(value)
-  }
-
-  // Point.
-  if (own.call(value, 'line') || own.call(value, 'column')) {
-    return point(value)
-  }
-
-  // ?
-  return ''
-}
-
-function point(point) {
-  if (!point || typeof point !== 'object') {
-    point = {}
-  }
-
-  return index(point.line) + ':' + index(point.column)
-}
-
-function position(pos) {
-  if (!pos || typeof pos !== 'object') {
-    pos = {}
-  }
-
-  return point(pos.start) + '-' + point(pos.end)
-}
-
-function index(value) {
-  return value && typeof value === 'number' ? value : 1
-}
-
-
-/***/ }),
-
-/***/ 3149:
-/***/ ((module) => {
-
-module.exports = color
-function color(d) {
-  return '\u001B[33m' + d + '\u001B[39m'
-}
-
-
-/***/ }),
-
-/***/ 1595:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = visitParents
-
-var convert = __nccwpck_require__(4791)
-var color = __nccwpck_require__(3149)
-
-var CONTINUE = true
-var SKIP = 'skip'
-var EXIT = false
-
-visitParents.CONTINUE = CONTINUE
-visitParents.SKIP = SKIP
-visitParents.EXIT = EXIT
-
-function visitParents(tree, test, visitor, reverse) {
-  var step
-  var is
-
-  if (typeof test === 'function' && typeof visitor !== 'function') {
-    reverse = visitor
-    visitor = test
-    test = null
-  }
-
-  is = convert(test)
-  step = reverse ? -1 : 1
-
-  factory(tree, null, [])()
-
-  function factory(node, index, parents) {
-    var value = typeof node === 'object' && node !== null ? node : {}
-    var name
-
-    if (typeof value.type === 'string') {
-      name =
-        typeof value.tagName === 'string'
-          ? value.tagName
-          : typeof value.name === 'string'
-          ? value.name
-          : undefined
-
-      visit.displayName =
-        'node (' + color(value.type + (name ? '<' + name + '>' : '')) + ')'
-    }
-
-    return visit
-
-    function visit() {
-      var grandparents = parents.concat(node)
-      var result = []
-      var subresult
-      var offset
-
-      if (!test || is(node, index, parents[parents.length - 1] || null)) {
-        result = toResult(visitor(node, parents))
-
-        if (result[0] === EXIT) {
-          return result
-        }
-      }
-
-      if (node.children && result[0] !== SKIP) {
-        offset = (reverse ? node.children.length : -1) + step
-
-        while (offset > -1 && offset < node.children.length) {
-          subresult = factory(node.children[offset], offset, grandparents)()
-
-          if (subresult[0] === EXIT) {
-            return subresult
-          }
-
-          offset =
-            typeof subresult[1] === 'number' ? subresult[1] : offset + step
-        }
-      }
-
-      return result
-    }
-  }
-}
-
-function toResult(value) {
-  if (value !== null && typeof value === 'object' && 'length' in value) {
-    return value
-  }
-
-  if (typeof value === 'number') {
-    return [CONTINUE, value]
-  }
-
-  return [value]
-}
-
-
-/***/ }),
-
-/***/ 6347:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var stringify = __nccwpck_require__(3085)
-
-module.exports = VMessage
-
-// Inherit from `Error#`.
-function VMessagePrototype() {}
-VMessagePrototype.prototype = Error.prototype
-VMessage.prototype = new VMessagePrototype()
-
-// Message properties.
-var proto = VMessage.prototype
-
-proto.file = ''
-proto.name = ''
-proto.reason = ''
-proto.message = ''
-proto.stack = ''
-proto.fatal = null
-proto.column = null
-proto.line = null
-
-// Construct a new VMessage.
-//
-// Note: We cannot invoke `Error` on the created context, as that adds readonly
-// `line` and `column` attributes on Safari 9, thus throwing and failing the
-// data.
-function VMessage(reason, position, origin) {
-  var parts
-  var range
-  var location
-
-  if (typeof position === 'string') {
-    origin = position
-    position = null
-  }
-
-  parts = parseOrigin(origin)
-  range = stringify(position) || '1:1'
-
-  location = {
-    start: {line: null, column: null},
-    end: {line: null, column: null}
-  }
-
-  // Node.
-  if (position && position.position) {
-    position = position.position
-  }
-
-  if (position) {
-    // Position.
-    if (position.start) {
-      location = position
-      position = position.start
-    } else {
-      // Point.
-      location.start = position
-    }
-  }
-
-  if (reason.stack) {
-    this.stack = reason.stack
-    reason = reason.message
-  }
-
-  this.message = reason
-  this.name = range
-  this.reason = reason
-  this.line = position ? position.line : null
-  this.column = position ? position.column : null
-  this.location = location
-  this.source = parts[0]
-  this.ruleId = parts[1]
-}
-
-function parseOrigin(origin) {
-  var result = [null, null]
-  var index
-
-  if (typeof origin === 'string') {
-    index = origin.indexOf(':')
-
-    if (index === -1) {
-      result[1] = origin
-    } else {
-      result[0] = origin.slice(0, index)
-      result[1] = origin.slice(index + 1)
-    }
-  }
-
-  return result
-}
-
-
-/***/ }),
-
-/***/ 6661:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = __nccwpck_require__(8430)
-
-
-/***/ }),
-
-/***/ 6476:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var p = __nccwpck_require__(7218)
-var proc = __nccwpck_require__(7324)
-var buffer = __nccwpck_require__(2096)
-
-module.exports = VFile
-
-var own = {}.hasOwnProperty
-
-// Order of setting (least specific to most), we need this because otherwise
-// `{stem: 'a', path: '~/b.js'}` would throw, as a path is needed before a
-// stem can be set.
-var order = ['history', 'path', 'basename', 'stem', 'extname', 'dirname']
-
-VFile.prototype.toString = toString
-
-// Access full path (`~/index.min.js`).
-Object.defineProperty(VFile.prototype, 'path', {get: getPath, set: setPath})
-
-// Access parent path (`~`).
-Object.defineProperty(VFile.prototype, 'dirname', {
-  get: getDirname,
-  set: setDirname
-})
-
-// Access basename (`index.min.js`).
-Object.defineProperty(VFile.prototype, 'basename', {
-  get: getBasename,
-  set: setBasename
-})
-
-// Access extname (`.js`).
-Object.defineProperty(VFile.prototype, 'extname', {
-  get: getExtname,
-  set: setExtname
-})
-
-// Access stem (`index.min`).
-Object.defineProperty(VFile.prototype, 'stem', {get: getStem, set: setStem})
-
-// Construct a new file.
-function VFile(options) {
-  var prop
-  var index
-
-  if (!options) {
-    options = {}
-  } else if (typeof options === 'string' || buffer(options)) {
-    options = {contents: options}
-  } else if ('message' in options && 'messages' in options) {
-    return options
-  }
-
-  if (!(this instanceof VFile)) {
-    return new VFile(options)
-  }
-
-  this.data = {}
-  this.messages = []
-  this.history = []
-  this.cwd = proc.cwd()
-
-  // Set path related properties in the correct order.
-  index = -1
-
-  while (++index < order.length) {
-    prop = order[index]
-
-    if (own.call(options, prop)) {
-      this[prop] = options[prop]
-    }
-  }
-
-  // Set non-path related properties.
-  for (prop in options) {
-    if (order.indexOf(prop) < 0) {
-      this[prop] = options[prop]
-    }
-  }
-}
-
-function getPath() {
-  return this.history[this.history.length - 1]
-}
-
-function setPath(path) {
-  assertNonEmpty(path, 'path')
-
-  if (this.path !== path) {
-    this.history.push(path)
-  }
-}
-
-function getDirname() {
-  return typeof this.path === 'string' ? p.dirname(this.path) : undefined
-}
-
-function setDirname(dirname) {
-  assertPath(this.path, 'dirname')
-  this.path = p.join(dirname || '', this.basename)
-}
-
-function getBasename() {
-  return typeof this.path === 'string' ? p.basename(this.path) : undefined
-}
-
-function setBasename(basename) {
-  assertNonEmpty(basename, 'basename')
-  assertPart(basename, 'basename')
-  this.path = p.join(this.dirname || '', basename)
-}
-
-function getExtname() {
-  return typeof this.path === 'string' ? p.extname(this.path) : undefined
-}
-
-function setExtname(extname) {
-  assertPart(extname, 'extname')
-  assertPath(this.path, 'extname')
-
-  if (extname) {
-    if (extname.charCodeAt(0) !== 46 /* `.` */) {
-      throw new Error('`extname` must start with `.`')
-    }
-
-    if (extname.indexOf('.', 1) > -1) {
-      throw new Error('`extname` cannot contain multiple dots')
-    }
-  }
-
-  this.path = p.join(this.dirname, this.stem + (extname || ''))
-}
-
-function getStem() {
-  return typeof this.path === 'string'
-    ? p.basename(this.path, this.extname)
-    : undefined
-}
-
-function setStem(stem) {
-  assertNonEmpty(stem, 'stem')
-  assertPart(stem, 'stem')
-  this.path = p.join(this.dirname || '', stem + (this.extname || ''))
-}
-
-// Get the value of the file.
-function toString(encoding) {
-  return (this.contents || '').toString(encoding)
-}
-
-// Assert that `part` is not a path (i.e., does not contain `p.sep`).
-function assertPart(part, name) {
-  if (part && part.indexOf(p.sep) > -1) {
-    throw new Error(
-      '`' + name + '` cannot be a path: did not expect `' + p.sep + '`'
-    )
-  }
-}
-
-// Assert that `part` is not empty.
-function assertNonEmpty(part, name) {
-  if (!part) {
-    throw new Error('`' + name + '` cannot be empty')
-  }
-}
-
-// Assert `path` exists.
-function assertPath(path, name) {
-  if (!path) {
-    throw new Error('Setting `' + name + '` requires `path` to be set too')
-  }
-}
-
-
-/***/ }),
-
-/***/ 8430:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var VMessage = __nccwpck_require__(6347)
-var VFile = __nccwpck_require__(6476)
-
-module.exports = VFile
-
-VFile.prototype.message = message
-VFile.prototype.info = info
-VFile.prototype.fail = fail
-
-// Create a message with `reason` at `position`.
-// When an error is passed in as `reason`, copies the stack.
-function message(reason, position, origin) {
-  var message = new VMessage(reason, position, origin)
-
-  if (this.path) {
-    message.name = this.path + ':' + message.name
-    message.file = this.path
-  }
-
-  message.fatal = false
-
-  this.messages.push(message)
-
-  return message
-}
-
-// Fail: creates a vmessage, associates it with the file, and throws it.
-function fail() {
-  var message = this.message.apply(this, arguments)
-
-  message.fatal = true
-
-  throw message
-}
-
-// Info: creates a vmessage, associates it with the file, and marks the fatality
-// as null.
-function info() {
-  var message = this.message.apply(this, arguments)
-
-  message.fatal = null
-
-  return message
-}
-
-
-/***/ }),
-
-/***/ 7218:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = __nccwpck_require__(1017)
-
-
-/***/ }),
-
-/***/ 7324:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = process
+exports.getUserAgent = getUserAgent;
+//# sourceMappingURL=index.js.map
 
 
 /***/ }),
@@ -17991,6 +19861,496 @@ module.exports.implForWrapper = function (wrapper) {
 
 /***/ }),
 
+/***/ 433:
+/***/ ((module) => {
+
+// Returns a wrapper function that returns a wrapped callback
+// The wrapper function should do some stuff, and return a
+// presumably different callback function.
+// This makes sure that own properties are retained, so that
+// decorations and such are not lost along the way.
+module.exports = wrappy
+function wrappy (fn, cb) {
+  if (fn && cb) return wrappy(fn)(cb)
+
+  if (typeof fn !== 'function')
+    throw new TypeError('need wrapper function')
+
+  Object.keys(fn).forEach(function (k) {
+    wrapper[k] = fn[k]
+  })
+
+  return wrapper
+
+  function wrapper() {
+    var args = new Array(arguments.length)
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i]
+    }
+    var ret = fn.apply(this, args)
+    var cb = args[args.length-1]
+    if (typeof ret === 'function' && ret !== cb) {
+      Object.keys(cb).forEach(function (k) {
+        ret[k] = cb[k]
+      })
+    }
+    return ret
+  }
+}
+
+
+/***/ }),
+
+/***/ 4485:
+/***/ ((module) => {
+
+"use strict";
+
+module.exports = function (Yallist) {
+  Yallist.prototype[Symbol.iterator] = function* () {
+    for (let walker = this.head; walker; walker = walker.next) {
+      yield walker.value
+    }
+  }
+}
+
+
+/***/ }),
+
+/***/ 570:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+module.exports = Yallist
+
+Yallist.Node = Node
+Yallist.create = Yallist
+
+function Yallist (list) {
+  var self = this
+  if (!(self instanceof Yallist)) {
+    self = new Yallist()
+  }
+
+  self.tail = null
+  self.head = null
+  self.length = 0
+
+  if (list && typeof list.forEach === 'function') {
+    list.forEach(function (item) {
+      self.push(item)
+    })
+  } else if (arguments.length > 0) {
+    for (var i = 0, l = arguments.length; i < l; i++) {
+      self.push(arguments[i])
+    }
+  }
+
+  return self
+}
+
+Yallist.prototype.removeNode = function (node) {
+  if (node.list !== this) {
+    throw new Error('removing node which does not belong to this list')
+  }
+
+  var next = node.next
+  var prev = node.prev
+
+  if (next) {
+    next.prev = prev
+  }
+
+  if (prev) {
+    prev.next = next
+  }
+
+  if (node === this.head) {
+    this.head = next
+  }
+  if (node === this.tail) {
+    this.tail = prev
+  }
+
+  node.list.length--
+  node.next = null
+  node.prev = null
+  node.list = null
+
+  return next
+}
+
+Yallist.prototype.unshiftNode = function (node) {
+  if (node === this.head) {
+    return
+  }
+
+  if (node.list) {
+    node.list.removeNode(node)
+  }
+
+  var head = this.head
+  node.list = this
+  node.next = head
+  if (head) {
+    head.prev = node
+  }
+
+  this.head = node
+  if (!this.tail) {
+    this.tail = node
+  }
+  this.length++
+}
+
+Yallist.prototype.pushNode = function (node) {
+  if (node === this.tail) {
+    return
+  }
+
+  if (node.list) {
+    node.list.removeNode(node)
+  }
+
+  var tail = this.tail
+  node.list = this
+  node.prev = tail
+  if (tail) {
+    tail.next = node
+  }
+
+  this.tail = node
+  if (!this.head) {
+    this.head = node
+  }
+  this.length++
+}
+
+Yallist.prototype.push = function () {
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    push(this, arguments[i])
+  }
+  return this.length
+}
+
+Yallist.prototype.unshift = function () {
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    unshift(this, arguments[i])
+  }
+  return this.length
+}
+
+Yallist.prototype.pop = function () {
+  if (!this.tail) {
+    return undefined
+  }
+
+  var res = this.tail.value
+  this.tail = this.tail.prev
+  if (this.tail) {
+    this.tail.next = null
+  } else {
+    this.head = null
+  }
+  this.length--
+  return res
+}
+
+Yallist.prototype.shift = function () {
+  if (!this.head) {
+    return undefined
+  }
+
+  var res = this.head.value
+  this.head = this.head.next
+  if (this.head) {
+    this.head.prev = null
+  } else {
+    this.tail = null
+  }
+  this.length--
+  return res
+}
+
+Yallist.prototype.forEach = function (fn, thisp) {
+  thisp = thisp || this
+  for (var walker = this.head, i = 0; walker !== null; i++) {
+    fn.call(thisp, walker.value, i, this)
+    walker = walker.next
+  }
+}
+
+Yallist.prototype.forEachReverse = function (fn, thisp) {
+  thisp = thisp || this
+  for (var walker = this.tail, i = this.length - 1; walker !== null; i--) {
+    fn.call(thisp, walker.value, i, this)
+    walker = walker.prev
+  }
+}
+
+Yallist.prototype.get = function (n) {
+  for (var i = 0, walker = this.head; walker !== null && i < n; i++) {
+    // abort out of the list early if we hit a cycle
+    walker = walker.next
+  }
+  if (i === n && walker !== null) {
+    return walker.value
+  }
+}
+
+Yallist.prototype.getReverse = function (n) {
+  for (var i = 0, walker = this.tail; walker !== null && i < n; i++) {
+    // abort out of the list early if we hit a cycle
+    walker = walker.prev
+  }
+  if (i === n && walker !== null) {
+    return walker.value
+  }
+}
+
+Yallist.prototype.map = function (fn, thisp) {
+  thisp = thisp || this
+  var res = new Yallist()
+  for (var walker = this.head; walker !== null;) {
+    res.push(fn.call(thisp, walker.value, this))
+    walker = walker.next
+  }
+  return res
+}
+
+Yallist.prototype.mapReverse = function (fn, thisp) {
+  thisp = thisp || this
+  var res = new Yallist()
+  for (var walker = this.tail; walker !== null;) {
+    res.push(fn.call(thisp, walker.value, this))
+    walker = walker.prev
+  }
+  return res
+}
+
+Yallist.prototype.reduce = function (fn, initial) {
+  var acc
+  var walker = this.head
+  if (arguments.length > 1) {
+    acc = initial
+  } else if (this.head) {
+    walker = this.head.next
+    acc = this.head.value
+  } else {
+    throw new TypeError('Reduce of empty list with no initial value')
+  }
+
+  for (var i = 0; walker !== null; i++) {
+    acc = fn(acc, walker.value, i)
+    walker = walker.next
+  }
+
+  return acc
+}
+
+Yallist.prototype.reduceReverse = function (fn, initial) {
+  var acc
+  var walker = this.tail
+  if (arguments.length > 1) {
+    acc = initial
+  } else if (this.tail) {
+    walker = this.tail.prev
+    acc = this.tail.value
+  } else {
+    throw new TypeError('Reduce of empty list with no initial value')
+  }
+
+  for (var i = this.length - 1; walker !== null; i--) {
+    acc = fn(acc, walker.value, i)
+    walker = walker.prev
+  }
+
+  return acc
+}
+
+Yallist.prototype.toArray = function () {
+  var arr = new Array(this.length)
+  for (var i = 0, walker = this.head; walker !== null; i++) {
+    arr[i] = walker.value
+    walker = walker.next
+  }
+  return arr
+}
+
+Yallist.prototype.toArrayReverse = function () {
+  var arr = new Array(this.length)
+  for (var i = 0, walker = this.tail; walker !== null; i++) {
+    arr[i] = walker.value
+    walker = walker.prev
+  }
+  return arr
+}
+
+Yallist.prototype.slice = function (from, to) {
+  to = to || this.length
+  if (to < 0) {
+    to += this.length
+  }
+  from = from || 0
+  if (from < 0) {
+    from += this.length
+  }
+  var ret = new Yallist()
+  if (to < from || to < 0) {
+    return ret
+  }
+  if (from < 0) {
+    from = 0
+  }
+  if (to > this.length) {
+    to = this.length
+  }
+  for (var i = 0, walker = this.head; walker !== null && i < from; i++) {
+    walker = walker.next
+  }
+  for (; walker !== null && i < to; i++, walker = walker.next) {
+    ret.push(walker.value)
+  }
+  return ret
+}
+
+Yallist.prototype.sliceReverse = function (from, to) {
+  to = to || this.length
+  if (to < 0) {
+    to += this.length
+  }
+  from = from || 0
+  if (from < 0) {
+    from += this.length
+  }
+  var ret = new Yallist()
+  if (to < from || to < 0) {
+    return ret
+  }
+  if (from < 0) {
+    from = 0
+  }
+  if (to > this.length) {
+    to = this.length
+  }
+  for (var i = this.length, walker = this.tail; walker !== null && i > to; i--) {
+    walker = walker.prev
+  }
+  for (; walker !== null && i > from; i--, walker = walker.prev) {
+    ret.push(walker.value)
+  }
+  return ret
+}
+
+Yallist.prototype.splice = function (start, deleteCount, ...nodes) {
+  if (start > this.length) {
+    start = this.length - 1
+  }
+  if (start < 0) {
+    start = this.length + start;
+  }
+
+  for (var i = 0, walker = this.head; walker !== null && i < start; i++) {
+    walker = walker.next
+  }
+
+  var ret = []
+  for (var i = 0; walker && i < deleteCount; i++) {
+    ret.push(walker.value)
+    walker = this.removeNode(walker)
+  }
+  if (walker === null) {
+    walker = this.tail
+  }
+
+  if (walker !== this.head && walker !== this.tail) {
+    walker = walker.prev
+  }
+
+  for (var i = 0; i < nodes.length; i++) {
+    walker = insert(this, walker, nodes[i])
+  }
+  return ret;
+}
+
+Yallist.prototype.reverse = function () {
+  var head = this.head
+  var tail = this.tail
+  for (var walker = head; walker !== null; walker = walker.prev) {
+    var p = walker.prev
+    walker.prev = walker.next
+    walker.next = p
+  }
+  this.head = tail
+  this.tail = head
+  return this
+}
+
+function insert (self, node, value) {
+  var inserted = node === self.head ?
+    new Node(value, null, node, self) :
+    new Node(value, node, node.next, self)
+
+  if (inserted.next === null) {
+    self.tail = inserted
+  }
+  if (inserted.prev === null) {
+    self.head = inserted
+  }
+
+  self.length++
+
+  return inserted
+}
+
+function push (self, item) {
+  self.tail = new Node(item, self.tail, null, self)
+  if (!self.head) {
+    self.head = self.tail
+  }
+  self.length++
+}
+
+function unshift (self, item) {
+  self.head = new Node(item, null, self.head, self)
+  if (!self.tail) {
+    self.tail = self.head
+  }
+  self.length++
+}
+
+function Node (value, prev, next, list) {
+  if (!(this instanceof Node)) {
+    return new Node(value, prev, next, list)
+  }
+
+  this.list = list
+  this.value = value
+
+  if (prev) {
+    prev.next = this
+    this.prev = prev
+  } else {
+    this.prev = null
+  }
+
+  if (next) {
+    next.prev = this
+    this.next = next
+  } else {
+    this.next = null
+  }
+}
+
+try {
+  // add if support for Symbol.iterator is present
+  __nccwpck_require__(4485)(Yallist)
+} catch (er) {}
+
+
+/***/ }),
+
 /***/ 9968:
 /***/ ((module) => {
 
@@ -18004,6 +20364,22 @@ module.exports = eval("require")("encoding");
 
 "use strict";
 module.exports = require("assert");
+
+/***/ }),
+
+/***/ 4300:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("buffer");
+
+/***/ }),
+
+/***/ 6113:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("crypto");
 
 /***/ }),
 
@@ -18119,14 +20495,6 @@ module.exports = JSON.parse('{"name":"@notionhq/client","version":"0.4.11","desc
 
 /***/ }),
 
-/***/ 2661:
-/***/ ((module) => {
-
-"use strict";
-module.exports = JSON.parse('{"AEli":"Æ","AElig":"Æ","AM":"&","AMP":"&","Aacut":"Á","Aacute":"Á","Abreve":"Ă","Acir":"Â","Acirc":"Â","Acy":"А","Afr":"𝔄","Agrav":"À","Agrave":"À","Alpha":"Α","Amacr":"Ā","And":"⩓","Aogon":"Ą","Aopf":"𝔸","ApplyFunction":"⁡","Arin":"Å","Aring":"Å","Ascr":"𝒜","Assign":"≔","Atild":"Ã","Atilde":"Ã","Aum":"Ä","Auml":"Ä","Backslash":"∖","Barv":"⫧","Barwed":"⌆","Bcy":"Б","Because":"∵","Bernoullis":"ℬ","Beta":"Β","Bfr":"𝔅","Bopf":"𝔹","Breve":"˘","Bscr":"ℬ","Bumpeq":"≎","CHcy":"Ч","COP":"©","COPY":"©","Cacute":"Ć","Cap":"⋒","CapitalDifferentialD":"ⅅ","Cayleys":"ℭ","Ccaron":"Č","Ccedi":"Ç","Ccedil":"Ç","Ccirc":"Ĉ","Cconint":"∰","Cdot":"Ċ","Cedilla":"¸","CenterDot":"·","Cfr":"ℭ","Chi":"Χ","CircleDot":"⊙","CircleMinus":"⊖","CirclePlus":"⊕","CircleTimes":"⊗","ClockwiseContourIntegral":"∲","CloseCurlyDoubleQuote":"”","CloseCurlyQuote":"’","Colon":"∷","Colone":"⩴","Congruent":"≡","Conint":"∯","ContourIntegral":"∮","Copf":"ℂ","Coproduct":"∐","CounterClockwiseContourIntegral":"∳","Cross":"⨯","Cscr":"𝒞","Cup":"⋓","CupCap":"≍","DD":"ⅅ","DDotrahd":"⤑","DJcy":"Ђ","DScy":"Ѕ","DZcy":"Џ","Dagger":"‡","Darr":"↡","Dashv":"⫤","Dcaron":"Ď","Dcy":"Д","Del":"∇","Delta":"Δ","Dfr":"𝔇","DiacriticalAcute":"´","DiacriticalDot":"˙","DiacriticalDoubleAcute":"˝","DiacriticalGrave":"`","DiacriticalTilde":"˜","Diamond":"⋄","DifferentialD":"ⅆ","Dopf":"𝔻","Dot":"¨","DotDot":"⃜","DotEqual":"≐","DoubleContourIntegral":"∯","DoubleDot":"¨","DoubleDownArrow":"⇓","DoubleLeftArrow":"⇐","DoubleLeftRightArrow":"⇔","DoubleLeftTee":"⫤","DoubleLongLeftArrow":"⟸","DoubleLongLeftRightArrow":"⟺","DoubleLongRightArrow":"⟹","DoubleRightArrow":"⇒","DoubleRightTee":"⊨","DoubleUpArrow":"⇑","DoubleUpDownArrow":"⇕","DoubleVerticalBar":"∥","DownArrow":"↓","DownArrowBar":"⤓","DownArrowUpArrow":"⇵","DownBreve":"̑","DownLeftRightVector":"⥐","DownLeftTeeVector":"⥞","DownLeftVector":"↽","DownLeftVectorBar":"⥖","DownRightTeeVector":"⥟","DownRightVector":"⇁","DownRightVectorBar":"⥗","DownTee":"⊤","DownTeeArrow":"↧","Downarrow":"⇓","Dscr":"𝒟","Dstrok":"Đ","ENG":"Ŋ","ET":"Ð","ETH":"Ð","Eacut":"É","Eacute":"É","Ecaron":"Ě","Ecir":"Ê","Ecirc":"Ê","Ecy":"Э","Edot":"Ė","Efr":"𝔈","Egrav":"È","Egrave":"È","Element":"∈","Emacr":"Ē","EmptySmallSquare":"◻","EmptyVerySmallSquare":"▫","Eogon":"Ę","Eopf":"𝔼","Epsilon":"Ε","Equal":"⩵","EqualTilde":"≂","Equilibrium":"⇌","Escr":"ℰ","Esim":"⩳","Eta":"Η","Eum":"Ë","Euml":"Ë","Exists":"∃","ExponentialE":"ⅇ","Fcy":"Ф","Ffr":"𝔉","FilledSmallSquare":"◼","FilledVerySmallSquare":"▪","Fopf":"𝔽","ForAll":"∀","Fouriertrf":"ℱ","Fscr":"ℱ","GJcy":"Ѓ","G":">","GT":">","Gamma":"Γ","Gammad":"Ϝ","Gbreve":"Ğ","Gcedil":"Ģ","Gcirc":"Ĝ","Gcy":"Г","Gdot":"Ġ","Gfr":"𝔊","Gg":"⋙","Gopf":"𝔾","GreaterEqual":"≥","GreaterEqualLess":"⋛","GreaterFullEqual":"≧","GreaterGreater":"⪢","GreaterLess":"≷","GreaterSlantEqual":"⩾","GreaterTilde":"≳","Gscr":"𝒢","Gt":"≫","HARDcy":"Ъ","Hacek":"ˇ","Hat":"^","Hcirc":"Ĥ","Hfr":"ℌ","HilbertSpace":"ℋ","Hopf":"ℍ","HorizontalLine":"─","Hscr":"ℋ","Hstrok":"Ħ","HumpDownHump":"≎","HumpEqual":"≏","IEcy":"Е","IJlig":"Ĳ","IOcy":"Ё","Iacut":"Í","Iacute":"Í","Icir":"Î","Icirc":"Î","Icy":"И","Idot":"İ","Ifr":"ℑ","Igrav":"Ì","Igrave":"Ì","Im":"ℑ","Imacr":"Ī","ImaginaryI":"ⅈ","Implies":"⇒","Int":"∬","Integral":"∫","Intersection":"⋂","InvisibleComma":"⁣","InvisibleTimes":"⁢","Iogon":"Į","Iopf":"𝕀","Iota":"Ι","Iscr":"ℐ","Itilde":"Ĩ","Iukcy":"І","Ium":"Ï","Iuml":"Ï","Jcirc":"Ĵ","Jcy":"Й","Jfr":"𝔍","Jopf":"𝕁","Jscr":"𝒥","Jsercy":"Ј","Jukcy":"Є","KHcy":"Х","KJcy":"Ќ","Kappa":"Κ","Kcedil":"Ķ","Kcy":"К","Kfr":"𝔎","Kopf":"𝕂","Kscr":"𝒦","LJcy":"Љ","L":"<","LT":"<","Lacute":"Ĺ","Lambda":"Λ","Lang":"⟪","Laplacetrf":"ℒ","Larr":"↞","Lcaron":"Ľ","Lcedil":"Ļ","Lcy":"Л","LeftAngleBracket":"⟨","LeftArrow":"←","LeftArrowBar":"⇤","LeftArrowRightArrow":"⇆","LeftCeiling":"⌈","LeftDoubleBracket":"⟦","LeftDownTeeVector":"⥡","LeftDownVector":"⇃","LeftDownVectorBar":"⥙","LeftFloor":"⌊","LeftRightArrow":"↔","LeftRightVector":"⥎","LeftTee":"⊣","LeftTeeArrow":"↤","LeftTeeVector":"⥚","LeftTriangle":"⊲","LeftTriangleBar":"⧏","LeftTriangleEqual":"⊴","LeftUpDownVector":"⥑","LeftUpTeeVector":"⥠","LeftUpVector":"↿","LeftUpVectorBar":"⥘","LeftVector":"↼","LeftVectorBar":"⥒","Leftarrow":"⇐","Leftrightarrow":"⇔","LessEqualGreater":"⋚","LessFullEqual":"≦","LessGreater":"≶","LessLess":"⪡","LessSlantEqual":"⩽","LessTilde":"≲","Lfr":"𝔏","Ll":"⋘","Lleftarrow":"⇚","Lmidot":"Ŀ","LongLeftArrow":"⟵","LongLeftRightArrow":"⟷","LongRightArrow":"⟶","Longleftarrow":"⟸","Longleftrightarrow":"⟺","Longrightarrow":"⟹","Lopf":"𝕃","LowerLeftArrow":"↙","LowerRightArrow":"↘","Lscr":"ℒ","Lsh":"↰","Lstrok":"Ł","Lt":"≪","Map":"⤅","Mcy":"М","MediumSpace":" ","Mellintrf":"ℳ","Mfr":"𝔐","MinusPlus":"∓","Mopf":"𝕄","Mscr":"ℳ","Mu":"Μ","NJcy":"Њ","Nacute":"Ń","Ncaron":"Ň","Ncedil":"Ņ","Ncy":"Н","NegativeMediumSpace":"​","NegativeThickSpace":"​","NegativeThinSpace":"​","NegativeVeryThinSpace":"​","NestedGreaterGreater":"≫","NestedLessLess":"≪","NewLine":"\\n","Nfr":"𝔑","NoBreak":"⁠","NonBreakingSpace":" ","Nopf":"ℕ","Not":"⫬","NotCongruent":"≢","NotCupCap":"≭","NotDoubleVerticalBar":"∦","NotElement":"∉","NotEqual":"≠","NotEqualTilde":"≂̸","NotExists":"∄","NotGreater":"≯","NotGreaterEqual":"≱","NotGreaterFullEqual":"≧̸","NotGreaterGreater":"≫̸","NotGreaterLess":"≹","NotGreaterSlantEqual":"⩾̸","NotGreaterTilde":"≵","NotHumpDownHump":"≎̸","NotHumpEqual":"≏̸","NotLeftTriangle":"⋪","NotLeftTriangleBar":"⧏̸","NotLeftTriangleEqual":"⋬","NotLess":"≮","NotLessEqual":"≰","NotLessGreater":"≸","NotLessLess":"≪̸","NotLessSlantEqual":"⩽̸","NotLessTilde":"≴","NotNestedGreaterGreater":"⪢̸","NotNestedLessLess":"⪡̸","NotPrecedes":"⊀","NotPrecedesEqual":"⪯̸","NotPrecedesSlantEqual":"⋠","NotReverseElement":"∌","NotRightTriangle":"⋫","NotRightTriangleBar":"⧐̸","NotRightTriangleEqual":"⋭","NotSquareSubset":"⊏̸","NotSquareSubsetEqual":"⋢","NotSquareSuperset":"⊐̸","NotSquareSupersetEqual":"⋣","NotSubset":"⊂⃒","NotSubsetEqual":"⊈","NotSucceeds":"⊁","NotSucceedsEqual":"⪰̸","NotSucceedsSlantEqual":"⋡","NotSucceedsTilde":"≿̸","NotSuperset":"⊃⃒","NotSupersetEqual":"⊉","NotTilde":"≁","NotTildeEqual":"≄","NotTildeFullEqual":"≇","NotTildeTilde":"≉","NotVerticalBar":"∤","Nscr":"𝒩","Ntild":"Ñ","Ntilde":"Ñ","Nu":"Ν","OElig":"Œ","Oacut":"Ó","Oacute":"Ó","Ocir":"Ô","Ocirc":"Ô","Ocy":"О","Odblac":"Ő","Ofr":"𝔒","Ograv":"Ò","Ograve":"Ò","Omacr":"Ō","Omega":"Ω","Omicron":"Ο","Oopf":"𝕆","OpenCurlyDoubleQuote":"“","OpenCurlyQuote":"‘","Or":"⩔","Oscr":"𝒪","Oslas":"Ø","Oslash":"Ø","Otild":"Õ","Otilde":"Õ","Otimes":"⨷","Oum":"Ö","Ouml":"Ö","OverBar":"‾","OverBrace":"⏞","OverBracket":"⎴","OverParenthesis":"⏜","PartialD":"∂","Pcy":"П","Pfr":"𝔓","Phi":"Φ","Pi":"Π","PlusMinus":"±","Poincareplane":"ℌ","Popf":"ℙ","Pr":"⪻","Precedes":"≺","PrecedesEqual":"⪯","PrecedesSlantEqual":"≼","PrecedesTilde":"≾","Prime":"″","Product":"∏","Proportion":"∷","Proportional":"∝","Pscr":"𝒫","Psi":"Ψ","QUO":"\\"","QUOT":"\\"","Qfr":"𝔔","Qopf":"ℚ","Qscr":"𝒬","RBarr":"⤐","RE":"®","REG":"®","Racute":"Ŕ","Rang":"⟫","Rarr":"↠","Rarrtl":"⤖","Rcaron":"Ř","Rcedil":"Ŗ","Rcy":"Р","Re":"ℜ","ReverseElement":"∋","ReverseEquilibrium":"⇋","ReverseUpEquilibrium":"⥯","Rfr":"ℜ","Rho":"Ρ","RightAngleBracket":"⟩","RightArrow":"→","RightArrowBar":"⇥","RightArrowLeftArrow":"⇄","RightCeiling":"⌉","RightDoubleBracket":"⟧","RightDownTeeVector":"⥝","RightDownVector":"⇂","RightDownVectorBar":"⥕","RightFloor":"⌋","RightTee":"⊢","RightTeeArrow":"↦","RightTeeVector":"⥛","RightTriangle":"⊳","RightTriangleBar":"⧐","RightTriangleEqual":"⊵","RightUpDownVector":"⥏","RightUpTeeVector":"⥜","RightUpVector":"↾","RightUpVectorBar":"⥔","RightVector":"⇀","RightVectorBar":"⥓","Rightarrow":"⇒","Ropf":"ℝ","RoundImplies":"⥰","Rrightarrow":"⇛","Rscr":"ℛ","Rsh":"↱","RuleDelayed":"⧴","SHCHcy":"Щ","SHcy":"Ш","SOFTcy":"Ь","Sacute":"Ś","Sc":"⪼","Scaron":"Š","Scedil":"Ş","Scirc":"Ŝ","Scy":"С","Sfr":"𝔖","ShortDownArrow":"↓","ShortLeftArrow":"←","ShortRightArrow":"→","ShortUpArrow":"↑","Sigma":"Σ","SmallCircle":"∘","Sopf":"𝕊","Sqrt":"√","Square":"□","SquareIntersection":"⊓","SquareSubset":"⊏","SquareSubsetEqual":"⊑","SquareSuperset":"⊐","SquareSupersetEqual":"⊒","SquareUnion":"⊔","Sscr":"𝒮","Star":"⋆","Sub":"⋐","Subset":"⋐","SubsetEqual":"⊆","Succeeds":"≻","SucceedsEqual":"⪰","SucceedsSlantEqual":"≽","SucceedsTilde":"≿","SuchThat":"∋","Sum":"∑","Sup":"⋑","Superset":"⊃","SupersetEqual":"⊇","Supset":"⋑","THOR":"Þ","THORN":"Þ","TRADE":"™","TSHcy":"Ћ","TScy":"Ц","Tab":"\\t","Tau":"Τ","Tcaron":"Ť","Tcedil":"Ţ","Tcy":"Т","Tfr":"𝔗","Therefore":"∴","Theta":"Θ","ThickSpace":"  ","ThinSpace":" ","Tilde":"∼","TildeEqual":"≃","TildeFullEqual":"≅","TildeTilde":"≈","Topf":"𝕋","TripleDot":"⃛","Tscr":"𝒯","Tstrok":"Ŧ","Uacut":"Ú","Uacute":"Ú","Uarr":"↟","Uarrocir":"⥉","Ubrcy":"Ў","Ubreve":"Ŭ","Ucir":"Û","Ucirc":"Û","Ucy":"У","Udblac":"Ű","Ufr":"𝔘","Ugrav":"Ù","Ugrave":"Ù","Umacr":"Ū","UnderBar":"_","UnderBrace":"⏟","UnderBracket":"⎵","UnderParenthesis":"⏝","Union":"⋃","UnionPlus":"⊎","Uogon":"Ų","Uopf":"𝕌","UpArrow":"↑","UpArrowBar":"⤒","UpArrowDownArrow":"⇅","UpDownArrow":"↕","UpEquilibrium":"⥮","UpTee":"⊥","UpTeeArrow":"↥","Uparrow":"⇑","Updownarrow":"⇕","UpperLeftArrow":"↖","UpperRightArrow":"↗","Upsi":"ϒ","Upsilon":"Υ","Uring":"Ů","Uscr":"𝒰","Utilde":"Ũ","Uum":"Ü","Uuml":"Ü","VDash":"⊫","Vbar":"⫫","Vcy":"В","Vdash":"⊩","Vdashl":"⫦","Vee":"⋁","Verbar":"‖","Vert":"‖","VerticalBar":"∣","VerticalLine":"|","VerticalSeparator":"❘","VerticalTilde":"≀","VeryThinSpace":" ","Vfr":"𝔙","Vopf":"𝕍","Vscr":"𝒱","Vvdash":"⊪","Wcirc":"Ŵ","Wedge":"⋀","Wfr":"𝔚","Wopf":"𝕎","Wscr":"𝒲","Xfr":"𝔛","Xi":"Ξ","Xopf":"𝕏","Xscr":"𝒳","YAcy":"Я","YIcy":"Ї","YUcy":"Ю","Yacut":"Ý","Yacute":"Ý","Ycirc":"Ŷ","Ycy":"Ы","Yfr":"𝔜","Yopf":"𝕐","Yscr":"𝒴","Yuml":"Ÿ","ZHcy":"Ж","Zacute":"Ź","Zcaron":"Ž","Zcy":"З","Zdot":"Ż","ZeroWidthSpace":"​","Zeta":"Ζ","Zfr":"ℨ","Zopf":"ℤ","Zscr":"𝒵","aacut":"á","aacute":"á","abreve":"ă","ac":"∾","acE":"∾̳","acd":"∿","acir":"â","acirc":"â","acut":"´","acute":"´","acy":"а","aeli":"æ","aelig":"æ","af":"⁡","afr":"𝔞","agrav":"à","agrave":"à","alefsym":"ℵ","aleph":"ℵ","alpha":"α","amacr":"ā","amalg":"⨿","am":"&","amp":"&","and":"∧","andand":"⩕","andd":"⩜","andslope":"⩘","andv":"⩚","ang":"∠","ange":"⦤","angle":"∠","angmsd":"∡","angmsdaa":"⦨","angmsdab":"⦩","angmsdac":"⦪","angmsdad":"⦫","angmsdae":"⦬","angmsdaf":"⦭","angmsdag":"⦮","angmsdah":"⦯","angrt":"∟","angrtvb":"⊾","angrtvbd":"⦝","angsph":"∢","angst":"Å","angzarr":"⍼","aogon":"ą","aopf":"𝕒","ap":"≈","apE":"⩰","apacir":"⩯","ape":"≊","apid":"≋","apos":"\'","approx":"≈","approxeq":"≊","arin":"å","aring":"å","ascr":"𝒶","ast":"*","asymp":"≈","asympeq":"≍","atild":"ã","atilde":"ã","aum":"ä","auml":"ä","awconint":"∳","awint":"⨑","bNot":"⫭","backcong":"≌","backepsilon":"϶","backprime":"‵","backsim":"∽","backsimeq":"⋍","barvee":"⊽","barwed":"⌅","barwedge":"⌅","bbrk":"⎵","bbrktbrk":"⎶","bcong":"≌","bcy":"б","bdquo":"„","becaus":"∵","because":"∵","bemptyv":"⦰","bepsi":"϶","bernou":"ℬ","beta":"β","beth":"ℶ","between":"≬","bfr":"𝔟","bigcap":"⋂","bigcirc":"◯","bigcup":"⋃","bigodot":"⨀","bigoplus":"⨁","bigotimes":"⨂","bigsqcup":"⨆","bigstar":"★","bigtriangledown":"▽","bigtriangleup":"△","biguplus":"⨄","bigvee":"⋁","bigwedge":"⋀","bkarow":"⤍","blacklozenge":"⧫","blacksquare":"▪","blacktriangle":"▴","blacktriangledown":"▾","blacktriangleleft":"◂","blacktriangleright":"▸","blank":"␣","blk12":"▒","blk14":"░","blk34":"▓","block":"█","bne":"=⃥","bnequiv":"≡⃥","bnot":"⌐","bopf":"𝕓","bot":"⊥","bottom":"⊥","bowtie":"⋈","boxDL":"╗","boxDR":"╔","boxDl":"╖","boxDr":"╓","boxH":"═","boxHD":"╦","boxHU":"╩","boxHd":"╤","boxHu":"╧","boxUL":"╝","boxUR":"╚","boxUl":"╜","boxUr":"╙","boxV":"║","boxVH":"╬","boxVL":"╣","boxVR":"╠","boxVh":"╫","boxVl":"╢","boxVr":"╟","boxbox":"⧉","boxdL":"╕","boxdR":"╒","boxdl":"┐","boxdr":"┌","boxh":"─","boxhD":"╥","boxhU":"╨","boxhd":"┬","boxhu":"┴","boxminus":"⊟","boxplus":"⊞","boxtimes":"⊠","boxuL":"╛","boxuR":"╘","boxul":"┘","boxur":"└","boxv":"│","boxvH":"╪","boxvL":"╡","boxvR":"╞","boxvh":"┼","boxvl":"┤","boxvr":"├","bprime":"‵","breve":"˘","brvba":"¦","brvbar":"¦","bscr":"𝒷","bsemi":"⁏","bsim":"∽","bsime":"⋍","bsol":"\\\\","bsolb":"⧅","bsolhsub":"⟈","bull":"•","bullet":"•","bump":"≎","bumpE":"⪮","bumpe":"≏","bumpeq":"≏","cacute":"ć","cap":"∩","capand":"⩄","capbrcup":"⩉","capcap":"⩋","capcup":"⩇","capdot":"⩀","caps":"∩︀","caret":"⁁","caron":"ˇ","ccaps":"⩍","ccaron":"č","ccedi":"ç","ccedil":"ç","ccirc":"ĉ","ccups":"⩌","ccupssm":"⩐","cdot":"ċ","cedi":"¸","cedil":"¸","cemptyv":"⦲","cen":"¢","cent":"¢","centerdot":"·","cfr":"𝔠","chcy":"ч","check":"✓","checkmark":"✓","chi":"χ","cir":"○","cirE":"⧃","circ":"ˆ","circeq":"≗","circlearrowleft":"↺","circlearrowright":"↻","circledR":"®","circledS":"Ⓢ","circledast":"⊛","circledcirc":"⊚","circleddash":"⊝","cire":"≗","cirfnint":"⨐","cirmid":"⫯","cirscir":"⧂","clubs":"♣","clubsuit":"♣","colon":":","colone":"≔","coloneq":"≔","comma":",","commat":"@","comp":"∁","compfn":"∘","complement":"∁","complexes":"ℂ","cong":"≅","congdot":"⩭","conint":"∮","copf":"𝕔","coprod":"∐","cop":"©","copy":"©","copysr":"℗","crarr":"↵","cross":"✗","cscr":"𝒸","csub":"⫏","csube":"⫑","csup":"⫐","csupe":"⫒","ctdot":"⋯","cudarrl":"⤸","cudarrr":"⤵","cuepr":"⋞","cuesc":"⋟","cularr":"↶","cularrp":"⤽","cup":"∪","cupbrcap":"⩈","cupcap":"⩆","cupcup":"⩊","cupdot":"⊍","cupor":"⩅","cups":"∪︀","curarr":"↷","curarrm":"⤼","curlyeqprec":"⋞","curlyeqsucc":"⋟","curlyvee":"⋎","curlywedge":"⋏","curre":"¤","curren":"¤","curvearrowleft":"↶","curvearrowright":"↷","cuvee":"⋎","cuwed":"⋏","cwconint":"∲","cwint":"∱","cylcty":"⌭","dArr":"⇓","dHar":"⥥","dagger":"†","daleth":"ℸ","darr":"↓","dash":"‐","dashv":"⊣","dbkarow":"⤏","dblac":"˝","dcaron":"ď","dcy":"д","dd":"ⅆ","ddagger":"‡","ddarr":"⇊","ddotseq":"⩷","de":"°","deg":"°","delta":"δ","demptyv":"⦱","dfisht":"⥿","dfr":"𝔡","dharl":"⇃","dharr":"⇂","diam":"⋄","diamond":"⋄","diamondsuit":"♦","diams":"♦","die":"¨","digamma":"ϝ","disin":"⋲","div":"÷","divid":"÷","divide":"÷","divideontimes":"⋇","divonx":"⋇","djcy":"ђ","dlcorn":"⌞","dlcrop":"⌍","dollar":"$","dopf":"𝕕","dot":"˙","doteq":"≐","doteqdot":"≑","dotminus":"∸","dotplus":"∔","dotsquare":"⊡","doublebarwedge":"⌆","downarrow":"↓","downdownarrows":"⇊","downharpoonleft":"⇃","downharpoonright":"⇂","drbkarow":"⤐","drcorn":"⌟","drcrop":"⌌","dscr":"𝒹","dscy":"ѕ","dsol":"⧶","dstrok":"đ","dtdot":"⋱","dtri":"▿","dtrif":"▾","duarr":"⇵","duhar":"⥯","dwangle":"⦦","dzcy":"џ","dzigrarr":"⟿","eDDot":"⩷","eDot":"≑","eacut":"é","eacute":"é","easter":"⩮","ecaron":"ě","ecir":"ê","ecirc":"ê","ecolon":"≕","ecy":"э","edot":"ė","ee":"ⅇ","efDot":"≒","efr":"𝔢","eg":"⪚","egrav":"è","egrave":"è","egs":"⪖","egsdot":"⪘","el":"⪙","elinters":"⏧","ell":"ℓ","els":"⪕","elsdot":"⪗","emacr":"ē","empty":"∅","emptyset":"∅","emptyv":"∅","emsp13":" ","emsp14":" ","emsp":" ","eng":"ŋ","ensp":" ","eogon":"ę","eopf":"𝕖","epar":"⋕","eparsl":"⧣","eplus":"⩱","epsi":"ε","epsilon":"ε","epsiv":"ϵ","eqcirc":"≖","eqcolon":"≕","eqsim":"≂","eqslantgtr":"⪖","eqslantless":"⪕","equals":"=","equest":"≟","equiv":"≡","equivDD":"⩸","eqvparsl":"⧥","erDot":"≓","erarr":"⥱","escr":"ℯ","esdot":"≐","esim":"≂","eta":"η","et":"ð","eth":"ð","eum":"ë","euml":"ë","euro":"€","excl":"!","exist":"∃","expectation":"ℰ","exponentiale":"ⅇ","fallingdotseq":"≒","fcy":"ф","female":"♀","ffilig":"ﬃ","fflig":"ﬀ","ffllig":"ﬄ","ffr":"𝔣","filig":"ﬁ","fjlig":"fj","flat":"♭","fllig":"ﬂ","fltns":"▱","fnof":"ƒ","fopf":"𝕗","forall":"∀","fork":"⋔","forkv":"⫙","fpartint":"⨍","frac1":"¼","frac12":"½","frac13":"⅓","frac14":"¼","frac15":"⅕","frac16":"⅙","frac18":"⅛","frac23":"⅔","frac25":"⅖","frac3":"¾","frac34":"¾","frac35":"⅗","frac38":"⅜","frac45":"⅘","frac56":"⅚","frac58":"⅝","frac78":"⅞","frasl":"⁄","frown":"⌢","fscr":"𝒻","gE":"≧","gEl":"⪌","gacute":"ǵ","gamma":"γ","gammad":"ϝ","gap":"⪆","gbreve":"ğ","gcirc":"ĝ","gcy":"г","gdot":"ġ","ge":"≥","gel":"⋛","geq":"≥","geqq":"≧","geqslant":"⩾","ges":"⩾","gescc":"⪩","gesdot":"⪀","gesdoto":"⪂","gesdotol":"⪄","gesl":"⋛︀","gesles":"⪔","gfr":"𝔤","gg":"≫","ggg":"⋙","gimel":"ℷ","gjcy":"ѓ","gl":"≷","glE":"⪒","gla":"⪥","glj":"⪤","gnE":"≩","gnap":"⪊","gnapprox":"⪊","gne":"⪈","gneq":"⪈","gneqq":"≩","gnsim":"⋧","gopf":"𝕘","grave":"`","gscr":"ℊ","gsim":"≳","gsime":"⪎","gsiml":"⪐","g":">","gt":">","gtcc":"⪧","gtcir":"⩺","gtdot":"⋗","gtlPar":"⦕","gtquest":"⩼","gtrapprox":"⪆","gtrarr":"⥸","gtrdot":"⋗","gtreqless":"⋛","gtreqqless":"⪌","gtrless":"≷","gtrsim":"≳","gvertneqq":"≩︀","gvnE":"≩︀","hArr":"⇔","hairsp":" ","half":"½","hamilt":"ℋ","hardcy":"ъ","harr":"↔","harrcir":"⥈","harrw":"↭","hbar":"ℏ","hcirc":"ĥ","hearts":"♥","heartsuit":"♥","hellip":"…","hercon":"⊹","hfr":"𝔥","hksearow":"⤥","hkswarow":"⤦","hoarr":"⇿","homtht":"∻","hookleftarrow":"↩","hookrightarrow":"↪","hopf":"𝕙","horbar":"―","hscr":"𝒽","hslash":"ℏ","hstrok":"ħ","hybull":"⁃","hyphen":"‐","iacut":"í","iacute":"í","ic":"⁣","icir":"î","icirc":"î","icy":"и","iecy":"е","iexc":"¡","iexcl":"¡","iff":"⇔","ifr":"𝔦","igrav":"ì","igrave":"ì","ii":"ⅈ","iiiint":"⨌","iiint":"∭","iinfin":"⧜","iiota":"℩","ijlig":"ĳ","imacr":"ī","image":"ℑ","imagline":"ℐ","imagpart":"ℑ","imath":"ı","imof":"⊷","imped":"Ƶ","in":"∈","incare":"℅","infin":"∞","infintie":"⧝","inodot":"ı","int":"∫","intcal":"⊺","integers":"ℤ","intercal":"⊺","intlarhk":"⨗","intprod":"⨼","iocy":"ё","iogon":"į","iopf":"𝕚","iota":"ι","iprod":"⨼","iques":"¿","iquest":"¿","iscr":"𝒾","isin":"∈","isinE":"⋹","isindot":"⋵","isins":"⋴","isinsv":"⋳","isinv":"∈","it":"⁢","itilde":"ĩ","iukcy":"і","ium":"ï","iuml":"ï","jcirc":"ĵ","jcy":"й","jfr":"𝔧","jmath":"ȷ","jopf":"𝕛","jscr":"𝒿","jsercy":"ј","jukcy":"є","kappa":"κ","kappav":"ϰ","kcedil":"ķ","kcy":"к","kfr":"𝔨","kgreen":"ĸ","khcy":"х","kjcy":"ќ","kopf":"𝕜","kscr":"𝓀","lAarr":"⇚","lArr":"⇐","lAtail":"⤛","lBarr":"⤎","lE":"≦","lEg":"⪋","lHar":"⥢","lacute":"ĺ","laemptyv":"⦴","lagran":"ℒ","lambda":"λ","lang":"⟨","langd":"⦑","langle":"⟨","lap":"⪅","laqu":"«","laquo":"«","larr":"←","larrb":"⇤","larrbfs":"⤟","larrfs":"⤝","larrhk":"↩","larrlp":"↫","larrpl":"⤹","larrsim":"⥳","larrtl":"↢","lat":"⪫","latail":"⤙","late":"⪭","lates":"⪭︀","lbarr":"⤌","lbbrk":"❲","lbrace":"{","lbrack":"[","lbrke":"⦋","lbrksld":"⦏","lbrkslu":"⦍","lcaron":"ľ","lcedil":"ļ","lceil":"⌈","lcub":"{","lcy":"л","ldca":"⤶","ldquo":"“","ldquor":"„","ldrdhar":"⥧","ldrushar":"⥋","ldsh":"↲","le":"≤","leftarrow":"←","leftarrowtail":"↢","leftharpoondown":"↽","leftharpoonup":"↼","leftleftarrows":"⇇","leftrightarrow":"↔","leftrightarrows":"⇆","leftrightharpoons":"⇋","leftrightsquigarrow":"↭","leftthreetimes":"⋋","leg":"⋚","leq":"≤","leqq":"≦","leqslant":"⩽","les":"⩽","lescc":"⪨","lesdot":"⩿","lesdoto":"⪁","lesdotor":"⪃","lesg":"⋚︀","lesges":"⪓","lessapprox":"⪅","lessdot":"⋖","lesseqgtr":"⋚","lesseqqgtr":"⪋","lessgtr":"≶","lesssim":"≲","lfisht":"⥼","lfloor":"⌊","lfr":"𝔩","lg":"≶","lgE":"⪑","lhard":"↽","lharu":"↼","lharul":"⥪","lhblk":"▄","ljcy":"љ","ll":"≪","llarr":"⇇","llcorner":"⌞","llhard":"⥫","lltri":"◺","lmidot":"ŀ","lmoust":"⎰","lmoustache":"⎰","lnE":"≨","lnap":"⪉","lnapprox":"⪉","lne":"⪇","lneq":"⪇","lneqq":"≨","lnsim":"⋦","loang":"⟬","loarr":"⇽","lobrk":"⟦","longleftarrow":"⟵","longleftrightarrow":"⟷","longmapsto":"⟼","longrightarrow":"⟶","looparrowleft":"↫","looparrowright":"↬","lopar":"⦅","lopf":"𝕝","loplus":"⨭","lotimes":"⨴","lowast":"∗","lowbar":"_","loz":"◊","lozenge":"◊","lozf":"⧫","lpar":"(","lparlt":"⦓","lrarr":"⇆","lrcorner":"⌟","lrhar":"⇋","lrhard":"⥭","lrm":"‎","lrtri":"⊿","lsaquo":"‹","lscr":"𝓁","lsh":"↰","lsim":"≲","lsime":"⪍","lsimg":"⪏","lsqb":"[","lsquo":"‘","lsquor":"‚","lstrok":"ł","l":"<","lt":"<","ltcc":"⪦","ltcir":"⩹","ltdot":"⋖","lthree":"⋋","ltimes":"⋉","ltlarr":"⥶","ltquest":"⩻","ltrPar":"⦖","ltri":"◃","ltrie":"⊴","ltrif":"◂","lurdshar":"⥊","luruhar":"⥦","lvertneqq":"≨︀","lvnE":"≨︀","mDDot":"∺","mac":"¯","macr":"¯","male":"♂","malt":"✠","maltese":"✠","map":"↦","mapsto":"↦","mapstodown":"↧","mapstoleft":"↤","mapstoup":"↥","marker":"▮","mcomma":"⨩","mcy":"м","mdash":"—","measuredangle":"∡","mfr":"𝔪","mho":"℧","micr":"µ","micro":"µ","mid":"∣","midast":"*","midcir":"⫰","middo":"·","middot":"·","minus":"−","minusb":"⊟","minusd":"∸","minusdu":"⨪","mlcp":"⫛","mldr":"…","mnplus":"∓","models":"⊧","mopf":"𝕞","mp":"∓","mscr":"𝓂","mstpos":"∾","mu":"μ","multimap":"⊸","mumap":"⊸","nGg":"⋙̸","nGt":"≫⃒","nGtv":"≫̸","nLeftarrow":"⇍","nLeftrightarrow":"⇎","nLl":"⋘̸","nLt":"≪⃒","nLtv":"≪̸","nRightarrow":"⇏","nVDash":"⊯","nVdash":"⊮","nabla":"∇","nacute":"ń","nang":"∠⃒","nap":"≉","napE":"⩰̸","napid":"≋̸","napos":"ŉ","napprox":"≉","natur":"♮","natural":"♮","naturals":"ℕ","nbs":" ","nbsp":" ","nbump":"≎̸","nbumpe":"≏̸","ncap":"⩃","ncaron":"ň","ncedil":"ņ","ncong":"≇","ncongdot":"⩭̸","ncup":"⩂","ncy":"н","ndash":"–","ne":"≠","neArr":"⇗","nearhk":"⤤","nearr":"↗","nearrow":"↗","nedot":"≐̸","nequiv":"≢","nesear":"⤨","nesim":"≂̸","nexist":"∄","nexists":"∄","nfr":"𝔫","ngE":"≧̸","nge":"≱","ngeq":"≱","ngeqq":"≧̸","ngeqslant":"⩾̸","nges":"⩾̸","ngsim":"≵","ngt":"≯","ngtr":"≯","nhArr":"⇎","nharr":"↮","nhpar":"⫲","ni":"∋","nis":"⋼","nisd":"⋺","niv":"∋","njcy":"њ","nlArr":"⇍","nlE":"≦̸","nlarr":"↚","nldr":"‥","nle":"≰","nleftarrow":"↚","nleftrightarrow":"↮","nleq":"≰","nleqq":"≦̸","nleqslant":"⩽̸","nles":"⩽̸","nless":"≮","nlsim":"≴","nlt":"≮","nltri":"⋪","nltrie":"⋬","nmid":"∤","nopf":"𝕟","no":"¬","not":"¬","notin":"∉","notinE":"⋹̸","notindot":"⋵̸","notinva":"∉","notinvb":"⋷","notinvc":"⋶","notni":"∌","notniva":"∌","notnivb":"⋾","notnivc":"⋽","npar":"∦","nparallel":"∦","nparsl":"⫽⃥","npart":"∂̸","npolint":"⨔","npr":"⊀","nprcue":"⋠","npre":"⪯̸","nprec":"⊀","npreceq":"⪯̸","nrArr":"⇏","nrarr":"↛","nrarrc":"⤳̸","nrarrw":"↝̸","nrightarrow":"↛","nrtri":"⋫","nrtrie":"⋭","nsc":"⊁","nsccue":"⋡","nsce":"⪰̸","nscr":"𝓃","nshortmid":"∤","nshortparallel":"∦","nsim":"≁","nsime":"≄","nsimeq":"≄","nsmid":"∤","nspar":"∦","nsqsube":"⋢","nsqsupe":"⋣","nsub":"⊄","nsubE":"⫅̸","nsube":"⊈","nsubset":"⊂⃒","nsubseteq":"⊈","nsubseteqq":"⫅̸","nsucc":"⊁","nsucceq":"⪰̸","nsup":"⊅","nsupE":"⫆̸","nsupe":"⊉","nsupset":"⊃⃒","nsupseteq":"⊉","nsupseteqq":"⫆̸","ntgl":"≹","ntild":"ñ","ntilde":"ñ","ntlg":"≸","ntriangleleft":"⋪","ntrianglelefteq":"⋬","ntriangleright":"⋫","ntrianglerighteq":"⋭","nu":"ν","num":"#","numero":"№","numsp":" ","nvDash":"⊭","nvHarr":"⤄","nvap":"≍⃒","nvdash":"⊬","nvge":"≥⃒","nvgt":">⃒","nvinfin":"⧞","nvlArr":"⤂","nvle":"≤⃒","nvlt":"<⃒","nvltrie":"⊴⃒","nvrArr":"⤃","nvrtrie":"⊵⃒","nvsim":"∼⃒","nwArr":"⇖","nwarhk":"⤣","nwarr":"↖","nwarrow":"↖","nwnear":"⤧","oS":"Ⓢ","oacut":"ó","oacute":"ó","oast":"⊛","ocir":"ô","ocirc":"ô","ocy":"о","odash":"⊝","odblac":"ő","odiv":"⨸","odot":"⊙","odsold":"⦼","oelig":"œ","ofcir":"⦿","ofr":"𝔬","ogon":"˛","ograv":"ò","ograve":"ò","ogt":"⧁","ohbar":"⦵","ohm":"Ω","oint":"∮","olarr":"↺","olcir":"⦾","olcross":"⦻","oline":"‾","olt":"⧀","omacr":"ō","omega":"ω","omicron":"ο","omid":"⦶","ominus":"⊖","oopf":"𝕠","opar":"⦷","operp":"⦹","oplus":"⊕","or":"∨","orarr":"↻","ord":"º","order":"ℴ","orderof":"ℴ","ordf":"ª","ordm":"º","origof":"⊶","oror":"⩖","orslope":"⩗","orv":"⩛","oscr":"ℴ","oslas":"ø","oslash":"ø","osol":"⊘","otild":"õ","otilde":"õ","otimes":"⊗","otimesas":"⨶","oum":"ö","ouml":"ö","ovbar":"⌽","par":"¶","para":"¶","parallel":"∥","parsim":"⫳","parsl":"⫽","part":"∂","pcy":"п","percnt":"%","period":".","permil":"‰","perp":"⊥","pertenk":"‱","pfr":"𝔭","phi":"φ","phiv":"ϕ","phmmat":"ℳ","phone":"☎","pi":"π","pitchfork":"⋔","piv":"ϖ","planck":"ℏ","planckh":"ℎ","plankv":"ℏ","plus":"+","plusacir":"⨣","plusb":"⊞","pluscir":"⨢","plusdo":"∔","plusdu":"⨥","pluse":"⩲","plusm":"±","plusmn":"±","plussim":"⨦","plustwo":"⨧","pm":"±","pointint":"⨕","popf":"𝕡","poun":"£","pound":"£","pr":"≺","prE":"⪳","prap":"⪷","prcue":"≼","pre":"⪯","prec":"≺","precapprox":"⪷","preccurlyeq":"≼","preceq":"⪯","precnapprox":"⪹","precneqq":"⪵","precnsim":"⋨","precsim":"≾","prime":"′","primes":"ℙ","prnE":"⪵","prnap":"⪹","prnsim":"⋨","prod":"∏","profalar":"⌮","profline":"⌒","profsurf":"⌓","prop":"∝","propto":"∝","prsim":"≾","prurel":"⊰","pscr":"𝓅","psi":"ψ","puncsp":" ","qfr":"𝔮","qint":"⨌","qopf":"𝕢","qprime":"⁗","qscr":"𝓆","quaternions":"ℍ","quatint":"⨖","quest":"?","questeq":"≟","quo":"\\"","quot":"\\"","rAarr":"⇛","rArr":"⇒","rAtail":"⤜","rBarr":"⤏","rHar":"⥤","race":"∽̱","racute":"ŕ","radic":"√","raemptyv":"⦳","rang":"⟩","rangd":"⦒","range":"⦥","rangle":"⟩","raqu":"»","raquo":"»","rarr":"→","rarrap":"⥵","rarrb":"⇥","rarrbfs":"⤠","rarrc":"⤳","rarrfs":"⤞","rarrhk":"↪","rarrlp":"↬","rarrpl":"⥅","rarrsim":"⥴","rarrtl":"↣","rarrw":"↝","ratail":"⤚","ratio":"∶","rationals":"ℚ","rbarr":"⤍","rbbrk":"❳","rbrace":"}","rbrack":"]","rbrke":"⦌","rbrksld":"⦎","rbrkslu":"⦐","rcaron":"ř","rcedil":"ŗ","rceil":"⌉","rcub":"}","rcy":"р","rdca":"⤷","rdldhar":"⥩","rdquo":"”","rdquor":"”","rdsh":"↳","real":"ℜ","realine":"ℛ","realpart":"ℜ","reals":"ℝ","rect":"▭","re":"®","reg":"®","rfisht":"⥽","rfloor":"⌋","rfr":"𝔯","rhard":"⇁","rharu":"⇀","rharul":"⥬","rho":"ρ","rhov":"ϱ","rightarrow":"→","rightarrowtail":"↣","rightharpoondown":"⇁","rightharpoonup":"⇀","rightleftarrows":"⇄","rightleftharpoons":"⇌","rightrightarrows":"⇉","rightsquigarrow":"↝","rightthreetimes":"⋌","ring":"˚","risingdotseq":"≓","rlarr":"⇄","rlhar":"⇌","rlm":"‏","rmoust":"⎱","rmoustache":"⎱","rnmid":"⫮","roang":"⟭","roarr":"⇾","robrk":"⟧","ropar":"⦆","ropf":"𝕣","roplus":"⨮","rotimes":"⨵","rpar":")","rpargt":"⦔","rppolint":"⨒","rrarr":"⇉","rsaquo":"›","rscr":"𝓇","rsh":"↱","rsqb":"]","rsquo":"’","rsquor":"’","rthree":"⋌","rtimes":"⋊","rtri":"▹","rtrie":"⊵","rtrif":"▸","rtriltri":"⧎","ruluhar":"⥨","rx":"℞","sacute":"ś","sbquo":"‚","sc":"≻","scE":"⪴","scap":"⪸","scaron":"š","sccue":"≽","sce":"⪰","scedil":"ş","scirc":"ŝ","scnE":"⪶","scnap":"⪺","scnsim":"⋩","scpolint":"⨓","scsim":"≿","scy":"с","sdot":"⋅","sdotb":"⊡","sdote":"⩦","seArr":"⇘","searhk":"⤥","searr":"↘","searrow":"↘","sec":"§","sect":"§","semi":";","seswar":"⤩","setminus":"∖","setmn":"∖","sext":"✶","sfr":"𝔰","sfrown":"⌢","sharp":"♯","shchcy":"щ","shcy":"ш","shortmid":"∣","shortparallel":"∥","sh":"­","shy":"­","sigma":"σ","sigmaf":"ς","sigmav":"ς","sim":"∼","simdot":"⩪","sime":"≃","simeq":"≃","simg":"⪞","simgE":"⪠","siml":"⪝","simlE":"⪟","simne":"≆","simplus":"⨤","simrarr":"⥲","slarr":"←","smallsetminus":"∖","smashp":"⨳","smeparsl":"⧤","smid":"∣","smile":"⌣","smt":"⪪","smte":"⪬","smtes":"⪬︀","softcy":"ь","sol":"/","solb":"⧄","solbar":"⌿","sopf":"𝕤","spades":"♠","spadesuit":"♠","spar":"∥","sqcap":"⊓","sqcaps":"⊓︀","sqcup":"⊔","sqcups":"⊔︀","sqsub":"⊏","sqsube":"⊑","sqsubset":"⊏","sqsubseteq":"⊑","sqsup":"⊐","sqsupe":"⊒","sqsupset":"⊐","sqsupseteq":"⊒","squ":"□","square":"□","squarf":"▪","squf":"▪","srarr":"→","sscr":"𝓈","ssetmn":"∖","ssmile":"⌣","sstarf":"⋆","star":"☆","starf":"★","straightepsilon":"ϵ","straightphi":"ϕ","strns":"¯","sub":"⊂","subE":"⫅","subdot":"⪽","sube":"⊆","subedot":"⫃","submult":"⫁","subnE":"⫋","subne":"⊊","subplus":"⪿","subrarr":"⥹","subset":"⊂","subseteq":"⊆","subseteqq":"⫅","subsetneq":"⊊","subsetneqq":"⫋","subsim":"⫇","subsub":"⫕","subsup":"⫓","succ":"≻","succapprox":"⪸","succcurlyeq":"≽","succeq":"⪰","succnapprox":"⪺","succneqq":"⪶","succnsim":"⋩","succsim":"≿","sum":"∑","sung":"♪","sup":"⊃","sup1":"¹","sup2":"²","sup3":"³","supE":"⫆","supdot":"⪾","supdsub":"⫘","supe":"⊇","supedot":"⫄","suphsol":"⟉","suphsub":"⫗","suplarr":"⥻","supmult":"⫂","supnE":"⫌","supne":"⊋","supplus":"⫀","supset":"⊃","supseteq":"⊇","supseteqq":"⫆","supsetneq":"⊋","supsetneqq":"⫌","supsim":"⫈","supsub":"⫔","supsup":"⫖","swArr":"⇙","swarhk":"⤦","swarr":"↙","swarrow":"↙","swnwar":"⤪","szli":"ß","szlig":"ß","target":"⌖","tau":"τ","tbrk":"⎴","tcaron":"ť","tcedil":"ţ","tcy":"т","tdot":"⃛","telrec":"⌕","tfr":"𝔱","there4":"∴","therefore":"∴","theta":"θ","thetasym":"ϑ","thetav":"ϑ","thickapprox":"≈","thicksim":"∼","thinsp":" ","thkap":"≈","thksim":"∼","thor":"þ","thorn":"þ","tilde":"˜","time":"×","times":"×","timesb":"⊠","timesbar":"⨱","timesd":"⨰","tint":"∭","toea":"⤨","top":"⊤","topbot":"⌶","topcir":"⫱","topf":"𝕥","topfork":"⫚","tosa":"⤩","tprime":"‴","trade":"™","triangle":"▵","triangledown":"▿","triangleleft":"◃","trianglelefteq":"⊴","triangleq":"≜","triangleright":"▹","trianglerighteq":"⊵","tridot":"◬","trie":"≜","triminus":"⨺","triplus":"⨹","trisb":"⧍","tritime":"⨻","trpezium":"⏢","tscr":"𝓉","tscy":"ц","tshcy":"ћ","tstrok":"ŧ","twixt":"≬","twoheadleftarrow":"↞","twoheadrightarrow":"↠","uArr":"⇑","uHar":"⥣","uacut":"ú","uacute":"ú","uarr":"↑","ubrcy":"ў","ubreve":"ŭ","ucir":"û","ucirc":"û","ucy":"у","udarr":"⇅","udblac":"ű","udhar":"⥮","ufisht":"⥾","ufr":"𝔲","ugrav":"ù","ugrave":"ù","uharl":"↿","uharr":"↾","uhblk":"▀","ulcorn":"⌜","ulcorner":"⌜","ulcrop":"⌏","ultri":"◸","umacr":"ū","um":"¨","uml":"¨","uogon":"ų","uopf":"𝕦","uparrow":"↑","updownarrow":"↕","upharpoonleft":"↿","upharpoonright":"↾","uplus":"⊎","upsi":"υ","upsih":"ϒ","upsilon":"υ","upuparrows":"⇈","urcorn":"⌝","urcorner":"⌝","urcrop":"⌎","uring":"ů","urtri":"◹","uscr":"𝓊","utdot":"⋰","utilde":"ũ","utri":"▵","utrif":"▴","uuarr":"⇈","uum":"ü","uuml":"ü","uwangle":"⦧","vArr":"⇕","vBar":"⫨","vBarv":"⫩","vDash":"⊨","vangrt":"⦜","varepsilon":"ϵ","varkappa":"ϰ","varnothing":"∅","varphi":"ϕ","varpi":"ϖ","varpropto":"∝","varr":"↕","varrho":"ϱ","varsigma":"ς","varsubsetneq":"⊊︀","varsubsetneqq":"⫋︀","varsupsetneq":"⊋︀","varsupsetneqq":"⫌︀","vartheta":"ϑ","vartriangleleft":"⊲","vartriangleright":"⊳","vcy":"в","vdash":"⊢","vee":"∨","veebar":"⊻","veeeq":"≚","vellip":"⋮","verbar":"|","vert":"|","vfr":"𝔳","vltri":"⊲","vnsub":"⊂⃒","vnsup":"⊃⃒","vopf":"𝕧","vprop":"∝","vrtri":"⊳","vscr":"𝓋","vsubnE":"⫋︀","vsubne":"⊊︀","vsupnE":"⫌︀","vsupne":"⊋︀","vzigzag":"⦚","wcirc":"ŵ","wedbar":"⩟","wedge":"∧","wedgeq":"≙","weierp":"℘","wfr":"𝔴","wopf":"𝕨","wp":"℘","wr":"≀","wreath":"≀","wscr":"𝓌","xcap":"⋂","xcirc":"◯","xcup":"⋃","xdtri":"▽","xfr":"𝔵","xhArr":"⟺","xharr":"⟷","xi":"ξ","xlArr":"⟸","xlarr":"⟵","xmap":"⟼","xnis":"⋻","xodot":"⨀","xopf":"𝕩","xoplus":"⨁","xotime":"⨂","xrArr":"⟹","xrarr":"⟶","xscr":"𝓍","xsqcup":"⨆","xuplus":"⨄","xutri":"△","xvee":"⋁","xwedge":"⋀","yacut":"ý","yacute":"ý","yacy":"я","ycirc":"ŷ","ycy":"ы","ye":"¥","yen":"¥","yfr":"𝔶","yicy":"ї","yopf":"𝕪","yscr":"𝓎","yucy":"ю","yum":"ÿ","yuml":"ÿ","zacute":"ź","zcaron":"ž","zcy":"з","zdot":"ż","zeetrf":"ℨ","zeta":"ζ","zfr":"𝔷","zhcy":"ж","zigrarr":"⇝","zopf":"𝕫","zscr":"𝓏","zwj":"‍","zwnj":"‌"}');
-
-/***/ }),
-
 /***/ 2020:
 /***/ ((module) => {
 
@@ -18178,55 +20546,160 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(272)
 const { Client, LogLevel } = __nccwpck_require__(7946)
-const { markdownToBlocks } = __nccwpck_require__(799)
+const { Octokit } = __nccwpck_require__(7223)
 
 try {
-  // `who-to-greet` input defined in action metadata file
-  const body = core.getInput('body')
-  const name = core.getInput('name')
-  const token = core.getInput('token')
-  const tags = core.getInput('tags') || ''
+  const NOTION_TOKEN = core.getInput('notion_token')
+  const GITHUB_TOKEN = core.getInput('github_token')
   const database = core.getInput('database')
-  const date = new Date().toISOString()
+  const owner = core.getInput('github_owner')
+  const repositoryType = core.getInput('repository_type') || 'all'
 
   core.debug('Creating notion client ...')
   const notion = new Client({
-    auth: token,
+    auth: NOTION_TOKEN,
     logLevel: LogLevel.ERROR
   })
 
-  const blocks = markdownToBlocks(body)
-  const tagArray = tags ? tags.split(',').flatMap(tag => { return { name: tag } }) : []
+  const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
-  core.debug('Creating page ...')
-  notion.pages.create({
-    parent: {
-      database_id: database
-    },
-    properties: {
-      Name: {
-        title: [
-          {
-            text: {
-              content: name
+  const getRepos = async () => {
+    const repos = await octokit.paginate('GET /orgs/{owner}/repos',
+      {
+        owner: owner,
+        type: repositoryType,
+        sort: 'full_name',
+        per_page: 100
+      })
+    core.info(`Found ${repos.length} github repositories, now getting service data ...`)
+    const repoData = []
+    for (const repo of repos) {
+      try {
+        const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+          owner: repo.full_name.split('/')[0],
+          repo: repo.name,
+          path: 'service.json'
+        })
+        if (data) {
+          const base64content = Buffer.from(data.content, 'base64')
+          const serviceJson = JSON.parse(base64content.toString('utf8'))
+          serviceJson._repo = repo
+          repoData.push(serviceJson)
+        }
+      } catch (ex) {
+        repoData.push({
+          segment: 'Unknown',
+          team: 'Unknown',
+          status: 'No service.json found',
+          _repo: repo
+        })
+      }
+    }
+    return repoData
+  }
+
+  const updateNotion = async (repositories) => {
+    for (const repo of repositories) {
+      // Date to log as updated
+      const date = new Date().toISOString()
+
+      // Lets see if we can find the row
+      const search = await notion.databases.query({
+        database_id: database,
+        filter: {
+          property: 'Name',
+          text: {
+            equals: repo._repo.name
+          }
+        }
+      })
+
+      // If we have found any results, lets update
+      // If multiple are found we have an issue, but for now
+      // Lets just update the first one to not make the problem worse
+      if (search.results.length > 0) {
+        const pageId = search.results[0].id
+        await notion.pages.update({
+          page_id: pageId,
+          properties: {
+            Name: {
+              title: [
+                {
+                  text: {
+                    content: repo._repo.name
+                  }
+                }
+              ]
+            },
+            URL: {
+              url: repo._repo.html_url
+            },
+            Segment: {
+              select: {
+                name: repo.segment
+              }
+            },
+            Team: {
+              select: {
+                name: repo.team
+              }
+            },
+            Updated: {
+              date: {
+                start: date
+              }
             }
           }
-        ]
-      },
-      Date: {
-        date: {
-          start: date
-        }
-      },
-      Tags: {
-        multi_select: tagArray
+        })
+      } else {
+        await notion.pages.create({
+          parent: {
+            database_id: database
+          },
+          properties: {
+            Name: {
+              title: [
+                {
+                  text: {
+                    content: repo._repo.name
+                  }
+                }
+              ]
+            },
+            URL: {
+              url: repo._repo.html_url
+            },
+            Segment: {
+              select: {
+                name: repo.segment
+              }
+            },
+            Team: {
+              select: {
+                name: repo.team
+              }
+            },
+            Updated: {
+              date: {
+                start: date
+              }
+            }
+          }
+        })
       }
-    },
-    children: blocks
-  }).then((result) => {
-    core.debug(`${result}`)
-    core.setOutput('status', 'complete')
-  })
+    }
+  }
+
+  const refreshData = async () => {
+    core.startGroup('🌀 Getting github repositories')
+    const repositories = await getRepos()
+    core.endGroup()
+    core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
+    updateNotion(repositories)
+    core.endGroup()
+  }
+
+  refreshData()
 } catch (error) {
   core.setFailed(error.message)
 }

@@ -3,6 +3,9 @@ description: 'Scans all github repositories and updates a notion database'
 icon: type
 color: green
 inputs:
+  github_owner:
+    description: 'Github owner organization or user - e.g. infinitaslearning'
+    required: true    
   github_token:
     description: 'Github API token'
     required: true    
@@ -11,7 +14,9 @@ inputs:
     required: true    
   database:
     description: 'Parent database to add to'
-    required: true      
+    required: true
+  repository_type:
+    description: 'Github repository type (e.g. all|private|internal)' 
 outputs:
   status: 
     description: 'The status of the scan'

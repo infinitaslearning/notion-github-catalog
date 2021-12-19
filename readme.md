@@ -12,7 +12,12 @@ By default integrations cant access any contentm so you you *must* share your da
 
 This action expects a Notion database with the following properties:
 
-  - ...
+  - Name: text
+  - URL: url
+  - Segment: select
+  - Team: select
+  - Tags: multi_select
+  - Updated: date
 
 ## Usage
 
@@ -23,9 +28,11 @@ Typically this is used with a changelog builder:
 - name: Notion github catalog     
   uses: infinitaslearning/notion-github-catalog@main        
   with:          
+    github_owner: infinitaslearning
     github_token: ${{ secrets.GITHUB_TOKEN }}
     notion_token: ${{ secrets.NOTION_TOKEN }}
     database: 619f0845c68a4c18837ebdb9812b90c0    
+    repository_type: all
 ```
 
 To get the database ID, simply browse to it, click on the '...' and get a 'Copy link'.  The GUID at the end of the URL is the id.
