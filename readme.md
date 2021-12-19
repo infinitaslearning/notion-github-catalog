@@ -45,3 +45,5 @@ To get the database ID, simply browse to it, click on the '...' and get a 'Copy 
 
 Assumes you have `@vercel/ncc` installed globally.
 After changes ensure you `npm run build`, commit and then submit a PR.
+
+For the tests to run you need to have the environment variables set for GITHUB_TOKEN, NOTION_TOKEN and NOTION_DATABASE.
