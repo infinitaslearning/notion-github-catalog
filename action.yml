@@ -23,5 +23,5 @@ outputs:
   status: 
     description: 'The status of the scan'
 runs:
-  using: 'node14'
+  using: 'node16'
   main: 'dist/index.js'
