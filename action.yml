@@ -1,0 +1,20 @@
+name: 'Notion github catalog'
+description: 'Scans all github repositories and updates a notion database'
+icon: type
+color: green
+inputs:
+  github_token:
+    description: 'Github API token'
+    required: true    
+  notion_token:
+    description: 'Notion API token'
+    required: true    
+  database:
+    description: 'Parent database to add to'
+    required: true      
+outputs:
+  status: 
+    description: 'The status of the scan'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

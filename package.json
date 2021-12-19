@@ -1,0 +1,33 @@
+{
+  "name": "notion-release-notes",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "local": "node src/local",
+    "build": "npm run lint && npm run test && npm run package",
+    "package": "ncc build src/index.js --license licenses.txt",
+    "test": "jest",
+    "lint": "eslint src",
+    "fix": "eslint --fix src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0",
+    "@notionhq/client": "^0.4.11",
+    "@tryfabric/martian": "^1.1.1",
+    "octokit": "^1.7.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jest": "^25.3.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "jest": "^27.4.5"
+  }
+}
