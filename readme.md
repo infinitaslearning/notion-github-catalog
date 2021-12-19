@@ -19,6 +19,10 @@ This action expects a Notion database with the following properties:
   - Tags: multi_select
   - Updated: date
 
+It looks like this after it has run:
+
+<img width="1451" alt="Screenshot 2021-12-19 at 12 55 39" src="https://user-images.githubusercontent.com/239305/146673989-01187d53-d2fd-42ba-9968-31442b8cc92d.png">
+
 ## Usage
 
 Typically this is used with a changelog builder:
