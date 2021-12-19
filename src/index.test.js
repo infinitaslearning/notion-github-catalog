@@ -17,3 +17,4 @@ test('complete input should succeed with default inputs', () => {
   const result = cp.execSync(`node ${ip}`, options).toString()
   expect(result).toBeDefined()
 })
+s

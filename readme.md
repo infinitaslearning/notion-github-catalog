@@ -13,10 +13,14 @@ By default integrations cant access any contentm so you you *must* share your da
 This action expects a Notion database with the following properties:
 
   - Name: text
+  - Description: text
   - URL: url
   - Segment: select
   - Team: select
   - Tags: multi_select
+  - Visibility: select
+  - Language: select
+  - Status: select
   - Updated: date
 
 It looks like this after it has run:

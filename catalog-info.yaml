@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: notion-github-catalog
+  description: A githb action to keep a notion database in sync with Github repository info  
+  annotations:
+    segment: general
+    team: all
+  tags:
+    - notion
+    - github
+    - action  
+spec:
+  type: action
+  lifecycle: production
+  owner: opensource  
