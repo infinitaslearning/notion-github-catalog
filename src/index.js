@@ -174,9 +174,8 @@ try {
     const repositories = await getRepos()
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
-    updateNotion(repositories)
-    core.endGroup()
-    core.setFailed(error.message)
+    await updateNotion(repositories)
+    core.endGroup()    
   }
 
   refreshData()
