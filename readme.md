@@ -25,21 +25,30 @@ It looks like this after it has run:
 
 ## Usage
 
-Typically this is used with a changelog builder:
+This is typically deployed as a scheduled action:
 
 ```yaml
+name: Catalog
+on:
+  schedule:
+    - cron:  '30 5 * * *'
+  workflow_dispatch:
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Notion github catalog     
+       uses: infinitaslearning/notion-github-catalog@main        
+       with:          
+         github_owner: infinitaslearning
+         github_token: ${{ secrets.PAT_GITHUB_TOKEN }}
+         notion_token: ${{ secrets.NOTION_TOKEN }}
+         database: 2b26b4290cc84d95ad3e93c3255277a1    
+         repository_type: all
 
-- name: Notion github catalog     
-  uses: infinitaslearning/notion-github-catalog@main        
-  with:          
-    github_owner: infinitaslearning
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    notion_token: ${{ secrets.NOTION_TOKEN }}
-    database: 619f0845c68a4c18837ebdb9812b90c0    
-    repository_type: all
 ```
 
-To get the database ID, simply browse to it, click on the '...' and get a 'Copy link'.  The GUID at the end of the URL is the id.
+To get the database ID, simply browse to it, click on the '...' in Notion, and get a 'Copy link'.  The GUID at the end of the URL is the id, this works on both embedded and full page databases.
 
 ## Development
 
