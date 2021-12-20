@@ -24,6 +24,8 @@ This action expects a Notion database with the following properties:
   - Status: select
   - Updated: date
 
+The following notion page and database is connected to the tests by default, and can be used as a template: https://infinitaslearning.notion.site/Notion-Github-Catalogue-ac2395eda37144e698e6b8faef1003c7
+
 It looks like this after it has run:
 
 <img width="1451" alt="Screenshot 2021-12-19 at 12 55 39" src="https://user-images.githubusercontent.com/239305/146673989-01187d53-d2fd-42ba-9968-31442b8cc92d.png">
