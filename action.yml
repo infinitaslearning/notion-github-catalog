@@ -1,7 +1,7 @@
 name: 'Notion github catalog'
 description: 'Scans all github repositories and updates a notion database'
 branding:
-  icon: github
+  icon: git-pull-request
   color: blue
 inputs:
   github_owner:
