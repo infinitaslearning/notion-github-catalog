@@ -6,7 +6,7 @@ This action will scan all of the Github repositories available to the provided t
 
 First, you need to have an integration access token - which you can get from https://www.notion.so/my-integrations after creating an integration.  Give the integration a friendly name like 'Github Actions'.
 
-By default integrations cant access any contentm so you you *must* share your database with the integration you created earlier to be able to access it!
+By default integrations cant access any content so you you *must* share your database (or the parent page / tree it is contained within) with the integration you created earlier to be able to access it.
 
 ## Notion Database
 
@@ -62,7 +62,7 @@ jobs:
 
 ```
 
-To get the database ID, simply browse to it, click on the '...' in Notion, and get a 'Copy link'.  The GUID at the end of the URL is the id, this works on both embedded and full page databases.
+To get the database ID, simply browse to it, click on the '...' in Notion, and get a 'Copy link'.  The GUID at the end of the URL (but before the `?v=`) is the id, this works on both embedded and full page databases.
 
 ## Development
 
