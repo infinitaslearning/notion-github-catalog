@@ -1,7 +1,8 @@
 name: 'Notion github catalog'
 description: 'Scans all github repositories and updates a notion database'
-icon: type
-color: green
+branding:
+  icon: github
+  color: blue
 inputs:
   github_owner:
     description: 'Github owner organization or user - e.g. infinitaslearning'
