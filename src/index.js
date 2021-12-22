@@ -245,10 +245,32 @@ try {
       })
     }
 
+    const systems = processRows(systemRows) || null
+    const teams = processRows(teamRows) || null
+    const segments = processRows(segmentRows) || null
+    let error = false
+
+    if (segmentDb && !segments.unknown) {
+      error = true
+      core.error('Your segment table does not contain an "unknown" row!')
+    }
+    if (teamDb && !teams.unknown) {
+      error = true
+      core.error('Your team table does not contain an "unknown" row!')
+    }
+    if (systemDb && !systems.unknown) {
+      error = true
+      core.error('Your system table does not contain an "unknown" row!')
+    }
+
+    if (error) {
+      process.exit(1)
+    }
+
     return {
-      systems: systemDb ? processRows(systemRows) : null,
-      segments: segmentDb ? processRows(segmentRows) : null,
-      teams: teamDb ? processRows(teamRows) : null
+      systems,
+      segments,
+      teams
     }
   }
 

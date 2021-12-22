@@ -51,6 +51,8 @@ Information on the format: https://backstage.io/docs/features/software-catalog/d
 
 ## Usage
 
+https://www.notion.so/infinitaslearning/2b26b4290cc84d95ad3e93c3255277a1?v=8648fdba9c0b4fe08d680cefa9825174
+
 This is typically deployed as a scheduled action:
 
 ```yaml
@@ -70,9 +72,9 @@ jobs:
          github_token: ${{ secrets.PAT_GITHUB_TOKEN }}
          notion_token: ${{ secrets.NOTION_TOKEN }}
          database: 2b26b4290cc84d95ad3e93c3255277a1    
-         segment_database: '7943615f4dba43b3a3b0f991f4f7136d'
-         team_database: 'c11736fe61b941149de098676bde8d92'
-         system_database: '121534684fe840a1953500e603c2b602'
+         segment_database: 7943615f4dba43b3a3b0f991f4f7136d
+         team_database: c11736fe61b941149de098676bde8d92
+         system_database: 121534684fe840a1953500e603c2b602
          repository_type: all
          catalog_file: catalog-info.yaml
 
