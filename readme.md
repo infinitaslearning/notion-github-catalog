@@ -51,8 +51,6 @@ Information on the format: https://backstage.io/docs/features/software-catalog/d
 
 ## Usage
 
-https://www.notion.so/infinitaslearning/2b26b4290cc84d95ad3e93c3255277a1?v=8648fdba9c0b4fe08d680cefa9825174
-
 This is typically deployed as a scheduled action:
 
 ```yaml
