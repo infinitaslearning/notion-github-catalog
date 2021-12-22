@@ -8,9 +8,9 @@ First, you need to have an integration access token - which you can get from htt
 
 By default integrations cant access any content so you you *must* share your database (or the parent page / tree it is contained within) with the integration you created earlier to be able to access it.
 
-## Notion Database
+## Notion Databases
 
-This action expects a Notion database with the following properties:
+This action expects a Notion database with the following properties, this will become the 
 
   - Name: text
   - Description: text
@@ -29,6 +29,19 @@ The following notion page and database is connected to the tests by default, and
 It looks like this after it has run:
 
 <img width="1451" alt="Screenshot 2021-12-19 at 12 55 39" src="https://user-images.githubusercontent.com/239305/146673989-01187d53-d2fd-42ba-9968-31442b8cc92d.png">
+
+## Relation Databases
+
+You have an option to provide additional 'lookup' databases to convert some of the above selects into relations:
+
+### Segment, Team, System
+
+1. Create a database that has *at least* a `Name` column that is unique, all other columns are up to you.
+2. Create an 'Unknown' row - this is what services that cannot be mapped go to (this name matters).
+3. In the config of the action, provide the input variable `segment_database` pointing to this database.
+4. In the main service catalogue table convert the `Segment` column to a relation, pointing at the above database.
+
+This can be repeated for `Team` and `System`.  The full config is below in the usage.
 
 ## Service Descriptor Format
 
@@ -57,6 +70,9 @@ jobs:
          github_token: ${{ secrets.PAT_GITHUB_TOKEN }}
          notion_token: ${{ secrets.NOTION_TOKEN }}
          database: 2b26b4290cc84d95ad3e93c3255277a1    
+         segment_database: '7943615f4dba43b3a3b0f991f4f7136d'
+         team_database: 'c11736fe61b941149de098676bde8d92'
+         system_database: '121534684fe840a1953500e603c2b602'
          repository_type: all
          catalog_file: catalog-info.yaml
 

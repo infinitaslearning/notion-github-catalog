@@ -5,7 +5,7 @@ metadata:
   description: A githb action to keep a notion database in sync with Github repository info  
   annotations:
     segment: general
-    team: all
+    team: opensource
   tags:
     - notion
     - github
