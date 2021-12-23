@@ -2,6 +2,8 @@
 
 This action will scan all of the Github repositories available to the provided token and update their information in the specified Notion database.
 
+TL;DR ... you love the idea of https://backstage.io/ but think its way too complex to manage and operate, so just use Notion instead :)
+
 ## Notion integration and token
 
 First, you need to have an integration access token - which you can get from https://www.notion.so/my-integrations after creating an integration.  Give the integration a friendly name like 'Github Actions'.
