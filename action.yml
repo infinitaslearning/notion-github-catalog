@@ -24,6 +24,8 @@ inputs:
     description: 'Database ID to read teams from'    
   repository_type:
     description: 'Github repository type (e.g. all|private|internal), defaults to `all`' 
+  repository_filter:
+    description: 'Regex string to filter repository name by, defaults to .*' 
   catalog_file:
     description: 'Catalog file name to look for in the root of repo, defaults to `catalog_file.yaml`' 
 outputs:

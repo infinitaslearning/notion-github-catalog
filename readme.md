@@ -73,6 +73,7 @@ jobs:
          owner_database: 7943615f4dba43b3a3b0f991f4f7136d
          system_database: 121534684fe840a1953500e603c2b602
          repository_type: all
+         repository_filter: .*
          catalog_file: catalog-info.yaml
 
 ```
