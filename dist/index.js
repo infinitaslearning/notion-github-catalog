@@ -20351,6 +20351,388 @@ try {
 
 /***/ }),
 
+/***/ 3550:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(272)
+
+const loadData = async ({ notion }) => {
+  const systemDb = core.getInput('system_database')
+  const ownerDb = core.getInput('owner_database')
+
+  const processRows = (data) => {
+    const parent = {}
+    data.results.forEach((row) => {
+      const name = row.properties.Name.title[0].plain_text.toLowerCase()
+      if (name) parent[name] = row.id
+    })
+    return parent
+  }
+
+  let systemRows, ownerRows
+
+  if (systemDb) {
+    systemRows = await notion.databases.query({
+      database_id: systemDb
+    })
+  }
+
+  if (ownerDb) {
+    ownerRows = await notion.databases.query({
+      database_id: ownerDb
+    })
+  }
+
+  const systems = processRows(systemRows) || null
+  const owners = processRows(ownerRows) || null
+  let error = false
+
+  if (ownerDb && !owners.unknown) {
+    error = true
+    core.error('Your owner table does not contain an "unknown" row!')
+  }
+  if (systemDb && !systems.unknown) {
+    error = true
+    core.error('Your system table does not contain an "unknown" row!')
+  }
+
+  if (error) {
+    process.exit(1)
+  }
+
+  return {
+    systems,
+    owners
+  }
+}
+
+exports.loadData = loadData
+
+
+/***/ }),
+
+/***/ 3504:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+const { Octokit } = __nccwpck_require__(7223)
+const YAML = __nccwpck_require__(9645)
+const core = __nccwpck_require__(272)
+
+const getRepos = async () => {
+  const GITHUB_TOKEN = core.getInput('github_token')
+  const repositoryType = core.getInput('repository_type') || 'all'
+  const repositoryFilter = core.getInput('repository_filter') || '.*'
+  const owner = core.getInput('github_owner')
+  const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
+  const repositoryFilterRegex = new RegExp(repositoryFilter)
+
+  const octokit = new Octokit({ auth: GITHUB_TOKEN })
+
+  const repos = await octokit.paginate('GET /orgs/{owner}/repos',
+    {
+      owner: owner,
+      type: repositoryType,
+      sort: 'full_name',
+      per_page: 100
+    })
+  core.info(`Using repository filter: ${repositoryFilter}`)
+  core.info(`Found ${repos.length} github repositories, now getting service data for those that match the filter ...`)
+  const repoData = []
+  for (const repo of repos) {
+    if (repo.name.match(repositoryFilterRegex)) {
+      try {
+        const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+          owner: repo.full_name.split('/')[0],
+          repo: repo.name,
+          path: catalogFile
+        })
+        if (data) {
+          const base64content = Buffer.from(data.content, 'base64')
+          const serviceDefinition = YAML.parse(base64content.toString('utf8'))
+          serviceDefinition._repo = repo
+          serviceDefinition.status = 'OK'
+          repoData.push(serviceDefinition)
+        }
+      } catch (ex) {
+        repoData.push({
+          status: `${catalogFile} missing`,
+          _repo: repo
+        })
+      }
+    }
+  }
+  core.info(`Processed ${repoData.length} matching repositories`)
+  return repoData
+}
+
+exports.getRepos = getRepos
+
+
+/***/ }),
+
+/***/ 5475:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(272)
+
+const updateNotionLink = async (linkId, link, { notion }) => {
+  try {
+    await notion.pages.update({
+      page_id: linkId,
+      properties: {
+        URL: {
+          url: link.url
+        }
+      }
+    })
+  } catch (ex) {
+    core.error(`Error updating notion link for ${link.title}: ${ex.message} ...`)
+  }
+}
+
+const createNotionLink = async (linkDatabaseId, link, { notion }) => {
+  try {
+    await notion.pages.create({
+      parent: {
+        database_id: linkDatabaseId
+      },
+      properties: {
+        Name: {
+          title: [
+            {
+              text: {
+                content: link.title
+              }
+            }
+          ]
+        },
+        URL: {
+          url: link.url
+        }
+      }
+    })
+  } catch (ex) {
+    core.error(`Error creating notion link for ${link.title}: ${ex.message} ...`)
+  }
+}
+
+const updateLinks = async (linkDatabaseId, links, { notion }) => {
+  for (const link of links) {
+    // Lets see if we can find the row
+    const search = await notion.databases.query({
+      database_id: linkDatabaseId,
+      filter: {
+        property: 'Name',
+        text: {
+          equals: link.title
+        }
+      }
+    })
+    if (search.results.length > 0) {
+      const linkId = search.results[0].id
+      await updateNotionLink(linkId, link, { notion })
+    } else {
+      await createNotionLink(linkDatabaseId, link, { notion })
+    }
+  }
+}
+
+const ensureLinks = async (pageId, links, { notion }) => {
+  // Ensure that the service page has a correct database of links
+  const pageContent = await notion.blocks.children.list({
+    block_id: pageId
+  })
+  let linkDatabase = pageContent.results.find((block) => block.type === 'child_database' && block.child_database?.title === 'Links')
+  if (!linkDatabase) {
+    // Create it
+    linkDatabase = await notion.databases.create({
+      parent: {
+        page_id: pageId
+      },
+      title: [{
+        type: 'text',
+        text: {
+          content: 'Links'
+        }
+      }],
+      properties: {
+        Name: {
+          title: {}
+        },
+        URL: {
+          url: {}
+        }
+      }
+    })
+  }
+
+  // Update links
+  await updateLinks(linkDatabase.id, links, { notion })
+}
+
+exports.ensureLinks = ensureLinks
+
+
+/***/ }),
+
+/***/ 3180:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(272)
+const { ensureLinks } = __nccwpck_require__(5475)
+
+const updateServices = async (repositories, { notion, database, systems, owners }) => {
+  for (const repo of repositories) {
+    // Lets see if we can find the row
+    const search = await notion.databases.query({
+      database_id: database,
+      filter: {
+        property: 'Name',
+        text: {
+          equals: repo._repo.name
+        }
+      }
+    })
+
+    // If we have found any results, lets update
+    // If multiple are found we have an issue, but for now
+    // Lets just update the first one to not make the problem worse
+    if (search.results.length > 0) {
+      const pageId = search.results[0].id
+      await updateNotionRow(repo, pageId, { notion, database, systems, owners })
+    } else {
+      await createNotionRow(repo, { notion, database, systems, owners })
+    }
+  }
+}
+
+const updateNotionRow = async (repo, pageId, { notion, database, systems, owners }) => {
+  try {
+    await notion.pages.update({
+      page_id: pageId,
+      properties: createProperties(repo, { systems, owners })
+    })
+    if (repo.metadata?.links) {
+      await ensureLinks(pageId, repo.metadata.links, { notion })
+    }
+  } catch (ex) {
+    core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
+  }
+}
+
+const createNotionRow = async (repo, { notion, database, systems, owners }) => {
+  try {
+    const page = await notion.pages.create({
+      parent: {
+        database_id: database
+      },
+      properties: createProperties(repo, { systems, owners })
+    })
+    if (repo.metadata?.links) {
+      await ensureLinks(page.id, repo.metadata.links, { notion })
+    }
+  } catch (ex) {
+    core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`)
+  }
+}
+
+const createProperties = (repo, { systems, owners }) => {
+  let owner, system
+  const ownerSpec = repo?.spec?.owner
+  const systemSpec = repo?.spec?.system
+
+  if (owners) {
+    // Owners are a relation
+    owner = {
+      relation: [
+        { id: owners[ownerSpec?.toLowerCase()] || owners.unknown }
+      ]
+    }
+  } else {
+    // owners are a tag
+    owner = {
+      select: {
+        name: ownerSpec || 'Unknown'
+      }
+    }
+  }
+
+  if (systems) {
+    // Segments are a relation
+    system = {
+      relation: [
+        { id: systems[systemSpec?.toLowerCase()] || systems.unknown }
+      ]
+    }
+  } else {
+    // Segments are a tag
+    system = {
+      select: {
+        name: systemSpec || 'Unknown'
+      }
+    }
+  }
+
+  return {
+    Name: {
+      title: [
+        {
+          text: {
+            content: repo._repo.name
+          }
+        }
+      ]
+    },
+    Description: {
+      rich_text: [
+        {
+          text: {
+            content: repo.metadata?.description || repo._repo.description || repo._repo.name
+          }
+        }
+      ]
+    },
+    Kind: {
+      select: {
+        name: repo.kind || 'Unknown'
+      }
+    },
+    URL: {
+      url: repo._repo.html_url
+    },
+    Owner: owner,
+    System: system,
+    Visibility: {
+      select: {
+        name: repo._repo.visibility
+      }
+    },
+    Language: {
+      select: {
+        name: repo._repo.language || 'Unknown'
+      }
+    },
+    Status: {
+      select: {
+        name: repo.status
+      }
+    },
+    Tags: {
+      multi_select: repo.metadata?.tags ? repo.metadata.tags.flatMap(tag => { return { name: tag } }) : []
+    },
+    Updated: {
+      date: {
+        start: new Date().toISOString()
+      }
+    }
+  }
+}
+
+exports.updateServices = updateServices
+
+
+/***/ }),
+
 /***/ 9968:
 /***/ ((module) => {
 
@@ -27177,20 +27559,13 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(272)
 const { Client, LogLevel } = __nccwpck_require__(7946)
-const { Octokit } = __nccwpck_require__(7223)
-const YAML = __nccwpck_require__(9645)
+const { updateServices } = __nccwpck_require__(3180)
+const { getRepos } = __nccwpck_require__(3504)
+const { loadData } = __nccwpck_require__(3550)
 
 try {
   const NOTION_TOKEN = core.getInput('notion_token')
-  const GITHUB_TOKEN = core.getInput('github_token')
   const database = core.getInput('database')
-  const systemDb = core.getInput('system_database')
-  const ownerDb = core.getInput('owner_database')
-  const owner = core.getInput('github_owner')
-  const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
-  const repositoryType = core.getInput('repository_type') || 'all'
-  const repositoryFilter = core.getInput('repository_filter') || '.*'
-  const repositoryFilterRegex = new RegExp(repositoryFilter)
 
   core.debug('Creating notion client ...')
   const notion = new Client({
@@ -27198,245 +27573,17 @@ try {
     logLevel: LogLevel.ERROR
   })
 
-  const octokit = new Octokit({ auth: GITHUB_TOKEN })
-
-  const getRepos = async () => {
-    const repos = await octokit.paginate('GET /orgs/{owner}/repos',
-      {
-        owner: owner,
-        type: repositoryType,
-        sort: 'full_name',
-        per_page: 100
-      })
-    core.info(`Using repository filter: ${repositoryFilter}`)
-    core.info(`Found ${repos.length} github repositories, now getting service data for those that match the filter ...`)
-    const repoData = []
-    for (const repo of repos) {
-      if (repo.name.match(repositoryFilterRegex)) {
-        try {
-          const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-            owner: repo.full_name.split('/')[0],
-            repo: repo.name,
-            path: catalogFile
-          })
-          if (data) {
-            const base64content = Buffer.from(data.content, 'base64')
-            const serviceDefinition = YAML.parse(base64content.toString('utf8'))
-            serviceDefinition._repo = repo
-            serviceDefinition.status = 'OK'
-            repoData.push(serviceDefinition)
-          }
-        } catch (ex) {
-          repoData.push({
-            status: `${catalogFile} missing`,
-            _repo: repo
-          })
-        }
-      }
-    }
-    core.info(`Processed ${repoData.length} matching repositories`)
-    return repoData
-  }
-
-  const createProperties = (repo, { systems, owners }) => {
-    let owner, system
-    const ownerSpec = repo?.spec?.owner
-    const systemSpec = repo?.spec?.system
-
-    if (owners) {
-      // Owners are a relation
-      owner = {
-        relation: [
-          { id: owners[ownerSpec?.toLowerCase()] || owners.unknown }
-        ]
-      }
-    } else {
-      // owners are a tag
-      owner = {
-        select: {
-          name: ownerSpec || 'Unknown'
-        }
-      }
-    }
-
-    if (systems) {
-      // Segments are a relation
-      system = {
-        relation: [
-          { id: systems[systemSpec?.toLowerCase()] || systems.unknown }
-        ]
-      }
-    } else {
-      // Segments are a tag
-      system = {
-        select: {
-          name: systemSpec || 'Unknown'
-        }
-      }
-    }
-
-    return {
-      Name: {
-        title: [
-          {
-            text: {
-              content: repo._repo.name
-            }
-          }
-        ]
-      },
-      Description: {
-        rich_text: [
-          {
-            text: {
-              content: repo.metadata?.description || repo._repo.description || repo._repo.name
-            }
-          }
-        ]
-      },
-      Kind: {
-        select: {
-          name: repo.kind || 'Unknown'
-        }
-      },
-      URL: {
-        url: repo._repo.html_url
-      },
-      Owner: owner,
-      System: system,
-      Visibility: {
-        select: {
-          name: repo._repo.visibility
-        }
-      },
-      Language: {
-        select: {
-          name: repo._repo.language || 'Unknown'
-        }
-      },
-      Status: {
-        select: {
-          name: repo.status
-        }
-      },
-      Tags: {
-        multi_select: repo.metadata?.tags ? repo.metadata.tags.flatMap(tag => { return { name: tag } }) : []
-      },
-      Updated: {
-        date: {
-          start: new Date().toISOString()
-        }
-      }
-    }
-  }
-
-  const updateNotionRow = async (repo, pageId, { systems, owners }) => {
-    try {
-      await notion.pages.update({
-        page_id: pageId,
-        properties: createProperties(repo, { systems, owners })
-      })
-    } catch (ex) {
-      core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
-    }
-  }
-
-  const createNotionRow = async (repo, { systems, owners }) => {
-    try {
-      await notion.pages.create({
-        parent: {
-          database_id: database
-        },
-        properties: createProperties(repo, { systems, owners })
-      })
-    } catch (ex) {
-      core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`)
-    }
-  }
-
-  const updateNotion = async (repositories, { systems, owners }) => {
-    for (const repo of repositories) {
-      // Lets see if we can find the row
-      const search = await notion.databases.query({
-        database_id: database,
-        filter: {
-          property: 'Name',
-          text: {
-            equals: repo._repo.name
-          }
-        }
-      })
-
-      // If we have found any results, lets update
-      // If multiple are found we have an issue, but for now
-      // Lets just update the first one to not make the problem worse
-      if (search.results.length > 0) {
-        const pageId = search.results[0].id
-        await updateNotionRow(repo, pageId, { systems, owners })
-      } else {
-        await createNotionRow(repo, { systems, owners })
-      }
-    }
-  }
-
-  const loadData = async () => {
-    const processRows = (data) => {
-      const parent = {}
-      data.results.forEach((row) => {
-        const name = row.properties.Name.title[0].plain_text.toLowerCase()
-        if (name) parent[name] = row.id
-      })
-      return parent
-    }
-
-    let systemRows, ownerRows
-
-    if (systemDb) {
-      systemRows = await notion.databases.query({
-        database_id: systemDb
-      })
-    }
-
-    if (ownerDb) {
-      ownerRows = await notion.databases.query({
-        database_id: ownerDb
-      })
-    }
-
-    const systems = processRows(systemRows) || null
-    const owners = processRows(ownerRows) || null
-    let error = false
-
-    if (ownerDb && !owners.unknown) {
-      error = true
-      core.error('Your owner table does not contain an "unknown" row!')
-    }
-    if (systemDb && !systems.unknown) {
-      error = true
-      core.error('Your system table does not contain an "unknown" row!')
-    }
-
-    if (error) {
-      process.exit(1)
-    }
-
-    return {
-      systems,
-      owners
-    }
-  }
-
   const refreshData = async () => {
     core.startGroup('Loading systems and owners ...')
-    const { systems, owners } = await loadData()
+    const { systems, owners } = await loadData({ core, notion })
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)
     core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
     core.endGroup()
     core.startGroup('🌀 Getting github repositories')
-    const repositories = await getRepos()
+    const repositories = await getRepos({ core })
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
-    await updateNotion(repositories, { systems, owners })
+    await updateServices(repositories, { core, notion, database, systems, owners })
     core.endGroup()
   }
 

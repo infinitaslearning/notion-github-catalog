@@ -16,8 +16,8 @@ This action expects a Notion database with the following properties, this will b
   - Description: text
   - Kind: select
   - URL: url
-  - Owner: select
-  - System: select
+  - Owner: select|relation
+  - System: select|relation
   - Tags: multi_select
   - Visibility: select
   - Language: select
@@ -29,6 +29,11 @@ The following notion page and database is connected to the tests by default, and
 It looks like this after it has run:
 
 <img width="1451" alt="Screenshot 2021-12-19 at 12 55 39" src="https://user-images.githubusercontent.com/239305/146673989-01187d53-d2fd-42ba-9968-31442b8cc92d.png">
+
+
+### Embedded Data
+
+If your descriptor file contains links, these are added to an embedded database within the service page called `Links`.
 
 ## Relation Databases
 
