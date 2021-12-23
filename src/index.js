@@ -8,8 +8,7 @@ try {
   const GITHUB_TOKEN = core.getInput('github_token')
   const database = core.getInput('database')
   const systemDb = core.getInput('system_database')
-  const segmentDb = core.getInput('segment_database')
-  const teamDb = core.getInput('team_database')
+  const ownerDb = core.getInput('owner_database')  
   const owner = core.getInput('github_owner')
   const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
   const repositoryType = core.getInput('repository_type') || 'all'
@@ -56,40 +55,23 @@ try {
     return repoData
   }
 
-  const createProperties = (repo, { systems, segments, teams }) => {
-    let segment, team, system
-    const segmentAnnotation = repo?.metadata?.annotations?.segment
-    const systemAnnotation = repo?.metadata?.annotations?.system
-    const teamAnnotation = repo?.metadata?.annotations?.team
+  const createProperties = (repo, { systems, owners }) => {
+    let owner, system
+    const ownerSpec = repo?.spec?.owner
+    const systemSpec = repo?.spec?.system
 
-    if (segments) {
-      // Segments are a relation
-      segment = {
+    if (owners) {
+      // Owners are a relation
+      owner = {
         relation: [
-          { id: segments[segmentAnnotation?.toLowerCase()] || segments.unknown }
+          { id: owners[ownerSpec?.toLowerCase()] || owners.unknown }
         ]
       }
     } else {
-      // Segments are a tag
-      segment = {
+      // owners are a tag
+      owner = {
         select: {
-          name: segmentAnnotation || 'Unknown'
-        }
-      }
-    }
-
-    if (teams) {
-      // Teams are a relation
-      team = {
-        relation: [
-          { id: teams[teamAnnotation?.toLowerCase()] || teams.unknown }
-        ]
-      }
-    } else {
-      // Teams are a tag
-      team = {
-        select: {
-          name: teamAnnotation || 'Unknown'
+          name: ownerSpec || 'Unknown'
         }
       }
     }
@@ -98,14 +80,14 @@ try {
       // Segments are a relation
       system = {
         relation: [
-          { id: systems[systemAnnotation?.toLowerCase()] || systems.unknown }
+          { id: systems[systemSpec?.toLowerCase()] || systems.unknown }
         ]
       }
     } else {
       // Segments are a tag
       system = {
         select: {
-          name: systemAnnotation || 'Unknown'
+          name: systemSpec || 'Unknown'
         }
       }
     }
@@ -137,8 +119,7 @@ try {
       URL: {
         url: repo._repo.html_url
       },
-      Segment: segment,
-      Team: team,
+      Owner: owner,      
       System: system,
       Visibility: {
         select: {
@@ -166,31 +147,31 @@ try {
     }
   }
 
-  const updateNotionRow = async (repo, pageId, { systems, segments, teams }) => {
+  const updateNotionRow = async (repo, pageId, { systems, owners }) => {
     try {
       await notion.pages.update({
         page_id: pageId,
-        properties: createProperties(repo, { systems, segments, teams })
+        properties: createProperties(repo, { systems, owners })
       })
     } catch (ex) {
       core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
     }
   }
 
-  const createNotionRow = async (repo, { systems, segments, teams }) => {
+  const createNotionRow = async (repo, { systems, owners }) => {
     try {
       await notion.pages.create({
         parent: {
           database_id: database
         },
-        properties: createProperties(repo, { systems, segments, teams })
+        properties: createProperties(repo, { systems, owners })
       })
     } catch (ex) {
       core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`)
     }
   }
 
-  const updateNotion = async (repositories, { systems, segments, teams }) => {
+  const updateNotion = async (repositories, { systems, owners }) => {
     for (const repo of repositories) {
       // Lets see if we can find the row
       const search = await notion.databases.query({
@@ -208,9 +189,9 @@ try {
       // Lets just update the first one to not make the problem worse
       if (search.results.length > 0) {
         const pageId = search.results[0].id
-        await updateNotionRow(repo, pageId, { systems, segments, teams })
+        await updateNotionRow(repo, pageId, { systems, owners })
       } else {
-        await createNotionRow(repo, { systems, segments, teams })
+        await createNotionRow(repo, { systems, owners })
       }
     }
   }
@@ -225,7 +206,7 @@ try {
       return parent
     }
 
-    let systemRows, segmentRows, teamRows
+    let systemRows, ownerRows
 
     if (systemDb) {
       systemRows = await notion.databases.query({
@@ -233,30 +214,19 @@ try {
       })
     }
 
-    if (segmentDb) {
-      segmentRows = await notion.databases.query({
-        database_id: segmentDb
+    if (ownerDb) {
+      ownerRows = await notion.databases.query({
+        database_id: ownerDb
       })
     }
 
-    if (teamDb) {
-      teamRows = await notion.databases.query({
-        database_id: teamDb
-      })
-    }
-
-    const systems = processRows(systemRows) || null
-    const teams = processRows(teamRows) || null
-    const segments = processRows(segmentRows) || null
+    const systems = processRows(systemRows) || null    
+    const owners = processRows(ownerRows) || null
     let error = false
 
-    if (segmentDb && !segments.unknown) {
+    if (ownerDb && !owners.unknown) {
       error = true
-      core.error('Your segment table does not contain an "unknown" row!')
-    }
-    if (teamDb && !teams.unknown) {
-      error = true
-      core.error('Your team table does not contain an "unknown" row!')
+      core.error('Your owner table does not contain an "unknown" row!')
     }
     if (systemDb && !systems.unknown) {
       error = true
@@ -269,23 +239,21 @@ try {
 
     return {
       systems,
-      segments,
-      teams
+      owners
     }
   }
 
   const refreshData = async () => {
-    core.startGroup('Loading systems, segments and teams')
-    const { systems, segments, teams } = await loadData()
+    core.startGroup('Loading systems and owners ...')
+    const { systems, owners } = await loadData()
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)
-    core.info(`Loaded ${Object.keys(segments || {}).length} segments`)
-    core.info(`Loaded ${Object.keys(teams || {}).length} teams`)
+    core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
     core.endGroup()
     core.startGroup('🌀 Getting github repositories')
     const repositories = await getRepos()
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
-    await updateNotion(repositories, { systems, segments, teams })
+    await updateNotion(repositories, { systems, owners })
     core.endGroup()
   }
 

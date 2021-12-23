@@ -16,8 +16,8 @@ This action expects a Notion database with the following properties, this will b
   - Description: text
   - Kind: select
   - URL: url
-  - Segment: select
-  - Team: select
+  - Owner: select
+  - System: select
   - Tags: multi_select
   - Visibility: select
   - Language: select
@@ -34,14 +34,14 @@ It looks like this after it has run:
 
 You have an option to provide additional 'lookup' databases to convert some of the above selects into relations:
 
-### Segment, Team, System
+### Owner, System
 
 1. Create a database that has *at least* a `Name` column that is unique, all other columns are up to you.
 2. Create an 'Unknown' row - this is what services that cannot be mapped go to (this name matters).
-3. In the config of the action, provide the input variable `segment_database` pointing to this database.
-4. In the main service catalogue table convert the `Segment` column to a relation, pointing at the above database.
+3. In the config of the action, provide the input variable `owner_database` pointing to this database.
+4. In the main service catalogue table convert the `Owner` column to a relation, pointing at the above database.
 
-This can be repeated for `Team` and `System`.  The full config is below in the usage.
+This can be repeated for `System`.  The full config is below in the usage.
 
 ## Service Descriptor Format
 
@@ -70,8 +70,7 @@ jobs:
          github_token: ${{ secrets.PAT_GITHUB_TOKEN }}
          notion_token: ${{ secrets.NOTION_TOKEN }}
          database: 2b26b4290cc84d95ad3e93c3255277a1    
-         segment_database: 7943615f4dba43b3a3b0f991f4f7136d
-         team_database: c11736fe61b941149de098676bde8d92
+         owner_database: 7943615f4dba43b3a3b0f991f4f7136d
          system_database: 121534684fe840a1953500e603c2b602
          repository_type: all
          catalog_file: catalog-info.yaml

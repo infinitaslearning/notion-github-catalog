@@ -10,8 +10,7 @@ test('complete input should succeed with default inputs', () => {
   process.env.INPUT_GITHUB_TOKEN = process.env.GITHUB_TOKEN
   process.env.INPUT_REPOSITORY_TYPE = 'public'
   process.env.INPUT_GITHUB_OWNER = 'infinitaslearning'
-  process.env.INPUT_SEGMENT_DATABASE = '7943615f4dba43b3a3b0f991f4f7136d'
-  process.env.INPUT_TEAM_DATABASE = 'c11736fe61b941149de098676bde8d92'
+  process.env.INPUT_OWNER_DATABASE = '7943615f4dba43b3a3b0f991f4f7136d'  
   process.env.INPUT_SYSTEM_DATABASE = '121534684fe840a1953500e603c2b602'
 
   const ip = path.join(__dirname, 'index.js')
