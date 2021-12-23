@@ -1,5 +1,6 @@
 const core = require('@actions/core')
 const { ensureLinks } = require('./links')
+const { getDependsOn } = require('./depends')
 
 const updateServices = async (repositories, { notion, database, systems, owners }) => {
   for (const repo of repositories) {
@@ -28,9 +29,13 @@ const updateServices = async (repositories, { notion, database, systems, owners 
 
 const updateNotionRow = async (repo, pageId, { notion, database, systems, owners }) => {
   try {
+    let dependsOn = []
+    if (repo.spec?.dependsOn?.length > 0) {
+      dependsOn = await getDependsOn(repo.spec.dependsOn, { notion, database })
+    }
     await notion.pages.update({
       page_id: pageId,
-      properties: createProperties(repo, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners })
     })
     if (repo.metadata?.links) {
       await ensureLinks(pageId, repo.metadata.links, { notion })
@@ -42,11 +47,15 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
 
 const createNotionRow = async (repo, { notion, database, systems, owners }) => {
   try {
+    let dependsOn = []
+    if (repo.spec?.dependsOn?.length > 0) {
+      dependsOn = await getDependsOn(repo.spec.dependsOn, { notion, database })
+    }
     const page = await notion.pages.create({
       parent: {
         database_id: database
       },
-      properties: createProperties(repo, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners })
     })
     if (repo.metadata?.links) {
       await ensureLinks(page.id, repo.metadata.links, { notion })
@@ -56,7 +65,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
   }
 }
 
-const createProperties = (repo, { systems, owners }) => {
+const createProperties = (repo, dependsOn, { systems, owners }) => {
   let owner, system
   const ownerSpec = repo?.spec?.owner
   const systemSpec = repo?.spec?.system
@@ -122,6 +131,7 @@ const createProperties = (repo, { systems, owners }) => {
     },
     Owner: owner,
     System: system,
+    DependsOn: { relation: dependsOn },
     Visibility: {
       select: {
         name: repo._repo.visibility
@@ -130,6 +140,11 @@ const createProperties = (repo, { systems, owners }) => {
     Language: {
       select: {
         name: repo._repo.language || 'Unknown'
+      }
+    },
+    Lifecycle: {
+      select: {
+        name: repo.spec?.lifecycle || 'Unknown'
       }
     },
     Status: {

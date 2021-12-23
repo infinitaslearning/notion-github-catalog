@@ -20411,6 +20411,34 @@ exports.loadData = loadData
 
 /***/ }),
 
+/***/ 4154:
+/***/ ((__unused_webpack_module, exports) => {
+
+const getDependsOn = async (dependsOn, { notion, database }) => {
+  const dependencies = []
+  for (const dependency of dependsOn) {
+    // Lets see if we can find the row
+    const search = await notion.databases.query({
+      database_id: database,
+      filter: {
+        property: 'Name',
+        text: {
+          equals: dependency
+        }
+      }
+    })
+    if (search.results.length > 0) {
+      dependencies.push({ id: search.results[0].id })
+    }
+  }
+  return dependencies
+}
+
+exports.getDependsOn = getDependsOn
+
+
+/***/ }),
+
 /***/ 3504:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -20461,6 +20489,18 @@ const getRepos = async () => {
       }
     }
   }
+
+  // Now we want to sort the repositories based on their name, and the number of dependencies
+  repoData.sort((a, b) => {
+    const aDependsOn = a.spec?.dependsOn?.length || 0
+    const bDependsOn = b.spec?.dependsOn?.length || 0
+    const aSort = aDependsOn + '.' + a._repo.name
+    const bSort = bDependsOn + '.' + b._repo.name
+    if (aSort < bSort) return -1
+    if (aSort > bSort) return 1
+    return 0
+  })
+
   core.info(`Processed ${repoData.length} matching repositories`)
   return repoData
 }
@@ -20580,6 +20620,7 @@ exports.ensureLinks = ensureLinks
 
 const core = __nccwpck_require__(272)
 const { ensureLinks } = __nccwpck_require__(5475)
+const { getDependsOn } = __nccwpck_require__(4154)
 
 const updateServices = async (repositories, { notion, database, systems, owners }) => {
   for (const repo of repositories) {
@@ -20608,9 +20649,13 @@ const updateServices = async (repositories, { notion, database, systems, owners 
 
 const updateNotionRow = async (repo, pageId, { notion, database, systems, owners }) => {
   try {
+    let dependsOn = []
+    if (repo.spec?.dependsOn?.length > 0) {
+      dependsOn = await getDependsOn(repo.spec.dependsOn, { notion, database })
+    }
     await notion.pages.update({
       page_id: pageId,
-      properties: createProperties(repo, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners })
     })
     if (repo.metadata?.links) {
       await ensureLinks(pageId, repo.metadata.links, { notion })
@@ -20622,11 +20667,15 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
 
 const createNotionRow = async (repo, { notion, database, systems, owners }) => {
   try {
+    let dependsOn = []
+    if (repo.spec?.dependsOn?.length > 0) {
+      dependsOn = await getDependsOn(repo.spec.dependsOn, { notion, database })
+    }
     const page = await notion.pages.create({
       parent: {
         database_id: database
       },
-      properties: createProperties(repo, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners })
     })
     if (repo.metadata?.links) {
       await ensureLinks(page.id, repo.metadata.links, { notion })
@@ -20636,7 +20685,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
   }
 }
 
-const createProperties = (repo, { systems, owners }) => {
+const createProperties = (repo, dependsOn, { systems, owners }) => {
   let owner, system
   const ownerSpec = repo?.spec?.owner
   const systemSpec = repo?.spec?.system
@@ -20702,6 +20751,7 @@ const createProperties = (repo, { systems, owners }) => {
     },
     Owner: owner,
     System: system,
+    DependsOn: { relation: dependsOn },
     Visibility: {
       select: {
         name: repo._repo.visibility
@@ -20710,6 +20760,11 @@ const createProperties = (repo, { systems, owners }) => {
     Language: {
       select: {
         name: repo._repo.language || 'Unknown'
+      }
+    },
+    Lifecycle: {
+      select: {
+        name: repo.spec?.lifecycle || 'Unknown'
       }
     },
     Status: {

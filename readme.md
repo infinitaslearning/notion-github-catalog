@@ -15,9 +15,11 @@ This action expects a Notion database with the following properties, this will b
   - Name: text
   - Description: text
   - Kind: select
+  - Lifecycle: select
   - URL: url
   - Owner: select|relation
   - System: select|relation
+  - DependsOn: relation (to self - new field - sync tasks)
   - Tags: multi_select
   - Visibility: select
   - Language: select

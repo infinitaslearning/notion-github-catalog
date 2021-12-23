@@ -45,6 +45,18 @@ const getRepos = async () => {
       }
     }
   }
+
+  // Now we want to sort the repositories based on their name, and the number of dependencies
+  repoData.sort((a, b) => {
+    const aDependsOn = a.spec?.dependsOn?.length || 0
+    const bDependsOn = b.spec?.dependsOn?.length || 0
+    const aSort = aDependsOn + '.' + a._repo.name
+    const bSort = bDependsOn + '.' + b._repo.name
+    if (aSort < bSort) return -1
+    if (aSort > bSort) return 1
+    return 0
+  })
+
   core.info(`Processed ${repoData.length} matching repositories`)
   return repoData
 }
