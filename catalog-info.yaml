@@ -15,4 +15,4 @@ spec:
   lifecycle: production
   owner: opensource  
   dependsOn:
-    - notionater
+    - notion-release-notes
