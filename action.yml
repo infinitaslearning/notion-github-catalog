@@ -18,10 +18,8 @@ inputs:
     required: true
   system_database:
     description: 'Database ID to read systems from'    
-  segment_database:
+  owner_database:
     description: 'Database ID to read segments from'    
-  team_database:
-    description: 'Database ID to read teams from'    
   repository_type:
     description: 'Github repository type (e.g. all|private|internal), defaults to `all`' 
   repository_filter:

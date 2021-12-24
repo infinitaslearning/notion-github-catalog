@@ -96,13 +96,11 @@ This can be used, though we do not support the `spec` attribute, as it is imposs
 
 ### Location
 
-This should be used in the case of a mono-repo, that contains multile sub-components.  Place the following in the root.  Note that in the current implementation it needs to be a relative path to the root of the repository, and do not start paths with `./`
+This should be used in the case of a mono-repo, that contains multile sub-components.  Place the following in the root.  Note that in the current implementation it needs to be a relative path to the root of the repository, and do not start paths with `./`.  No information from the Location file itself is added to the catalog, only the linked targets.
 
 ```
 apiVersion: backstage.io/v1alpha1
 kind: Location
-metadata:
-  name: org-data
 spec:
   type: url
   targets:
