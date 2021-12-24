@@ -34,7 +34,6 @@ It looks like this after it has run:
 
 <img width="1451" alt="Screenshot 2021-12-19 at 12 55 39" src="https://user-images.githubusercontent.com/239305/146673989-01187d53-d2fd-42ba-9968-31442b8cc92d.png">
 
-
 ### Embedded Data
 
 If your descriptor file contains links, these are added to an embedded database within the service page called `Links`.
@@ -57,6 +56,59 @@ This can be repeated for `System`.  The full config is below in the usage.
 This action expects each of your repositories to have a descriptor file format in the root of the repo in the form of a Backstage `catalog-info` file.  This is because we are testing this approach against using Backstage directly, and wanted to leverage a format that perhaps has a chance of becoming a defacto standard.  It does not currently map all fields from Backstage, but if you look at the code you can see what it does map.  I may add a config option to allow mapping to be more dynamic in future (a good PR!). 
 
 Information on the format: https://backstage.io/docs/features/software-catalog/descriptor-format
+
+The following types are supported:
+
+### Component
+
+This is a basic component, with the following fields supported:
+
+```
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: app-ecommerce-web
+  description: The front end application for noordhoff.nl, plantyn.com and liber.se
+  links:
+    - url: https://portal.azure.com/#@infinitaslearning.onmicrosoft.com/resource/subscriptions/4ebd66c4-aaad-4b1b-bb4e-740db9f1fc4d/resourceGroups/ecommerce-pro-rg/overview
+      title: Azure
+      icon: dashboard
+    - url: https://liber-shop.production.infinicloud.app/
+      title: Production
+  tags:
+    - ecommerce
+    - application
+    - react
+spec:
+  type: application
+  lifecycle: production
+  owner: commercial
+  system: ecommerce
+  dependsOn:
+    - service-cms-api 
+```
+
+Fields other than those above are currently not supported, but could be with a PR.
+
+### API
+
+This can be used, though we do not support the `spec` attribute, as it is impossible to render things like OpenAPI inside Notion, so these should be linked to via the links, but if you create a file exactly as *Component* above, it will be processed with the different `Kind` property (so be filterable).
+
+### Location
+
+This should be used in the case of a mono-repo, that contains multile sub-components.  Place the following in the root.  Note that in the current implementation it needs to be a relative path to the root of the repository, and do not start paths with `./`
+
+```
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: org-data
+spec:
+  type: url
+  targets:
+    - sub-component-one/catalog-info.yaml
+    - sub-component-two/catalog-info.yaml
+```
 
 ## Usage
 

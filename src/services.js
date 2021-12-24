@@ -5,12 +5,13 @@ const { getDependsOn } = require('./depends')
 const updateServices = async (repositories, { notion, database, systems, owners }) => {
   for (const repo of repositories) {
     // Lets see if we can find the row
+    const repoName = repo.metadata?.name || repo._repo.name
     const search = await notion.databases.query({
       database_id: database,
       filter: {
         property: 'Name',
         text: {
-          equals: repo._repo.name
+          equals: repoName
         }
       }
     })
@@ -20,8 +21,10 @@ const updateServices = async (repositories, { notion, database, systems, owners 
     // Lets just update the first one to not make the problem worse
     if (search.results.length > 0) {
       const pageId = search.results[0].id
+      core.debug(`Updating notion info for ${repoName}`)
       await updateNotionRow(repo, pageId, { notion, database, systems, owners })
     } else {
+      core.debug(`Creating notion info for ${repoName}`)
       await createNotionRow(repo, { notion, database, systems, owners })
     }
   }
@@ -41,7 +44,7 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
       await ensureLinks(pageId, repo.metadata.links, { notion })
     }
   } catch (ex) {
-    core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
+    core.warning(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
   }
 }
 
@@ -61,7 +64,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
       await ensureLinks(page.id, repo.metadata.links, { notion })
     }
   } catch (ex) {
-    core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`)
+    core.warning(`Error creating notion document for ${repo._repo.name}: ${ex.message}`)
   }
 }
 
@@ -102,12 +105,15 @@ const createProperties = (repo, dependsOn, { systems, owners }) => {
     }
   }
 
+  // We can use the catalog file location to locate the right path within the repo
+  const htmlUrl = repo._catalog_file ? repo._catalog_file.substring(0, repo._catalog_file.lastIndexOf('/')) : repo._repo.html_url
+
   return {
     Name: {
       title: [
         {
           text: {
-            content: repo._repo.name
+            content: repo.metadata?.name || repo._repo.name
           }
         }
       ]
@@ -127,7 +133,7 @@ const createProperties = (repo, dependsOn, { systems, owners }) => {
       }
     },
     URL: {
-      url: repo._repo.html_url
+      url: htmlUrl
     },
     Owner: owner,
     System: system,

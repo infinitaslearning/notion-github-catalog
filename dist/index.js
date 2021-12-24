@@ -20453,8 +20453,56 @@ const getRepos = async () => {
   const owner = core.getInput('github_owner')
   const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
   const repositoryFilterRegex = new RegExp(repositoryFilter)
-
   const octokit = new Octokit({ auth: GITHUB_TOKEN })
+
+  const parseServiceDefinition = async (repo, path, pushMissing) => {
+    const repoData = []
+    core.debug(`Processing ${path} ...`)
+    try {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+        path
+      })
+      if (data) {
+        const base64content = Buffer.from(data.content, 'base64')
+        const serviceDefinition = YAML.parse(base64content.toString('utf8'))
+        if (serviceDefinition.kind?.toLowerCase() === 'location') {
+          repoData.push(...await parseLocationFile(serviceDefinition, repo, path))
+        } else {
+          serviceDefinition._catalog_file = data.html_url
+          serviceDefinition._repo = repo
+          serviceDefinition.status = 'OK'
+          repoData.push(serviceDefinition)
+        }
+      }
+    } catch (ex) {
+      if (pushMissing) {
+        repoData.push({
+          status: `${catalogFile} missing`,
+          _repo: repo
+        })
+      } else {
+        core.warning(`Unable to find ${path} in ${repo.name}, not processing`)
+      }
+    }
+    return repoData
+  }
+
+  const parseLocationFile = async (serviceDefinition, repo, path) => {
+    const repoData = []
+    const targets = serviceDefinition.spec?.targets
+    if (targets && targets.length > 0) {
+      for (const target of targets) {
+        const pushMissing = false
+        const targetDefinition = await parseServiceDefinition(repo, target, pushMissing)
+        repoData.push(...targetDefinition)
+      }
+    } else {
+      core.warning(`Location file in ${repo._repo.name} at ${path} specified without valid spec.targets, will be skipped`)
+    }
+    return repoData
+  }
 
   const repos = await octokit.paginate('GET /orgs/{owner}/repos',
     {
@@ -20468,25 +20516,8 @@ const getRepos = async () => {
   const repoData = []
   for (const repo of repos) {
     if (repo.name.match(repositoryFilterRegex)) {
-      try {
-        const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-          owner: repo.full_name.split('/')[0],
-          repo: repo.name,
-          path: catalogFile
-        })
-        if (data) {
-          const base64content = Buffer.from(data.content, 'base64')
-          const serviceDefinition = YAML.parse(base64content.toString('utf8'))
-          serviceDefinition._repo = repo
-          serviceDefinition.status = 'OK'
-          repoData.push(serviceDefinition)
-        }
-      } catch (ex) {
-        repoData.push({
-          status: `${catalogFile} missing`,
-          _repo: repo
-        })
-      }
+      const pushMissing = true
+      repoData.push(...await parseServiceDefinition(repo, catalogFile, pushMissing))
     }
   }
 
@@ -20625,12 +20656,13 @@ const { getDependsOn } = __nccwpck_require__(4154)
 const updateServices = async (repositories, { notion, database, systems, owners }) => {
   for (const repo of repositories) {
     // Lets see if we can find the row
+    const repoName = repo.metadata?.name || repo._repo.name
     const search = await notion.databases.query({
       database_id: database,
       filter: {
         property: 'Name',
         text: {
-          equals: repo._repo.name
+          equals: repoName
         }
       }
     })
@@ -20640,8 +20672,10 @@ const updateServices = async (repositories, { notion, database, systems, owners 
     // Lets just update the first one to not make the problem worse
     if (search.results.length > 0) {
       const pageId = search.results[0].id
+      core.debug(`Updating notion info for ${repoName}`)
       await updateNotionRow(repo, pageId, { notion, database, systems, owners })
     } else {
+      core.debug(`Creating notion info for ${repoName}`)
       await createNotionRow(repo, { notion, database, systems, owners })
     }
   }
@@ -20661,7 +20695,7 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
       await ensureLinks(pageId, repo.metadata.links, { notion })
     }
   } catch (ex) {
-    core.error(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
+    core.warning(`Error updating notion document for ${repo._repo.name}: ${ex.message} ...`)
   }
 }
 
@@ -20681,7 +20715,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
       await ensureLinks(page.id, repo.metadata.links, { notion })
     }
   } catch (ex) {
-    core.error(`Error creating notion document for ${repo._repo.name}: ${ex.message} ...`)
+    core.warning(`Error creating notion document for ${repo._repo.name}: ${ex.message}`)
   }
 }
 
@@ -20722,12 +20756,15 @@ const createProperties = (repo, dependsOn, { systems, owners }) => {
     }
   }
 
+  // We can use the catalog file location to locate the right path within the repo
+  const htmlUrl = repo._catalog_file ? repo._catalog_file.substring(0, repo._catalog_file.lastIndexOf('/')) : repo._repo.html_url
+
   return {
     Name: {
       title: [
         {
           text: {
-            content: repo._repo.name
+            content: repo.metadata?.name || repo._repo.name
           }
         }
       ]
@@ -20747,7 +20784,7 @@ const createProperties = (repo, dependsOn, { systems, owners }) => {
       }
     },
     URL: {
-      url: repo._repo.html_url
+      url: htmlUrl
     },
     Owner: owner,
     System: system,

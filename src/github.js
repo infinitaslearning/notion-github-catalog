@@ -7,10 +7,58 @@ const getRepos = async () => {
   const repositoryType = core.getInput('repository_type') || 'all'
   const repositoryFilter = core.getInput('repository_filter') || '.*'
   const owner = core.getInput('github_owner')
-  const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
+  const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'  
+  const octokit = new Octokit({ auth: GITHUB_TOKEN })
   const repositoryFilterRegex = new RegExp(repositoryFilter)
 
-  const octokit = new Octokit({ auth: GITHUB_TOKEN })
+  const parseServiceDefinition = async (repo, path, pushMissing) => {
+    const repoData = []
+    core.debug(`Processing ${path} ...`)
+    try {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+        path
+      })
+      if (data) {
+        const base64content = Buffer.from(data.content, 'base64')
+        const serviceDefinition = YAML.parse(base64content.toString('utf8'))
+        if (serviceDefinition.kind?.toLowerCase() === 'location') {
+          repoData.push(...await parseLocationFile(serviceDefinition, repo, path))
+        } else {
+          serviceDefinition._catalog_file = data.html_url
+          serviceDefinition._repo = repo
+          serviceDefinition.status = 'OK'
+          repoData.push(serviceDefinition)
+        }
+      }
+    } catch (ex) {
+      if (pushMissing) {
+        repoData.push({
+          status: `${catalogFile} missing`,
+          _repo: repo
+        })
+      } else {
+        core.warning(`Unable to find ${path} in ${repo.name}, not processing`)
+      }
+    }
+    return repoData
+  }
+
+  const parseLocationFile = async (serviceDefinition, repo, path) => {
+    const repoData = []
+    const targets = serviceDefinition.spec?.targets
+    if (targets && targets.length > 0) {
+      for (const target of targets) {
+        const pushMissing = false
+        const targetDefinition = await parseServiceDefinition(repo, target, pushMissing)
+        repoData.push(...targetDefinition)
+      }
+    } else {
+      core.warning(`Location file in ${repo._repo.name} at ${path} specified without valid spec.targets, will be skipped`)
+    }
+    return repoData
+  }
 
   const repos = await octokit.paginate('GET /orgs/{owner}/repos',
     {
@@ -24,25 +72,8 @@ const getRepos = async () => {
   const repoData = []
   for (const repo of repos) {
     if (repo.name.match(repositoryFilterRegex)) {
-      try {
-        const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-          owner: repo.full_name.split('/')[0],
-          repo: repo.name,
-          path: catalogFile
-        })
-        if (data) {
-          const base64content = Buffer.from(data.content, 'base64')
-          const serviceDefinition = YAML.parse(base64content.toString('utf8'))
-          serviceDefinition._repo = repo
-          serviceDefinition.status = 'OK'
-          repoData.push(serviceDefinition)
-        }
-      } catch (ex) {
-        repoData.push({
-          status: `${catalogFile} missing`,
-          _repo: repo
-        })
-      }
+      const pushMissing = true
+      repoData.push(...await parseServiceDefinition(repo, catalogFile, pushMissing))
     }
   }
 

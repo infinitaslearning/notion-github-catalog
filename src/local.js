@@ -4,9 +4,9 @@ const process = require('process')
 
 process.env.INPUT_NOTION_TOKEN = process.env.NOTION_TOKEN
 process.env.INPUT_GITHUB_TOKEN = process.env.GITHUB_TOKEN
-process.env.INPUT_REPOSITORY_TYPE = 'public'
+process.env.INPUT_REPOSITORY_TYPE = 'all'
 process.env.INPUT_GITHUB_OWNER = 'infinitaslearning'
-process.env.INPUT_REPOSITORY_FILTER = '.*'
+process.env.INPUT_REPOSITORY_FILTER = 'notion-github-catalog'
 process.env.INPUT_DATABASE = 'cecaf0beb15945158d155866ff9acce8'
 process.env.INPUT_OWNER_DATABASE = '7943615f4dba43b3a3b0f991f4f7136d'
 process.env.INPUT_SYSTEM_DATABASE = '121534684fe840a1953500e603c2b602'
