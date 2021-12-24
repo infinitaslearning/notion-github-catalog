@@ -7,9 +7,9 @@ const getRepos = async () => {
   const repositoryType = core.getInput('repository_type') || 'all'
   const repositoryFilter = core.getInput('repository_filter') || '.*'
   const owner = core.getInput('github_owner')
-  const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'  
-  const octokit = new Octokit({ auth: GITHUB_TOKEN })
+  const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
   const repositoryFilterRegex = new RegExp(repositoryFilter)
+  const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
   const parseServiceDefinition = async (repo, path, pushMissing) => {
     const repoData = []
