@@ -3,6 +3,7 @@ const core = require('@actions/core')
 const loadData = async ({ notion }) => {
   const systemDb = core.getInput('system_database')
   const ownerDb = core.getInput('owner_database')
+  const database = core.getInput('database')
 
   const processRows = (data) => {
     const parent = {}
@@ -13,6 +14,16 @@ const loadData = async ({ notion }) => {
     return parent
   }
 
+  // Get core DB structure
+  const dbStructure = await notion.databases.retrieve({
+    database_id: database
+  })
+  const structure = Object.keys(dbStructure.properties).map((property) => {
+    console.log(dbStructure.properties[property])
+    return { name: dbStructure.properties[property].name, type: dbStructure.properties[property].type }
+  })
+
+  // Get the system and owner db
   let systemRows, ownerRows
 
   if (systemDb) {
@@ -46,7 +57,8 @@ const loadData = async ({ notion }) => {
 
   return {
     systems,
-    owners
+    owners,
+    structure
   }
 }
 

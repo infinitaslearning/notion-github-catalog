@@ -52,6 +52,7 @@ const getRepos = async () => {
       for (const target of targets) {
         const pushMissing = false
         const targetDefinition = await parseServiceDefinition(repo, target, pushMissing)
+        targetDefinition.fromLocation = true
         repoData.push(...targetDefinition)
       }
     } else {

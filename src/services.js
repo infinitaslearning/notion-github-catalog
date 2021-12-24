@@ -1,8 +1,9 @@
 const core = require('@actions/core')
 const { ensureLinks } = require('./links')
 const { getDependsOn } = require('./depends')
+const { mappingFn } = require('./mappingFn')
 
-const updateServices = async (repositories, { notion, database, systems, owners }) => {
+const updateServices = async (repositories, { notion, database, systems, owners, structure }) => {
   for (const repo of repositories) {
     // Lets see if we can find the row
     const repoName = repo.metadata?.name || repo._repo.name
@@ -22,15 +23,15 @@ const updateServices = async (repositories, { notion, database, systems, owners 
     if (search.results.length > 0) {
       const pageId = search.results[0].id
       core.debug(`Updating notion info for ${repoName}`)
-      await updateNotionRow(repo, pageId, { notion, database, systems, owners })
+      await updateNotionRow(repo, pageId, { notion, database, systems, owners, structure })
     } else {
       core.debug(`Creating notion info for ${repoName}`)
-      await createNotionRow(repo, { notion, database, systems, owners })
+      await createNotionRow(repo, { notion, database, systems, owners, structure })
     }
   }
 }
 
-const updateNotionRow = async (repo, pageId, { notion, database, systems, owners }) => {
+const updateNotionRow = async (repo, pageId, { notion, database, systems, owners, structure }) => {
   try {
     let dependsOn = []
     if (repo.spec?.dependsOn?.length > 0) {
@@ -38,7 +39,7 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
     }
     await notion.pages.update({
       page_id: pageId,
-      properties: createProperties(repo, dependsOn, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners, structure })
     })
     if (repo.metadata?.links) {
       await ensureLinks(pageId, repo.metadata.links, { notion })
@@ -48,7 +49,7 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
   }
 }
 
-const createNotionRow = async (repo, { notion, database, systems, owners }) => {
+const createNotionRow = async (repo, { notion, database, systems, owners, structure }) => {
   try {
     let dependsOn = []
     if (repo.spec?.dependsOn?.length > 0) {
@@ -58,7 +59,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
       parent: {
         database_id: database
       },
-      properties: createProperties(repo, dependsOn, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners, structure })
     })
     if (repo.metadata?.links) {
       await ensureLinks(page.id, repo.metadata.links, { notion })
@@ -68,105 +69,16 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
   }
 }
 
-const createProperties = (repo, dependsOn, { systems, owners }) => {
-  let owner, system
-  const ownerSpec = repo?.spec?.owner
-  const systemSpec = repo?.spec?.system
-
-  if (owners) {
-    // Owners are a relation
-    owner = {
-      relation: [
-        { id: owners[ownerSpec?.toLowerCase()] || owners.unknown }
-      ]
-    }
-  } else {
-    // owners are a tag
-    owner = {
-      select: {
-        name: ownerSpec || 'Unknown'
-      }
+const createProperties = (repo, dependsOn, { systems, owners, structure }) => {
+  // This iterates over the structure, executes a mapping function for each based on the data provided
+  const page = {}
+  for (const field of structure) {
+    if (mappingFn[field.name]) {
+      page[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
-
-  if (systems) {
-    // Segments are a relation
-    system = {
-      relation: [
-        { id: systems[systemSpec?.toLowerCase()] || systems.unknown }
-      ]
-    }
-  } else {
-    // Segments are a tag
-    system = {
-      select: {
-        name: systemSpec || 'Unknown'
-      }
-    }
-  }
-
-  // We can use the catalog file location to locate the right path within the repo
-  const htmlUrl = repo._catalog_file ? repo._catalog_file.substring(0, repo._catalog_file.lastIndexOf('/')) : repo._repo.html_url
-
-  return {
-    Name: {
-      title: [
-        {
-          text: {
-            content: repo.metadata?.name || repo._repo.name
-          }
-        }
-      ]
-    },
-    Description: {
-      rich_text: [
-        {
-          text: {
-            content: repo.metadata?.description || repo._repo.description || repo._repo.name
-          }
-        }
-      ]
-    },
-    Kind: {
-      select: {
-        name: repo.kind || 'Unknown'
-      }
-    },
-    URL: {
-      url: htmlUrl
-    },
-    Owner: owner,
-    System: system,
-    DependsOn: { relation: dependsOn },
-    Visibility: {
-      select: {
-        name: repo._repo.visibility
-      }
-    },
-    Language: {
-      select: {
-        name: repo._repo.language || 'Unknown'
-      }
-    },
-    Lifecycle: {
-      select: {
-        name: repo.spec?.lifecycle || 'Unknown'
-      }
-    },
-    Status: {
-      select: {
-        name: repo.status
-      }
-    },
-    Tags: {
-      multi_select: repo.metadata?.tags ? repo.metadata.tags.flatMap(tag => { return { name: tag } }) : []
-    },
-    Updated: {
-      date: {
-        start: new Date().toISOString()
-      }
-    }
-  }
+  console.log(page)
+  return page
 }
 
 exports.updateServices = updateServices

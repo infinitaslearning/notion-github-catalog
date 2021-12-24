@@ -20359,6 +20359,7 @@ const core = __nccwpck_require__(272)
 const loadData = async ({ notion }) => {
   const systemDb = core.getInput('system_database')
   const ownerDb = core.getInput('owner_database')
+  const database = core.getInput('database')
 
   const processRows = (data) => {
     const parent = {}
@@ -20369,6 +20370,16 @@ const loadData = async ({ notion }) => {
     return parent
   }
 
+  // Get core DB structure
+  const dbStructure = await notion.databases.retrieve({
+    database_id: database
+  })
+  const structure = Object.keys(dbStructure.properties).map((property) => {
+    console.log(dbStructure.properties[property])
+    return { name: dbStructure.properties[property].name, type: dbStructure.properties[property].type }
+  })
+
+  // Get the system and owner db
   let systemRows, ownerRows
 
   if (systemDb) {
@@ -20402,7 +20413,8 @@ const loadData = async ({ notion }) => {
 
   return {
     systems,
-    owners
+    owners,
+    structure
   }
 }
 
@@ -20496,6 +20508,7 @@ const getRepos = async () => {
       for (const target of targets) {
         const pushMissing = false
         const targetDefinition = await parseServiceDefinition(repo, target, pushMissing)
+        targetDefinition.fromLocation = true
         repoData.push(...targetDefinition)
       }
     } else {
@@ -20646,14 +20659,150 @@ exports.ensureLinks = ensureLinks
 
 /***/ }),
 
+/***/ 3913:
+/***/ ((__unused_webpack_module, exports) => {
+
+/**
+ * For each possible field name in the service catalogue, expose a mapping function
+ * If a function is not found the field will be skipped
+ */
+const mappingFn = {
+  Name: (repo) => {
+    return {
+      title: [
+        {
+          text: {
+            content: repo.metadata?.name || repo._repo.name
+          }
+        }
+      ]
+    }
+  },
+  Description: (repo) => {
+    return {
+      rich_text: [
+        {
+          text: {
+            content: repo.metadata?.description || repo._repo.description || repo._repo.name
+          }
+        }
+      ]
+    }
+  },
+  Updated: () => {
+    return {
+      date: {
+        start: new Date().toISOString()
+      }
+    }
+  },
+  System: (repo, { systems }) => {
+    let system
+    const systemSpec = repo?.spec?.system
+    if (systems) {
+      // Segments are a relation
+      system = {
+        relation: [
+          { id: systems[systemSpec?.toLowerCase()] || systems.unknown }
+        ]
+      }
+    } else {
+      // Segments are a tag
+      system = {
+        select: {
+          name: systemSpec || 'Unknown'
+        }
+      }
+    }
+    return system
+  },
+  URL: (repo) => {
+    // We can use the catalog file location to locate the right path within the repo if it is a monorepo
+    const htmlUrl = repo.fromLocation ? repo._catalog_file.substring(0, repo._catalog_file.lastIndexOf('/')) : repo._repo.html_url
+    return {
+      url: htmlUrl
+    }
+  },
+  Kind: (repo) => {
+    return {
+      select: {
+        name: repo.kind || 'Unknown'
+      }
+    }
+  },
+  Tags: (repo) => {
+    return {
+      multi_select: repo.metadata?.tags ? repo.metadata.tags.flatMap(tag => { return { name: tag } }) : []
+    }
+  },
+  Lifecycle: (repo) => {
+    return {
+      select: {
+        name: repo.spec?.lifecycle || 'Unknown'
+      }
+    }
+  },
+  Owner: (repo, { owners }) => {
+    let owner
+    const ownerSpec = repo?.spec?.owner
+    if (owners) {
+      // Owners are a relation
+      owner = {
+        relation: [
+          { id: owners[ownerSpec?.toLowerCase()] || owners.unknown }
+        ]
+      }
+    } else {
+      // owners are a tag
+      owner = {
+        select: {
+          name: ownerSpec || 'Unknown'
+        }
+      }
+    }
+    return owner
+  },
+  Visibility: (repo) => {
+    return {
+      select: {
+        name: repo._repo.visibility
+      }
+    }
+  },
+  Language: (repo) => {
+    return {
+      select: {
+        name: repo._repo.language || 'Unknown'
+      }
+    }
+  },
+  Status: (repo) => {
+    return {
+      select: {
+        name: repo.status
+      }
+    }
+  },
+  DependsOn: (repo, { dependsOn }) => {
+    return { relation: dependsOn }
+  },
+  DependencyOf: null // Skip this field
+}
+
+exports.mappingFn = mappingFn
+
+
+/***/ }),
+
 /***/ 3180:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 const core = __nccwpck_require__(272)
 const { ensureLinks } = __nccwpck_require__(5475)
 const { getDependsOn } = __nccwpck_require__(4154)
+const { mappingFn } = __nccwpck_require__(3913)
 
-const updateServices = async (repositories, { notion, database, systems, owners }) => {
+const updateServices = async (repositories, { notion, database, systems, owners, structure }) => {
   for (const repo of repositories) {
     // Lets see if we can find the row
     const repoName = repo.metadata?.name || repo._repo.name
@@ -20673,15 +20822,15 @@ const updateServices = async (repositories, { notion, database, systems, owners 
     if (search.results.length > 0) {
       const pageId = search.results[0].id
       core.debug(`Updating notion info for ${repoName}`)
-      await updateNotionRow(repo, pageId, { notion, database, systems, owners })
+      await updateNotionRow(repo, pageId, { notion, database, systems, owners, structure })
     } else {
       core.debug(`Creating notion info for ${repoName}`)
-      await createNotionRow(repo, { notion, database, systems, owners })
+      await createNotionRow(repo, { notion, database, systems, owners, structure })
     }
   }
 }
 
-const updateNotionRow = async (repo, pageId, { notion, database, systems, owners }) => {
+const updateNotionRow = async (repo, pageId, { notion, database, systems, owners, structure }) => {
   try {
     let dependsOn = []
     if (repo.spec?.dependsOn?.length > 0) {
@@ -20689,7 +20838,7 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
     }
     await notion.pages.update({
       page_id: pageId,
-      properties: createProperties(repo, dependsOn, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners, structure })
     })
     if (repo.metadata?.links) {
       await ensureLinks(pageId, repo.metadata.links, { notion })
@@ -20699,7 +20848,7 @@ const updateNotionRow = async (repo, pageId, { notion, database, systems, owners
   }
 }
 
-const createNotionRow = async (repo, { notion, database, systems, owners }) => {
+const createNotionRow = async (repo, { notion, database, systems, owners, structure }) => {
   try {
     let dependsOn = []
     if (repo.spec?.dependsOn?.length > 0) {
@@ -20709,7 +20858,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
       parent: {
         database_id: database
       },
-      properties: createProperties(repo, dependsOn, { systems, owners })
+      properties: createProperties(repo, dependsOn, { systems, owners, structure })
     })
     if (repo.metadata?.links) {
       await ensureLinks(page.id, repo.metadata.links, { notion })
@@ -20719,105 +20868,16 @@ const createNotionRow = async (repo, { notion, database, systems, owners }) => {
   }
 }
 
-const createProperties = (repo, dependsOn, { systems, owners }) => {
-  let owner, system
-  const ownerSpec = repo?.spec?.owner
-  const systemSpec = repo?.spec?.system
-
-  if (owners) {
-    // Owners are a relation
-    owner = {
-      relation: [
-        { id: owners[ownerSpec?.toLowerCase()] || owners.unknown }
-      ]
-    }
-  } else {
-    // owners are a tag
-    owner = {
-      select: {
-        name: ownerSpec || 'Unknown'
-      }
+const createProperties = (repo, dependsOn, { systems, owners, structure }) => {
+  // This iterates over the structure, executes a mapping function for each based on the data provided
+  const page = {}
+  for (const field of structure) {
+    if (mappingFn[field.name]) {
+      page[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
-
-  if (systems) {
-    // Segments are a relation
-    system = {
-      relation: [
-        { id: systems[systemSpec?.toLowerCase()] || systems.unknown }
-      ]
-    }
-  } else {
-    // Segments are a tag
-    system = {
-      select: {
-        name: systemSpec || 'Unknown'
-      }
-    }
-  }
-
-  // We can use the catalog file location to locate the right path within the repo
-  const htmlUrl = repo._catalog_file ? repo._catalog_file.substring(0, repo._catalog_file.lastIndexOf('/')) : repo._repo.html_url
-
-  return {
-    Name: {
-      title: [
-        {
-          text: {
-            content: repo.metadata?.name || repo._repo.name
-          }
-        }
-      ]
-    },
-    Description: {
-      rich_text: [
-        {
-          text: {
-            content: repo.metadata?.description || repo._repo.description || repo._repo.name
-          }
-        }
-      ]
-    },
-    Kind: {
-      select: {
-        name: repo.kind || 'Unknown'
-      }
-    },
-    URL: {
-      url: htmlUrl
-    },
-    Owner: owner,
-    System: system,
-    DependsOn: { relation: dependsOn },
-    Visibility: {
-      select: {
-        name: repo._repo.visibility
-      }
-    },
-    Language: {
-      select: {
-        name: repo._repo.language || 'Unknown'
-      }
-    },
-    Lifecycle: {
-      select: {
-        name: repo.spec?.lifecycle || 'Unknown'
-      }
-    },
-    Status: {
-      select: {
-        name: repo.status
-      }
-    },
-    Tags: {
-      multi_select: repo.metadata?.tags ? repo.metadata.tags.flatMap(tag => { return { name: tag } }) : []
-    },
-    Updated: {
-      date: {
-        start: new Date().toISOString()
-      }
-    }
-  }
+  console.log(page)
+  return page
 }
 
 exports.updateServices = updateServices
@@ -27667,7 +27727,8 @@ try {
 
   const refreshData = async () => {
     core.startGroup('Loading systems and owners ...')
-    const { systems, owners } = await loadData({ core, notion })
+    const { systems, owners, structure } = await loadData({ core, notion })
+    core.info(`Found ${structure.length} fields in the Service database: ${structure.map((item) => item.name)}`)
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)
     core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
     core.endGroup()
@@ -27675,7 +27736,7 @@ try {
     const repositories = await getRepos({ core })
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
-    await updateServices(repositories, { core, notion, database, systems, owners })
+    await updateServices(repositories, { core, notion, database, systems, owners, structure })
     core.endGroup()
   }
 

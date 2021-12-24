@@ -16,7 +16,8 @@ try {
 
   const refreshData = async () => {
     core.startGroup('Loading systems and owners ...')
-    const { systems, owners } = await loadData({ core, notion })
+    const { systems, owners, structure } = await loadData({ core, notion })
+    core.info(`Found ${structure.length} fields in the Service database: ${structure.map((item) => item.name)}`)
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)
     core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
     core.endGroup()
@@ -24,7 +25,7 @@ try {
     const repositories = await getRepos({ core })
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
-    await updateServices(repositories, { core, notion, database, systems, owners })
+    await updateServices(repositories, { core, notion, database, systems, owners, structure })
     core.endGroup()
   }
 
