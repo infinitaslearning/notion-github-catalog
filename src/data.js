@@ -19,7 +19,6 @@ const loadData = async ({ notion }) => {
     database_id: database
   })
   const structure = Object.keys(dbStructure.properties).map((property) => {
-    console.log(dbStructure.properties[property])
     return { name: dbStructure.properties[property].name, type: dbStructure.properties[property].type }
   })
 

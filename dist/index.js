@@ -20375,7 +20375,6 @@ const loadData = async ({ notion }) => {
     database_id: database
   })
   const structure = Object.keys(dbStructure.properties).map((property) => {
-    console.log(dbStructure.properties[property])
     return { name: dbStructure.properties[property].name, type: dbStructure.properties[property].type }
   })
 
@@ -20876,7 +20875,6 @@ const createProperties = (repo, dependsOn, { systems, owners, structure }) => {
       page[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
-  console.log(page)
   return page
 }
 

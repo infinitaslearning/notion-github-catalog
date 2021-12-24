@@ -77,7 +77,6 @@ const createProperties = (repo, dependsOn, { systems, owners, structure }) => {
       page[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
-  console.log(page)
   return page
 }
 
