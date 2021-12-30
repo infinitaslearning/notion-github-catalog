@@ -1,5 +1,5 @@
 name: 'Notion github catalog'
-description: 'Scans all github repositories and updates a notion database'
+description: 'A github action that synchronises a Github repo data, including Backstage definition file information, with a Notion database'
 branding:
   icon: git-pull-request
   color: blue
