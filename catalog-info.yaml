@@ -2,7 +2,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: notion-github-catalog
-  description: A githb action to keep a notion database in sync with Github repository info
+  description: A github action that synchronises a Github repo data, including Backstage definition file information, with a Notion database
   links:
     - url: https://infinitaslearning.notion.site/Notion-Github-Catalogue-ac2395eda37144e698e6b8faef1003c7
       title: Notion page
