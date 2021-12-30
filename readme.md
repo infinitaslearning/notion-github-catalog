@@ -27,6 +27,7 @@ This action expects a Notion database with the following properties, this will b
   - Language: select
   - Status: select
   - Updated: date
+  - Hash: text
 
 The following notion page and database is connected to the tests by default, and can be used as a template: https://infinitaslearning.notion.site/Notion-Github-Catalogue-ac2395eda37144e698e6b8faef1003c7
 

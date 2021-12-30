@@ -13,7 +13,7 @@ const getRepos = async () => {
 
   const parseServiceDefinition = async (repo, path, pushMissing) => {
     const repoData = []
-    core.debug(`Processing ${path} ...`)
+    core.debug(`Processing ${path} in ${repo.name} ...`)
     try {
       const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
         owner: repo.full_name.split('/')[0],
