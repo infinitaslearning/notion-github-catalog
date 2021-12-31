@@ -34,7 +34,7 @@ inputs:
     default: '10'
   catalog_file:
     description: 'Catalog file name to look for in the root of repo, defaults to `catalog-file.yaml`' 
-    default: 'catalog-file.yaml'
+    default: 'catalog-info.yaml'
 outputs:
   status: 
     description: 'The status of the scan'
