@@ -9,30 +9,16 @@ let updatedServices = 0
 let skippedServices = 0
 let erroredServices = 0
 
-const updateServices = async (repositories, { notion, database, systems, owners, structure }) => {
+const updateServices = async (repositories, { notion, database, systems, owners, structure, services }) => {
   for (const repo of repositories) {
     // Lets see if we can find the row
     const repoName = repo.metadata?.name || repo._repo.name
-    const search = await notion.databases.query({
-      database_id: database,
-      filter: {
-        property: 'Name',
-        text: {
-          equals: repoName
-        }
-      }
-    })
-
-    // If we have found any results, lets update
-    // If multiple are found we have an issue, but for now
-    // Lets just update the first one to not make the problem worse
-    if (search.results.length > 0) {
-      const pageId = search.results[0].id
-      const pageHash = search.results[0].properties?.Hash?.rich_text[0]?.text?.content
-      core.debug(`Updating notion info for ${repoName}`)
+    // Lets look the service up
+    if (services[repoName]) {
+      const pageId = services[repoName].pageId
+      const pageHash = services[repoName].pageHash
       await updateNotionRow(repo, pageId, pageHash, { notion, database, systems, owners, structure })
     } else {
-      core.debug(`Creating notion info for ${repoName}`)
       await createNotionRow(repo, { notion, database, systems, owners, structure })
     }
   }
@@ -47,12 +33,14 @@ const updateNotionRow = async (repo, pageId, pageHash, { notion, database, syste
     }
     const { properties, doUpdate } = createProperties(repo, pageHash, dependsOn, { systems, owners, structure })
     if (doUpdate) {
+      core.debug(`Updating notion info for ${repo._repo.name}`)
       await notion.pages.update({
         page_id: pageId,
         properties
       })
       updatedServices++
     } else {
+      core.debug(`Not updating notion info for ${repo._repo.name} as hash unchanged`)
       skippedServices++
     }
     if (repo.metadata?.links) {
@@ -71,6 +59,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners, struct
       dependsOn = await getDependsOn(repo.spec.dependsOn, { notion, database })
     }
     const { properties } = createProperties(repo, null, dependsOn, { systems, owners, structure })
+    core.debug(`Creating notion info for ${repo._repo.name}`)
     const page = await notion.pages.create({
       parent: {
         database_id: database

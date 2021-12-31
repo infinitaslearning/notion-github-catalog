@@ -50,6 +50,25 @@ const loadData = async ({ notion }) => {
     core.error('Your system table does not contain an "unknown" row!')
   }
 
+  // Get the current service matrix and hashes in bulk to speed up updates
+  const services = {}
+  const getDatabaseRows = async (startCursor) => {
+    const pageRows = await notion.databases.query({
+      database_id: database,
+      start_cursor: startCursor
+    })
+    pageRows.results.forEach((item) => {
+      const pageId = item.id
+      const pageHash = item.properties?.Hash?.rich_text[0]?.text?.content
+      const pageName = item.properties?.Name?.title[0]?.text?.content
+      services[pageName] = { pageId, pageHash }
+    })
+    if (pageRows.has_more) {
+      return await getDatabaseRows(pageRows.next_cursor)
+    }
+  }
+  await getDatabaseRows()
+
   if (error) {
     process.exit(1)
   }
@@ -57,7 +76,8 @@ const loadData = async ({ notion }) => {
   return {
     systems,
     owners,
-    structure
+    structure,
+    services
   }
 }
 

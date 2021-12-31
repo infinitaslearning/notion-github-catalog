@@ -2,10 +2,21 @@ const { Octokit } = require('octokit')
 const YAML = require('yaml')
 const core = require('@actions/core')
 
+const chunk = (arr, len) => {
+  const chunks = []
+  let i = 0
+  const n = arr.length
+  while (i < n) {
+    chunks.push(arr.slice(i, i += len))
+  }
+  return chunks
+}
+
 const getRepos = async () => {
   const GITHUB_TOKEN = core.getInput('github_token')
   const repositoryType = core.getInput('repository_type') || 'all'
   const repositoryFilter = core.getInput('repository_filter') || '.*'
+  const repositoryBatchSize = parseInt(core.getInput('repository_batch_size') || '10')
   const owner = core.getInput('github_owner')
   const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
   const repositoryFilterRegex = new RegExp(repositoryFilter)
@@ -42,6 +53,7 @@ const getRepos = async () => {
         core.warning(`Unable to find ${path} in ${repo.name}, not processing`)
       }
     }
+    core.info(`Completed ${repo.name}`)
     return repoData
   }
 
@@ -70,13 +82,33 @@ const getRepos = async () => {
     })
   core.info(`Using repository filter: ${repositoryFilter}`)
   core.info(`Found ${repos.length} github repositories, now getting service data for those that match the filter ...`)
-  const repoData = []
+
+  // We will create an array of batches to speed up execution, run each batch
+  // In series, and then join them together.
+  const repoFns = []
+  const repoBatches = []
+
   for (const repo of repos) {
     if (repo.name.match(repositoryFilterRegex)) {
       const pushMissing = true
-      repoData.push(...await parseServiceDefinition(repo, catalogFile, pushMissing))
+      repoFns.push(parseServiceDefinition(repo, catalogFile, pushMissing))
     }
   }
+
+  // Break into batches
+  core.info(`Fetching with batch size of ${repositoryBatchSize} ...`)
+  const batchRepos = chunk(repoFns, repositoryBatchSize)
+
+  // Iterate over those
+  for (const batch of batchRepos) {
+    core.debug(`Fetching ${batch.length} repos ...`)
+    repoBatches.push(await Promise.all(batch))
+  }
+
+  let repoData = await Promise.all(repoBatches)
+
+  // Now flatten it
+  repoData = repoData.flat(2)
 
   // Now we want to sort the repositories based on their name, and the number of dependencies
   repoData.sort((a, b) => {

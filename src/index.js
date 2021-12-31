@@ -15,17 +15,18 @@ try {
   })
 
   const refreshData = async () => {
-    core.startGroup('Loading systems and owners ...')
-    const { systems, owners, structure } = await loadData({ core, notion })
+    core.startGroup('Loading services, systems and owners ...')
+    const { systems, owners, structure, services } = await loadData({ core, notion })
     core.info(`Found ${structure.length} fields in the Service database: ${structure.map((item) => item.name)}`)
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)
     core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
+    core.info(`Loaded ${Object.keys(services || {}).length} existing services`)
     core.endGroup()
     core.startGroup('🌀 Getting github repositories')
     const repositories = await getRepos({ core })
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
-    await updateServices(repositories, { core, notion, database, systems, owners, structure })
+    await updateServices(repositories, { core, notion, database, systems, owners, structure, services })
     core.endGroup()
   }
 

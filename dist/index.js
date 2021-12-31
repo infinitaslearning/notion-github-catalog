@@ -20867,6 +20867,25 @@ const loadData = async ({ notion }) => {
     core.error('Your system table does not contain an "unknown" row!')
   }
 
+  // Get the current service matrix and hashes in bulk to speed up updates
+  const services = {}
+  const getDatabaseRows = async (startCursor) => {
+    const pageRows = await notion.databases.query({
+      database_id: database,
+      start_cursor: startCursor
+    })
+    pageRows.results.forEach((item) => {
+      const pageId = item.id
+      const pageHash = item.properties?.Hash?.rich_text[0]?.text?.content
+      const pageName = item.properties?.Name?.title[0]?.text?.content
+      services[pageName] = { pageId, pageHash }
+    })
+    if (pageRows.has_more) {
+      return await getDatabaseRows(pageRows.next_cursor)
+    }
+  }
+  await getDatabaseRows()
+
   if (error) {
     process.exit(1)
   }
@@ -20874,7 +20893,8 @@ const loadData = async ({ notion }) => {
   return {
     systems,
     owners,
-    structure
+    structure,
+    services
   }
 }
 
@@ -20918,10 +20938,21 @@ const { Octokit } = __nccwpck_require__(7223)
 const YAML = __nccwpck_require__(9645)
 const core = __nccwpck_require__(272)
 
+const chunk = (arr, len) => {
+  const chunks = []
+  let i = 0
+  const n = arr.length
+  while (i < n) {
+    chunks.push(arr.slice(i, i += len))
+  }
+  return chunks
+}
+
 const getRepos = async () => {
   const GITHUB_TOKEN = core.getInput('github_token')
   const repositoryType = core.getInput('repository_type') || 'all'
   const repositoryFilter = core.getInput('repository_filter') || '.*'
+  const repositoryBatchSize = parseInt(core.getInput('repository_batch_size') || '10')
   const owner = core.getInput('github_owner')
   const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
   const repositoryFilterRegex = new RegExp(repositoryFilter)
@@ -20958,6 +20989,7 @@ const getRepos = async () => {
         core.warning(`Unable to find ${path} in ${repo.name}, not processing`)
       }
     }
+    core.info(`Completed ${repo.name}`)
     return repoData
   }
 
@@ -20986,13 +21018,33 @@ const getRepos = async () => {
     })
   core.info(`Using repository filter: ${repositoryFilter}`)
   core.info(`Found ${repos.length} github repositories, now getting service data for those that match the filter ...`)
-  const repoData = []
+
+  // We will create an array of batches to speed up execution, run each batch
+  // In series, and then join them together.
+  const repoFns = []
+  const repoBatches = []
+
   for (const repo of repos) {
     if (repo.name.match(repositoryFilterRegex)) {
       const pushMissing = true
-      repoData.push(...await parseServiceDefinition(repo, catalogFile, pushMissing))
+      repoFns.push(parseServiceDefinition(repo, catalogFile, pushMissing))
     }
   }
+
+  // Break into batches
+  core.info(`Fetching with batch size of ${repositoryBatchSize} ...`)
+  const batchRepos = chunk(repoFns, repositoryBatchSize)
+
+  // Iterate over those
+  for (const batch of batchRepos) {
+    core.debug(`Fetching ${batch.length} repos ...`)
+    repoBatches.push(await Promise.all(batch))
+  }
+
+  let repoData = await Promise.all(repoBatches)
+
+  // Now flatten it
+  repoData = repoData.flat(2)
 
   // Now we want to sort the repositories based on their name, and the number of dependencies
   repoData.sort((a, b) => {
@@ -21268,30 +21320,16 @@ let updatedServices = 0
 let skippedServices = 0
 let erroredServices = 0
 
-const updateServices = async (repositories, { notion, database, systems, owners, structure }) => {
+const updateServices = async (repositories, { notion, database, systems, owners, structure, services }) => {
   for (const repo of repositories) {
     // Lets see if we can find the row
     const repoName = repo.metadata?.name || repo._repo.name
-    const search = await notion.databases.query({
-      database_id: database,
-      filter: {
-        property: 'Name',
-        text: {
-          equals: repoName
-        }
-      }
-    })
-
-    // If we have found any results, lets update
-    // If multiple are found we have an issue, but for now
-    // Lets just update the first one to not make the problem worse
-    if (search.results.length > 0) {
-      const pageId = search.results[0].id
-      const pageHash = search.results[0].properties?.Hash?.rich_text[0]?.text?.content
-      core.debug(`Updating notion info for ${repoName}`)
+    // Lets look the service up
+    if (services[repoName]) {
+      const pageId = services[repoName].pageId
+      const pageHash = services[repoName].pageHash
       await updateNotionRow(repo, pageId, pageHash, { notion, database, systems, owners, structure })
     } else {
-      core.debug(`Creating notion info for ${repoName}`)
       await createNotionRow(repo, { notion, database, systems, owners, structure })
     }
   }
@@ -21306,12 +21344,14 @@ const updateNotionRow = async (repo, pageId, pageHash, { notion, database, syste
     }
     const { properties, doUpdate } = createProperties(repo, pageHash, dependsOn, { systems, owners, structure })
     if (doUpdate) {
+      core.debug(`Updating notion info for ${repo._repo.name}`)
       await notion.pages.update({
         page_id: pageId,
         properties
       })
       updatedServices++
     } else {
+      core.debug(`Not updating notion info for ${repo._repo.name} as hash unchanged`)
       skippedServices++
     }
     if (repo.metadata?.links) {
@@ -21330,6 +21370,7 @@ const createNotionRow = async (repo, { notion, database, systems, owners, struct
       dependsOn = await getDependsOn(repo.spec.dependsOn, { notion, database })
     }
     const { properties } = createProperties(repo, null, dependsOn, { systems, owners, structure })
+    core.debug(`Creating notion info for ${repo._repo.name}`)
     const page = await notion.pages.create({
       parent: {
         database_id: database
@@ -28220,17 +28261,18 @@ try {
   })
 
   const refreshData = async () => {
-    core.startGroup('Loading systems and owners ...')
-    const { systems, owners, structure } = await loadData({ core, notion })
+    core.startGroup('Loading services, systems and owners ...')
+    const { systems, owners, structure, services } = await loadData({ core, notion })
     core.info(`Found ${structure.length} fields in the Service database: ${structure.map((item) => item.name)}`)
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)
     core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
+    core.info(`Loaded ${Object.keys(services || {}).length} existing services`)
     core.endGroup()
     core.startGroup('🌀 Getting github repositories')
     const repositories = await getRepos({ core })
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
-    await updateServices(repositories, { core, notion, database, systems, owners, structure })
+    await updateServices(repositories, { core, notion, database, systems, owners, structure, services })
     core.endGroup()
   }
 
