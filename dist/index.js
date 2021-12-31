@@ -20955,14 +20955,14 @@ const getRepos = async () => {
   const repositoryType = core.getInput('repository_type') || 'all'
   const repositoryFilter = core.getInput('repository_filter') || '.*'
   const repositoryBatchSize = parseInt(core.getInput('repository_batch_size') || '10')
+  const pushMissing = core.getBooleanInput('push_missing')
   const owner = core.getInput('github_owner')
   const catalogFile = core.getInput('catalog_file') || 'catalog-info.yaml'
   const repositoryFilterRegex = new RegExp(repositoryFilter)
   const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
-  const parseServiceDefinition = async (repo, path, pushMissing) => {
+  const parseServiceDefinition = async (repo, path) => {
     const repoData = []
-    core.debug(`Processing ${path} in ${repo.name} ...`)
     try {
       const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
         owner: repo.full_name.split('/')[0],
@@ -20981,14 +20981,16 @@ const getRepos = async () => {
           repoData.push(serviceDefinition)
         }
       }
+      core.debug(`🌟 Processed ${path} in ${repo.name} ...`)
     } catch (ex) {
       if (pushMissing) {
         repoData.push({
           status: `${catalogFile} missing`,
           _repo: repo
         })
+        core.debug(`- Loaded basic service data for ${repo.name} as no ${path} found`)
       } else {
-        core.warning(`Unable to find ${path} in ${repo.name}, not processing`)
+        core.debug(`✋ Unable to find ${path} in ${repo.name}, not processing as 'push_missing' is false`)
       }
     }
     return repoData
@@ -20999,14 +21001,13 @@ const getRepos = async () => {
     const targets = serviceDefinition.spec?.targets
     if (targets && targets.length > 0) {
       for (const target of targets) {
-        const pushMissing = false
-        const targetDefinition = await parseServiceDefinition(repo, target, pushMissing)
+        const targetDefinition = await parseServiceDefinition(repo, target)
         targetDefinition.fromLocation = true
         repoData.push(...targetDefinition)
         monoRepoCount++
       }
     } else {
-      core.warning(`Location file in ${repo._repo.name} at ${path} specified without valid spec.targets, will be skipped`)
+      core.warning(`✋ Location file in ${repo._repo.name} at ${path} specified without valid spec.targets, will be skipped`)
     }
     return repoData
   }
@@ -21018,8 +21019,7 @@ const getRepos = async () => {
       sort: 'full_name',
       per_page: 100
     })
-  core.info(`Using repository filter: ${repositoryFilter}`)
-  core.info(`Found ${repos.length} github repositories, now getting service data for those that match the filter ...`)
+  core.info(`Found ${repos.length} github repositories, now getting service data for those that match ${repositoryFilter}`)
 
   // We will create an array of batches to speed up execution, run each batch
   // In series, and then join them together.
@@ -21028,8 +21028,7 @@ const getRepos = async () => {
 
   for (const repo of repos) {
     if (repo.name.match(repositoryFilterRegex)) {
-      const pushMissing = true
-      repoFns.push(parseServiceDefinition(repo, catalogFile, pushMissing))
+      repoFns.push(parseServiceDefinition(repo, catalogFile))
     }
   }
 
@@ -28263,7 +28262,7 @@ try {
   })
 
   const refreshData = async () => {
-    core.startGroup('Loading services, systems and owners ...')
+    core.startGroup('🗂️  Loading services, systems and owners ...')
     const { systems, owners, structure, services } = await loadData({ core, notion })
     core.info(`Found ${structure.length} fields in the Service database: ${structure.map((item) => item.name)}`)
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)

@@ -15,7 +15,7 @@ try {
   })
 
   const refreshData = async () => {
-    core.startGroup('Loading services, systems and owners ...')
+    core.startGroup('🗂️  Loading services, systems and owners ...')
     const { systems, owners, structure, services } = await loadData({ core, notion })
     core.info(`Found ${structure.length} fields in the Service database: ${structure.map((item) => item.name)}`)
     core.info(`Loaded ${Object.keys(systems || {}).length} systems`)

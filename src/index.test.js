@@ -8,6 +8,7 @@ test('complete input should succeed with default inputs', () => {
   process.env.INPUT_DATABASE = process.env.NOTION_DATABASE // cecaf0beb15945158d155866ff9acce8
   process.env.INPUT_NOTION_TOKEN = process.env.NOTION_TOKEN
   process.env.INPUT_GITHUB_TOKEN = process.env.GITHUB_TOKEN
+  process.env.INPUT_PUSH_MISSING = 'true'
   process.env.INPUT_REPOSITORY_TYPE = 'public'
   process.env.INPUT_REPOSITORY_FILTER = 'notion-github-catalog'
   process.env.INPUT_GITHUB_OWNER = 'infinitaslearning'

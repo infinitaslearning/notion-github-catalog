@@ -134,6 +134,7 @@ jobs:
          system_database: 121534684fe840a1953500e603c2b602
          repository_type: all
          repository_filter: .*
+         push_missing: true
          catalog_file: catalog-info.yaml
 
 ```
