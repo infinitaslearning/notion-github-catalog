@@ -20948,6 +20948,8 @@ const chunk = (arr, len) => {
   return chunks
 }
 
+let monoRepoCount = 0
+
 const getRepos = async () => {
   const GITHUB_TOKEN = core.getInput('github_token')
   const repositoryType = core.getInput('repository_type') || 'all'
@@ -20989,7 +20991,6 @@ const getRepos = async () => {
         core.warning(`Unable to find ${path} in ${repo.name}, not processing`)
       }
     }
-    core.info(`Completed ${repo.name}`)
     return repoData
   }
 
@@ -21002,6 +21003,7 @@ const getRepos = async () => {
         const targetDefinition = await parseServiceDefinition(repo, target, pushMissing)
         targetDefinition.fromLocation = true
         repoData.push(...targetDefinition)
+        monoRepoCount++
       }
     } else {
       core.warning(`Location file in ${repo._repo.name} at ${path} specified without valid spec.targets, will be skipped`)
@@ -21057,7 +21059,7 @@ const getRepos = async () => {
     return 0
   })
 
-  core.info(`Processed ${repoData.length} matching repositories`)
+  core.info(`Processed ${repoData.length} total repositories, after adding ${monoRepoCount} from mono-repos`)
   return repoData
 }
 

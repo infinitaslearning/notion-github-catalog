@@ -12,8 +12,7 @@ const chunk = (arr, len) => {
   return chunks
 }
 
-
-const monoRepoCount = 0;
+let monoRepoCount = 0
 
 const getRepos = async () => {
   const GITHUB_TOKEN = core.getInput('github_token')
@@ -55,7 +54,7 @@ const getRepos = async () => {
       } else {
         core.warning(`Unable to find ${path} in ${repo.name}, not processing`)
       }
-    }    
+    }
     return repoData
   }
 
