@@ -38,13 +38,13 @@ const updateNotionRow = async (repo, pageId, pageHash, { notion, database, syste
         page_id: pageId,
         properties
       })
+      if (repo.metadata?.links) {
+        await ensureLinks(pageId, repo.metadata.links, { notion })
+      }
       updatedServices++
     } else {
       core.debug(`Not updating notion info for ${repo._repo.name} as hash unchanged`)
       skippedServices++
-    }
-    if (repo.metadata?.links) {
-      await ensureLinks(pageId, repo.metadata.links, { notion })
     }
   } catch (ex) {
     erroredServices++
@@ -84,8 +84,9 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
       properties[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
-  // Always have to check the hash afterwards, excluding the hash and the key
-  const newPageHash = hash(properties, {
+
+  // Always have to check the hash afterwards, excluding the hash and the key but including links
+  const newPageHash = hash({ links: repo.metadata.links, ...properties }, {
     excludeKeys: (key) => {
       return key === 'Hash' || key === 'Updated'
     }

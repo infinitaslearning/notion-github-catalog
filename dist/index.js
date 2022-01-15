@@ -21072,22 +21072,32 @@ exports.getRepos = getRepos
 
 const core = __nccwpck_require__(272)
 
-const updateNotionLink = async (linkId, link, { notion }) => {
+const processRows = (data) => {
+  const parent = {}
+  data.results.forEach((row) => {
+    const name = row.properties.Name.title[0].plain_text.toLowerCase()
+    const url = row.properties.URL.url
+    if (name) parent[name] = { id: row.id, url }
+  })
+  return parent
+}
+
+const updateNotionLink = async (linkId, link, linkUrl, { notion }) => {
   try {
     await notion.pages.update({
       page_id: linkId,
       properties: {
         URL: {
-          url: link.url
+          url: linkUrl
         }
       }
     })
   } catch (ex) {
-    core.error(`Error updating notion link for ${link.title}: ${ex.message} ...`)
+    core.error(`Error updating notion link for ${link}: ${ex.message} ...`)
   }
 }
 
-const createNotionLink = async (linkDatabaseId, link, { notion }) => {
+const createNotionLink = async (linkDatabaseId, link, linkUrl, { notion }) => {
   try {
     await notion.pages.create({
       parent: {
@@ -21098,13 +21108,13 @@ const createNotionLink = async (linkDatabaseId, link, { notion }) => {
           title: [
             {
               text: {
-                content: link.title
+                content: link
               }
             }
           ]
         },
         URL: {
-          url: link.url
+          url: linkUrl
         }
       }
     })
@@ -21114,22 +21124,23 @@ const createNotionLink = async (linkDatabaseId, link, { notion }) => {
 }
 
 const updateLinks = async (linkDatabaseId, links, { notion }) => {
-  for (const link of links) {
+  // First get all of the existing rows in one go
+  const existingLinkRows = await notion.databases.query({
+    database_id: linkDatabaseId
+  })
+  const existingLinks = processRows(existingLinkRows)
+  // Now scan for any that have changed or are new
+  const linkKeys = Object.keys(links)
+  for (const link of linkKeys) {
     // Lets see if we can find the row
-    const search = await notion.databases.query({
-      database_id: linkDatabaseId,
-      filter: {
-        property: 'Name',
-        text: {
-          equals: link.title
-        }
+    if (existingLinks[link]) {
+      const linkId = existingLinks[link].id
+      const linkUrl = existingLinks[link].url
+      if (links[link] !== linkUrl) { // url has changed
+        await updateNotionLink(linkId, link, links[link], { notion })
       }
-    })
-    if (search.results.length > 0) {
-      const linkId = search.results[0].id
-      await updateNotionLink(linkId, link, { notion })
     } else {
-      await createNotionLink(linkDatabaseId, link, { notion })
+      await createNotionLink(linkDatabaseId, link, links[link], { notion })
     }
   }
 }
@@ -21350,13 +21361,13 @@ const updateNotionRow = async (repo, pageId, pageHash, { notion, database, syste
         page_id: pageId,
         properties
       })
+      if (repo.metadata?.links) {
+        await ensureLinks(pageId, repo.metadata.links, { notion })
+      }
       updatedServices++
     } else {
       core.debug(`Not updating notion info for ${repo._repo.name} as hash unchanged`)
       skippedServices++
-    }
-    if (repo.metadata?.links) {
-      await ensureLinks(pageId, repo.metadata.links, { notion })
     }
   } catch (ex) {
     erroredServices++
@@ -21396,8 +21407,9 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
       properties[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
-  // Always have to check the hash afterwards, excluding the hash and the key
-  const newPageHash = hash(properties, {
+
+  // Always have to check the hash afterwards, excluding the hash and the key but including links
+  const newPageHash = hash({ links: repo.metadata.links, ...properties }, {
     excludeKeys: (key) => {
       return key === 'Hash' || key === 'Updated'
     }
