@@ -21408,8 +21408,13 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
     }
   }
 
-  // Always have to check the hash afterwards, excluding the hash and the key but including links
-  const newPageHash = hash({ links: repo.metadata.links, ...properties }, {
+  // Always have to check the hash afterwards, excluding the hash and the key
+  const hashProperties = properties
+  // Add the links if they exist to the hash
+  if (repo.metadata?.links) {
+    hashProperties.links = repo.metadata?.links
+  }
+  const newPageHash = hash(hashProperties, {
     excludeKeys: (key) => {
       return key === 'Hash' || key === 'Updated'
     }
