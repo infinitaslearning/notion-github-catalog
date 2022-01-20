@@ -8,7 +8,7 @@ const loadData = async ({ notion }) => {
   const processRows = (data) => {
     const parent = {}
     data.results.forEach((row) => {
-      const name = row.properties.Name.title[0].plain_text.toLowerCase()
+      const name = row.properties.Name?.title[0]?.plain_text?.toLowerCase()
       if (name) parent[name] = row.id
     })
     return parent
