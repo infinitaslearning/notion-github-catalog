@@ -56,19 +56,32 @@ const updateLinks = async (linkDatabaseId, links, { notion }) => {
   const existingLinkRows = await notion.databases.query({
     database_id: linkDatabaseId
   })
+
   const existingLinks = processRows(existingLinkRows)
   // Now scan for any that have changed or are new
   const linkKeys = Object.keys(links)
   for (const link of linkKeys) {
-    // Lets see if we can find the row
-    if (existingLinks[link]) {
-      const linkId = existingLinks[link].id
-      const linkUrl = existingLinks[link].url
-      if (links[link] !== linkUrl) { // url has changed
-        await updateNotionLink(linkId, link, links[link], { notion })
+    // Check if our links are an object or simple attributes
+    let newLink
+    let newLinkUrl
+    if (links[link].url) {
+      newLinkUrl = links[link].url
+      newLink = links[link].title
+    } else {
+      newLinkUrl = links[link]
+      newLink = link
+    }
+
+    // Now lets see if we can find the row
+    if (existingLinks[newLink]) {
+      const linkId = existingLinks[newLink].id
+      const linkUrl = existingLinks[newLink].url
+
+      if (newLinkUrl !== linkUrl) { // url has changed
+        await updateNotionLink(linkId, newLink, newLinkUrl, { notion })
       }
     } else {
-      await createNotionLink(linkDatabaseId, link, links[link], { notion })
+      await createNotionLink(linkDatabaseId, newLink, newLinkUrl, { notion })
     }
   }
 }
