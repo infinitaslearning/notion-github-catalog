@@ -86,7 +86,7 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
   }
 
   // Always have to check the hash afterwards, excluding the hash and the key
-  const hashProperties = properties
+  const hashProperties = Object.assign({}, properties)
   // Add the links if they exist to the hash
   if (repo.metadata?.links) {
     hashProperties.links = repo.metadata?.links
