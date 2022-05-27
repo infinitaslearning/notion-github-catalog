@@ -19,6 +19,9 @@ inputs:
   push_missing:
     description: 'Push services that miss a `catalog-info.yaml` file or not'
     required: true
+  ignore_hash:
+    description: 'Ignore the hash and update regardless'    
+    default: 'false'
   system_database:
     description: 'Database ID to read systems from'    
   owner_database:

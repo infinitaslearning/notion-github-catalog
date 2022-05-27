@@ -122,6 +122,18 @@ const mappingFn = {
   DependsOn: (repo, { dependsOn }) => {
     return { relation: dependsOn }
   },
+  Environments: (repo) => {
+    return {
+      multi_select: repo.metadata?.annotations?.environments ? repo.metadata?.annotations?.environments.split(',').flatMap(env => { return { name: env } }) : []
+    }
+  },
+  Deployment: (repo) => {
+    return {
+      select: {
+        name: repo.metadata?.annotations?.deployment || 'Unknown'
+      }
+    }
+  },
   DependencyOf: null // Skip this field
 }
 

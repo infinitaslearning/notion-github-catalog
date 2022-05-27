@@ -21346,6 +21346,18 @@ const mappingFn = {
   DependsOn: (repo, { dependsOn }) => {
     return { relation: dependsOn }
   },
+  Environments: (repo) => {
+    return {
+      multi_select: repo.metadata?.annotations?.environments ? repo.metadata?.annotations?.environments.split(',').flatMap(env => { return { name: env } }) : []
+    }
+  },
+  Deployment: (repo) => {
+    return {
+      select: {
+        name: repo.metadata?.annotations?.deployment || 'Unknown'
+      }
+    }
+  },
   DependencyOf: null // Skip this field
 }
 
@@ -21456,7 +21468,8 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
     }
   })
 
-  const doUpdate = newPageHash && newPageHash !== pageHash
+  const ignoreHash = core.getInput('ignore_hash') === 'true' // Comes in as string
+  const doUpdate = ignoreHash || (newPageHash && newPageHash !== pageHash)
   properties.Hash = {
     rich_text: [
       {

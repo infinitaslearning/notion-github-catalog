@@ -97,7 +97,8 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
     }
   })
 
-  const doUpdate = newPageHash && newPageHash !== pageHash
+  const ignoreHash = core.getInput('ignore_hash') === 'true' // Comes in as string
+  const doUpdate = ignoreHash || (newPageHash && newPageHash !== pageHash)
   properties.Hash = {
     rich_text: [
       {
