@@ -47,7 +47,6 @@ const loadData = async ({ notion }) => {
   }
 
   let error = false
-
   if (ownerDb && !owners.unknown) {
     error = true
     core.error('Your owner table does not contain an "unknown" row!')

@@ -25,14 +25,33 @@ const getRepos = async () => {
   const repositoryFilterRegex = new RegExp(repositoryFilter)
   const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
-  const parseServiceDefinition = async (repo, path) => {
-    const repoData = []
+  const getServiceDefinitionFile = async (repo, path) => {
     try {
       const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
         owner: repo.full_name.split('/')[0],
         repo: repo.name,
         path
       })
+      return data
+    } catch (ex) {
+      // Try it now with a .yml file instead only for default version!
+      if (catalogFile === 'catalog-info.yaml') {
+        const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+          owner: repo.full_name.split('/')[0],
+          repo: repo.name,
+          path: path.replace('catalog-info.yaml', 'catalog-info.yml')
+        })
+        return data
+      } else {
+        throw ex
+      }
+    }
+  }
+
+  const parseServiceDefinition = async (repo, path) => {
+    const repoData = []
+    try {
+      const data = await getServiceDefinitionFile(repo, path)
       if (data) {
         const base64content = Buffer.from(data.content, 'base64')
         const serviceDefinition = YAML.parse(base64content.toString('utf8'))
@@ -45,7 +64,7 @@ const getRepos = async () => {
           repoData.push(serviceDefinition)
         }
       }
-      core.debug(`🌟 Processed ${path} in ${repo.name} ...`)
+      core.debug(`🌟 Processed ${data.name} in ${repo.name} ...`)
     } catch (ex) {
       if (pushMissing) {
         repoData.push({
