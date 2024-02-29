@@ -48,6 +48,84 @@ const getRepos = async () => {
     }
   }
 
+  const getLanguages = async (repo) => {
+    try {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/languages', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+      })
+      const languages = Object.keys(data); 
+      return languages
+    } catch (ex) {
+      throw ex
+    }    
+  }
+  
+  const getTeams = async (repo) => {
+    try {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/teams', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+      })
+      const teams = data.map((t) => t.name);
+      return teams
+    } catch (ex) {
+      throw ex
+    }    
+  }
+
+ 
+  const getDotNetVersions = async (repo, keyword) => {
+    try {
+      const { data } = await octokit.request('GET https://api.github.com/search/code?q={keyword}+repo:{repo}', {
+        repo: repo.full_name,
+        keyword: keyword,
+        headers: {
+          accept: 'application/vnd.github.text-match+json'
+        }
+      })
+      const matches = data.items.map((i) => {
+        const split = i.text_matches[0].fragment.split(keyword);
+        const foundValue = split[1]
+
+        const foundValue2 = foundValue.split(keyword.substring(1))[0]
+
+        const version = foundValue2.substring(0, foundValue2.length-2);
+        return 'C# ' + version;
+      });
+      return matches.filter((x, i, a) => a.indexOf(x) == i); //only unique values
+    } catch (ex) {
+      throw ex
+    }    
+  }
+
+  const enrichTags = async (serviceDefinition) => {
+    if (serviceDefinition.metadata.tags === undefined || serviceDefinition.metadata.tags === null)
+    {
+      serviceDefinition.metadata.tags = [];
+    }
+
+    const languages = await getLanguages(serviceDefinition._repo);
+    serviceDefinition.metadata.tags.push(...languages);
+
+    const teams = await getTeams(serviceDefinition._repo);
+    serviceDefinition.metadata.tags.push(...teams);
+
+    if (languages.includes('C#'))
+    {
+      const targetFrameworkVersions = await getDotNetVersions(serviceDefinition._repo, '<TargetFramework>');
+      serviceDefinition.metadata.tags.push(...targetFrameworkVersions);
+
+      const targetFrameworkVersions2 = await getDotNetVersions(serviceDefinition._repo, '<TargetFrameworkVersion>');
+      serviceDefinition.metadata.tags.push(...targetFrameworkVersions2);
+
+//SLEEP NEEDED BECAUSE OF MAX CALLS/MINUTE - https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#rate-limit
+
+    }
+
+    serviceDefinition.metadata.tags = serviceDefinition.metadata.tags.filter((x, i, a) => a.indexOf(x) == i); //only unique values
+  }
+
   const parseServiceDefinition = async (repo, path) => {
     const repoData = []
     try {
@@ -61,6 +139,9 @@ const getRepos = async () => {
           serviceDefinition._catalog_file = data.html_url
           serviceDefinition._repo = repo
           serviceDefinition.status = 'OK'
+
+          await enrichTags(serviceDefinition);
+
           repoData.push(serviceDefinition)
         }
       }
@@ -76,6 +157,7 @@ const getRepos = async () => {
         core.debug(`✋ Unable to find ${path} in ${repo.name}, not processing as 'push_missing' is false`)
       }
     }
+    
     return repoData
   }
 
