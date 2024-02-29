@@ -81,9 +81,7 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
   const properties = {}
   for (const field of structure) {
     if (mappingFn[field.name]) {
-      const value = mappingFn[field.name](repo, { dependsOn, systems, owners })
-      core.info(`Updating ${field.name} info for ${value}`)
-      properties[field.name] = value
+      properties[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
 

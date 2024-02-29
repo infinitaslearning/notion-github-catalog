@@ -22128,41 +22128,36 @@ const getRepos = async () => {
     try {
       const { data } = await octokit.request('GET /repos/{owner}/{repo}/languages', {
         owner: repo.full_name.split('/')[0],
-        repo: repo.name,
+        repo: repo.name
       })
-      const languages = Object.keys(data); 
+      const languages = Object.keys(data)
       return languages
     } catch (ex) {
-      throw ex
-    }    
+      return []
+    }
   }
-  
+
   const getTeams = async (repo) => {
     try {
       const { data } = await octokit.request('GET /repos/{owner}/{repo}/teams', {
         owner: repo.full_name.split('/')[0],
-        repo: repo.name,
+        repo: repo.name
       })
-      const teams = data.map((t) => t.name);
+      const teams = data.map((t) => t.name)
       return teams
     } catch (ex) {
-      throw ex
-    }    
+      return []
+    }
   }
 
   const getTree = async (repo) => {
-    try {
-      const { data } = await octokit.request('GET /repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1', {
-        owner: repo.full_name.split('/')[0],
-        repo: repo.name,
-        default_branch: repo.default_branch
-      })
-      return data
-    } catch (ex) {
-      throw ex
-    }    
+    const { data } = await octokit.request('GET /repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1', {
+      owner: repo.full_name.split('/')[0],
+      repo: repo.name,
+      default_branch: repo.default_branch
+    })
+    return data
   }
-
 
   const getFileContent = async (url) => {
     try {
@@ -22173,58 +22168,55 @@ const getRepos = async () => {
       const fileContent = base64content.toString('utf8')
       return fileContent
     } catch (ex) {
-      throw ex
+      return ''
     }
   }
 
-  function getStringBetween(str, start, end) {
-    const result = str.match(new RegExp(start + "(.*)" + end));
+  const getStringBetween = (str, start, end) => {
+    const result = str.match(new RegExp(start + '(.*)' + end))
 
-    if (result === undefined || result === null)
-    {
-      return '';
+    if (result === undefined || result === null) {
+      return ''
     }
 
-    return result[1];
+    return result[1]
   }
- 
+
   const getDotNetVersions = async (fileTree) => {
-    const csprojBlobUrls = fileTree.tree.filter((n) => n.path.endsWith('.csproj')).map((n) => n.url);
+    const csprojBlobUrls = fileTree.tree.filter((n) => n.path.endsWith('.csproj')).map((n) => n.url)
 
-    const csprojContentsPromises = csprojBlobUrls.map((u) => getFileContent(u));
-    
+    const csprojContentsPromises = csprojBlobUrls.map((u) => getFileContent(u))
+
     const csprojContents = await Promise.all(csprojContentsPromises)
 
-    const targetFrameworks = csprojContents.map((c) => getStringBetween(c, '<TargetFramework>', '</TargetFramework>'));
-    const targetFrameworkVersions = csprojContents.map((c) => getStringBetween(c, '<TargetFrameworkVersion>', '</TargetFrameworkVersion>'));
-    targetFrameworks.push(...targetFrameworkVersions);
-    //unique values + not empty + prefix with C#
-    const versions = targetFrameworks.filter((x, i, a) => a.indexOf(x) == i).filter((v) => v != '').map((v) => 'C# ' + v);
+    const targetFrameworks = csprojContents.map((c) => getStringBetween(c, '<TargetFramework>', '</TargetFramework>'))
+    const targetFrameworkVersions = csprojContents.map((c) => getStringBetween(c, '<TargetFrameworkVersion>', '</TargetFrameworkVersion>'))
+    targetFrameworks.push(...targetFrameworkVersions)
+    // unique values + not empty + prefix with C#
+    const versions = targetFrameworks.filter((x, i, a) => a.indexOf(x) === i).filter((v) => v !== '').map((v) => 'C# ' + v)
 
-    return versions;
+    return versions
   }
 
   const enrichTags = async (serviceDefinition) => {
-    if (serviceDefinition.metadata.tags === undefined || serviceDefinition.metadata.tags === null)
-    {
-      serviceDefinition.metadata.tags = [];
+    if (serviceDefinition.metadata.tags === undefined || serviceDefinition.metadata.tags === null) {
+      serviceDefinition.metadata.tags = []
     }
 
-    const languages = await getLanguages(serviceDefinition._repo);
-    serviceDefinition.metadata.tags.push(...languages);
+    const languages = await getLanguages(serviceDefinition._repo)
+    serviceDefinition.metadata.tags.push(...languages)
 
-    const teams = await getTeams(serviceDefinition._repo);
-    serviceDefinition.metadata.tags.push(...teams);
+    const teams = await getTeams(serviceDefinition._repo)
+    serviceDefinition.metadata.tags.push(...teams)
 
-    if (languages.includes('C#'))
-    {
-      const fileTree = await getTree(serviceDefinition._repo);
+    if (languages.includes('C#')) {
+      const fileTree = await getTree(serviceDefinition._repo)
 
-      const versions = await getDotNetVersions(fileTree);
-      serviceDefinition.metadata.tags.push(...versions);
+      const versions = await getDotNetVersions(fileTree)
+      serviceDefinition.metadata.tags.push(...versions)
     }
 
-    serviceDefinition.metadata.tags = serviceDefinition.metadata.tags.filter((x, i, a) => a.indexOf(x) == i); //only unique values
+    serviceDefinition.metadata.tags = serviceDefinition.metadata.tags.filter((x, i, a) => a.indexOf(x) === i) // only unique values
   }
 
   const parseServiceDefinition = async (repo, path) => {
@@ -22241,7 +22233,7 @@ const getRepos = async () => {
           serviceDefinition._repo = repo
           serviceDefinition.status = 'OK'
 
-          await enrichTags(serviceDefinition);
+          await enrichTags(serviceDefinition)
 
           repoData.push(serviceDefinition)
         }
@@ -22410,7 +22402,7 @@ const updateLinks = async (linkDatabaseId, links, { notion }) => {
       newLink = link
     }
 
-    const key = newLink.toLowerCase();
+    const key = newLink.toLowerCase()
 
     // Now lets see if we can find the row
     if (existingLinks[key]) {
@@ -22697,9 +22689,7 @@ const createProperties = (repo, pageHash, dependsOn, { systems, owners, structur
   const properties = {}
   for (const field of structure) {
     if (mappingFn[field.name]) {
-      const value = mappingFn[field.name](repo, { dependsOn, systems, owners })
-      core.info(`Updating ${field.name} info for ${value}`)
-      properties[field.name] = value
+      properties[field.name] = mappingFn[field.name](repo, { dependsOn, systems, owners })
     }
   }
 
@@ -29582,7 +29572,7 @@ try {
     core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
     core.info(`Loaded ${Object.keys(services || {}).length} existing services`)
     core.endGroup()
-    core.startGroup('🌀 Getting github repositories (tst debug info)')
+    core.startGroup('🌀 Getting github repositories')
     const repositories = await getRepos({ core })
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)

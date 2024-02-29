@@ -22,7 +22,7 @@ try {
     core.info(`Loaded ${Object.keys(owners || {}).length} owners`)
     core.info(`Loaded ${Object.keys(services || {}).length} existing services`)
     core.endGroup()
-    core.startGroup('🌀 Getting github repositories (tst debug info)')
+    core.startGroup('🌀 Getting github repositories')
     const repositories = await getRepos({ core })
     core.endGroup()
     core.startGroup(`✨ Updating notion with ${repositories.length} services ...`)
