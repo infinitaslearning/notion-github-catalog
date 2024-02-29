@@ -74,29 +74,58 @@ const getRepos = async () => {
     }    
   }
 
- 
-  const getDotNetVersions = async (repo, keyword) => {
+  const getTree = async (repo) => {
     try {
-      const { data } = await octokit.request('GET https://api.github.com/search/code?q={keyword}+repo:{repo}', {
-        repo: repo.full_name,
-        keyword: keyword,
-        headers: {
-          accept: 'application/vnd.github.text-match+json'
-        }
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+        default_branch: repo.default_branch
       })
-      const matches = data.items.map((i) => {
-        const split = i.text_matches[0].fragment.split(keyword);
-        const foundValue = split[1]
-
-        const foundValue2 = foundValue.split(keyword.substring(1))[0]
-
-        const version = foundValue2.substring(0, foundValue2.length-2);
-        return 'C# ' + version;
-      });
-      return matches.filter((x, i, a) => a.indexOf(x) == i); //only unique values
+      return data
     } catch (ex) {
       throw ex
     }    
+  }
+
+
+  const getFileContent = async (url) => {
+    try {
+      const { data } = await octokit.request('GET {url}', {
+        url: url
+      })
+      const base64content = Buffer.from(data.content, 'base64')
+      const fileContent = base64content.toString('utf8')
+      return fileContent
+    } catch (ex) {
+      throw ex
+    }
+  }
+
+  function getStringBetween(str, start, end) {
+    const result = str.match(new RegExp(start + "(.*)" + end));
+
+    if (result === undefined || result === null)
+    {
+      return '';
+    }
+
+    return result[1];
+  }
+ 
+  const getDotNetVersions = async (fileTree) => {
+    const csprojBlobUrls = fileTree.tree.filter((n) => n.path.endsWith('.csproj')).map((n) => n.url);
+
+    const csprojContentsPromises = csprojBlobUrls.map((u) => getFileContent(u));
+    
+    const csprojContents = await Promise.all(csprojContentsPromises)
+
+    const targetFrameworks = csprojContents.map((c) => getStringBetween(c, '<TargetFramework>', '</TargetFramework>'));
+    const targetFrameworkVersions = csprojContents.map((c) => getStringBetween(c, '<TargetFrameworkVersion>', '</TargetFrameworkVersion>'));
+    targetFrameworks.push(...targetFrameworkVersions);
+    //unique values + not empty + prefix with C#
+    const versions = targetFrameworks.filter((x, i, a) => a.indexOf(x) == i).filter((v) => v != '').map((v) => 'C# ' + v);
+
+    return versions;
   }
 
   const enrichTags = async (serviceDefinition) => {
@@ -113,14 +142,10 @@ const getRepos = async () => {
 
     if (languages.includes('C#'))
     {
-      const targetFrameworkVersions = await getDotNetVersions(serviceDefinition._repo, '<TargetFramework>');
-      serviceDefinition.metadata.tags.push(...targetFrameworkVersions);
+      const fileTree = await getTree(serviceDefinition._repo);
 
-      const targetFrameworkVersions2 = await getDotNetVersions(serviceDefinition._repo, '<TargetFrameworkVersion>');
-      serviceDefinition.metadata.tags.push(...targetFrameworkVersions2);
-
-//SLEEP NEEDED BECAUSE OF MAX CALLS/MINUTE - https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#rate-limit
-
+      const versions = await getDotNetVersions(fileTree);
+      serviceDefinition.metadata.tags.push(...versions);
     }
 
     serviceDefinition.metadata.tags = serviceDefinition.metadata.tags.filter((x, i, a) => a.indexOf(x) == i); //only unique values
@@ -157,7 +182,7 @@ const getRepos = async () => {
         core.debug(`✋ Unable to find ${path} in ${repo.name}, not processing as 'push_missing' is false`)
       }
     }
-    
+
     return repoData
   }
 

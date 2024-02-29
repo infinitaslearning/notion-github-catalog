@@ -72,10 +72,12 @@ const updateLinks = async (linkDatabaseId, links, { notion }) => {
       newLink = link
     }
 
+    const key = newLink.toLowerCase();
+
     // Now lets see if we can find the row
-    if (existingLinks[newLink]) {
-      const linkId = existingLinks[newLink].id
-      const linkUrl = existingLinks[newLink].url
+    if (existingLinks[key]) {
+      const linkId = existingLinks[key].id
+      const linkUrl = existingLinks[key].url
 
       if (newLinkUrl !== linkUrl) { // url has changed
         await updateNotionLink(linkId, newLink, newLinkUrl, { notion })
