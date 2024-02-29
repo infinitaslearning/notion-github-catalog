@@ -48,6 +48,109 @@ const getRepos = async () => {
     }
   }
 
+  const getLanguages = async (repo) => {
+    try {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/languages', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+      })
+      const languages = Object.keys(data); 
+      return languages
+    } catch (ex) {
+      throw ex
+    }    
+  }
+  
+  const getTeams = async (repo) => {
+    try {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/teams', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+      })
+      const teams = data.map((t) => t.name);
+      return teams
+    } catch (ex) {
+      throw ex
+    }    
+  }
+
+  const getTree = async (repo) => {
+    try {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1', {
+        owner: repo.full_name.split('/')[0],
+        repo: repo.name,
+        default_branch: repo.default_branch
+      })
+      return data
+    } catch (ex) {
+      throw ex
+    }    
+  }
+
+
+  const getFileContent = async (url) => {
+    try {
+      const { data } = await octokit.request('GET {url}', {
+        url: url
+      })
+      const base64content = Buffer.from(data.content, 'base64')
+      const fileContent = base64content.toString('utf8')
+      return fileContent
+    } catch (ex) {
+      throw ex
+    }
+  }
+
+  function getStringBetween(str, start, end) {
+    const result = str.match(new RegExp(start + "(.*)" + end));
+
+    if (result === undefined || result === null)
+    {
+      return '';
+    }
+
+    return result[1];
+  }
+ 
+  const getDotNetVersions = async (fileTree) => {
+    const csprojBlobUrls = fileTree.tree.filter((n) => n.path.endsWith('.csproj')).map((n) => n.url);
+
+    const csprojContentsPromises = csprojBlobUrls.map((u) => getFileContent(u));
+    
+    const csprojContents = await Promise.all(csprojContentsPromises)
+
+    const targetFrameworks = csprojContents.map((c) => getStringBetween(c, '<TargetFramework>', '</TargetFramework>'));
+    const targetFrameworkVersions = csprojContents.map((c) => getStringBetween(c, '<TargetFrameworkVersion>', '</TargetFrameworkVersion>'));
+    targetFrameworks.push(...targetFrameworkVersions);
+    //unique values + not empty + prefix with C#
+    const versions = targetFrameworks.filter((x, i, a) => a.indexOf(x) == i).filter((v) => v != '').map((v) => 'C# ' + v);
+
+    return versions;
+  }
+
+  const enrichTags = async (serviceDefinition) => {
+    if (serviceDefinition.metadata.tags === undefined || serviceDefinition.metadata.tags === null)
+    {
+      serviceDefinition.metadata.tags = [];
+    }
+
+    const languages = await getLanguages(serviceDefinition._repo);
+    serviceDefinition.metadata.tags.push(...languages);
+
+    const teams = await getTeams(serviceDefinition._repo);
+    serviceDefinition.metadata.tags.push(...teams);
+
+    if (languages.includes('C#'))
+    {
+      const fileTree = await getTree(serviceDefinition._repo);
+
+      const versions = await getDotNetVersions(fileTree);
+      serviceDefinition.metadata.tags.push(...versions);
+    }
+
+    serviceDefinition.metadata.tags = serviceDefinition.metadata.tags.filter((x, i, a) => a.indexOf(x) == i); //only unique values
+  }
+
   const parseServiceDefinition = async (repo, path) => {
     const repoData = []
     try {
@@ -61,6 +164,9 @@ const getRepos = async () => {
           serviceDefinition._catalog_file = data.html_url
           serviceDefinition._repo = repo
           serviceDefinition.status = 'OK'
+
+          await enrichTags(serviceDefinition);
+
           repoData.push(serviceDefinition)
         }
       }
@@ -76,6 +182,7 @@ const getRepos = async () => {
         core.debug(`✋ Unable to find ${path} in ${repo.name}, not processing as 'push_missing' is false`)
       }
     }
+
     return repoData
   }
 
