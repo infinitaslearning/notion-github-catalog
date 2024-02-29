@@ -39,6 +39,24 @@ It looks like this after it has run:
 
 If your descriptor file contains links, these are added to an embedded database within the service page called `Links`.
 
+### Used information
+
+The following fields are used to populate the database:
+
+Name: from the descriptor file, if empty then the repository name
+Description: from the descriptor file, if empty then the repository description, if empty then the repository name
+Kind: from the descriptor file
+Lifecycle: from the descriptor file
+URL: from the descriptor file, if empty then part of the descriptor file URL, if empty then the repository URL
+Owner: from the descriptor file
+System: from the descriptor file
+DependsOn: from the descriptor file
+Tags: from the descriptor file, which are enriched with the Language information from GitHub, the connected teams in GitHub and for C# the version information from the csproj files.
+Visibility: from the repository visibility
+Language: from the repository (main language)
+Status: from the descriptor file
+Updated: current date/time
+
 ## Relation Databases
 
 You have an option to provide additional 'lookup' databases to convert some of the above selects into relations:
