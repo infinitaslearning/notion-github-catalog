@@ -22102,17 +22102,12 @@ const getRepos = async () => {
   const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
   const getServiceDefinitionFile = async (repo, path) => {
-    try {
-      const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-        owner: repo.full_name.split('/')[0],
-        repo: repo.name,
-        path
-      })
-      return data
-    } catch (ex) {
-      core.info(`   Error in ${repo.name}: ${ex.message}`)
-      throw ex
-    }
+    const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+      owner: repo.full_name.split('/')[0],
+      repo: repo.name,
+      path
+    })
+    return data
   }
 
   const getLanguages = async (repo) => {
@@ -22238,8 +22233,6 @@ const getRepos = async () => {
     } catch (ex) {
       if (ex.name === 'YAMLSemanticError') {
         core.info(`   YAML parse error in ${repo.name} - ${path}: ${ex.message}`)
-      } else {
-        core.info(`   Error in ${repo.name} - ${path}: ${ex.message}`)
       }
       if (pushMissing) {
         repoData.push({
