@@ -119,7 +119,7 @@ const getRepos = async () => {
     const teams = await getTeams(serviceDefinition._repo)
     serviceDefinition.metadata.tags.push(...teams)
 
-    if (teams.contains('team-cx') || teams.contains('team-eex')) {
+    if (teams.includes('team-cx') || teams.includes('team-eex')) {
       // const languages = await getLanguages(serviceDefinition._repo)
       // serviceDefinition.metadata.tags.push(...languages)
 
