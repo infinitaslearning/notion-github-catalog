@@ -22101,6 +22101,11 @@ const getRepos = async () => {
   const repositoryFilterRegex = new RegExp(repositoryFilter)
   const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
+  const getRatelimitInfo = async () => {
+    const { data } = await octokit.request('GET /rate_limit')
+    core.info(`Ratelimit info: ${JSON.stringify(data)}`)
+  }
+
   const getServiceDefinitionFile = async (repo, path) => {
     const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
       owner: repo.full_name.split('/')[0],
@@ -22274,6 +22279,8 @@ const getRepos = async () => {
   })
 
   core.info(`Found ${repos.length} github repositories, now getting service data for those that match ${repositoryFilter}`)
+
+  await getRatelimitInfo()
 
   // We will create an array of batches to speed up execution, run each batch
   // In series, and then join them together.
