@@ -22110,19 +22110,19 @@ const getRepos = async () => {
     return data
   }
 
-  const getLanguages = async (repo) => {
-    try {
-      const { data } = await octokit.request('GET /repos/{owner}/{repo}/languages', {
-        owner: repo.full_name.split('/')[0],
-        repo: repo.name
-      })
-      const languages = Object.keys(data)
-      return languages
-    } catch (ex) {
-      core.info(`   Error in ${repo.name}: ${ex.message}`)
-      return []
-    }
-  }
+  // const getLanguages = async (repo) => {
+  //   try {
+  //     const { data } = await octokit.request('GET /repos/{owner}/{repo}/languages', {
+  //       owner: repo.full_name.split('/')[0],
+  //       repo: repo.name
+  //     })
+  //     const languages = Object.keys(data)
+  //     return languages
+  //   } catch (ex) {
+  //     core.info(`   Error in ${repo.name}: ${ex.message}`)
+  //     return []
+  //   }
+  // }
 
   const getTeams = async (repo) => {
     try {
@@ -22192,20 +22192,22 @@ const getRepos = async () => {
       serviceDefinition.metadata.tags = []
     }
 
-    const languages = await getLanguages(serviceDefinition._repo)
-    serviceDefinition.metadata.tags.push(...languages)
-
     const teams = await getTeams(serviceDefinition._repo)
     serviceDefinition.metadata.tags.push(...teams)
 
-    if (languages.includes('C#')) {
+    if (teams.contains('team-cx') || teams.contains('team-eex')) {
+      // const languages = await getLanguages(serviceDefinition._repo)
+      // serviceDefinition.metadata.tags.push(...languages)
+
+      // if (languages.includes('C#')) {
       const fileTree = await getTree(serviceDefinition._repo)
 
       const versions = await getDotNetVersions(fileTree)
       serviceDefinition.metadata.tags.push(...versions)
-    }
+      // }
 
-    serviceDefinition.metadata.tags = serviceDefinition.metadata.tags.filter((x, i, a) => a.indexOf(x) === i) // only unique values
+      serviceDefinition.metadata.tags = serviceDefinition.metadata.tags.filter((x, i, a) => a.indexOf(x) === i) // only unique values
+    }
   }
 
   const parseServiceDefinition = async (repo, path) => {
