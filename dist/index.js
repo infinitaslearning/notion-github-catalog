@@ -22110,17 +22110,8 @@ const getRepos = async () => {
       })
       return data
     } catch (ex) {
-      // Try it now with a .yml file instead only for default version!
-      if (catalogFile === 'catalog-info.yaml') {
-        const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-          owner: repo.full_name.split('/')[0],
-          repo: repo.name,
-          path: path.replace('catalog-info.yaml', 'catalog-info.yml')
-        })
-        return data
-      } else {
-        throw ex
-      }
+      core.info(`   Error in ${repo.name}: ${ex.message}`)
+      throw ex
     }
   }
 
@@ -22133,6 +22124,7 @@ const getRepos = async () => {
       const languages = Object.keys(data)
       return languages
     } catch (ex) {
+      core.info(`   Error in ${repo.name}: ${ex.message}`)
       return []
     }
   }
@@ -22146,6 +22138,7 @@ const getRepos = async () => {
       const teams = data.map((t) => t.name)
       return teams
     } catch (ex) {
+      core.info(`   Error in ${repo.name}: ${ex.message}`)
       return []
     }
   }
@@ -22168,6 +22161,7 @@ const getRepos = async () => {
       const fileContent = base64content.toString('utf8')
       return fileContent
     } catch (ex) {
+      core.info(`   Error in ${url}: ${ex.message}`)
       return ''
     }
   }
@@ -22233,13 +22227,20 @@ const getRepos = async () => {
           serviceDefinition._repo = repo
           serviceDefinition.status = 'OK'
 
-          await enrichTags(serviceDefinition)
+          if (repo.language === 'C#') {
+            await enrichTags(serviceDefinition)
+          }
 
           repoData.push(serviceDefinition)
         }
       }
       core.debug(`🌟 Processed ${data.name} in ${repo.name} ...`)
     } catch (ex) {
+      if (ex.name === 'YAMLSemanticError') {
+        core.info(`   YAML parse error in ${repo.name} - ${path}: ${ex.message}`)
+      } else {
+        core.info(`   Error in ${repo.name} - ${path}: ${ex.message}`)
+      }
       if (pushMissing) {
         repoData.push({
           status: `${catalogFile} missing`,
@@ -22270,13 +22271,13 @@ const getRepos = async () => {
     return repoData
   }
 
-  const repos = await octokit.paginate('GET /orgs/{owner}/repos',
-    {
-      owner: owner,
-      type: repositoryType,
-      sort: 'full_name',
-      per_page: 100
-    })
+  const repos = await octokit.paginate('GET /orgs/{owner}/repos', {
+    owner: owner,
+    type: repositoryType,
+    sort: 'full_name',
+    per_page: 100
+  })
+
   core.info(`Found ${repos.length} github repositories, now getting service data for those that match ${repositoryFilter}`)
 
   // We will create an array of batches to speed up execution, run each batch
