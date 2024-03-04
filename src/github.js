@@ -245,7 +245,10 @@ const getRepos = async () => {
   repoData = repoData.flat(2)
 
   for (const index in repoData) {
-    await enrichTags(repoData[index])
+    const serviceDefinition = repoData[index]
+    if (serviceDefinition.metadata !== undefined) {
+      await enrichTags(serviceDefinition)
+    }
   }
 
   // Now we want to sort the repositories based on their name, and the number of dependencies
