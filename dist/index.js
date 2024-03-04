@@ -22104,6 +22104,8 @@ const getRepos = async () => {
   const retrieveTeams = false
   const retrieveLanguages = false
 
+  const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+
   const getRatelimitInfo = async (info) => {
     const { data } = await octokit.request('GET /rate_limit')
     core.info(`Ratelimit info "${info}": ${JSON.stringify(data.resources.core)}`)
@@ -22324,6 +22326,8 @@ const getRepos = async () => {
     const serviceDefinition = repoData[index]
     if (serviceDefinition.metadata !== undefined) {
       await enrichTags(serviceDefinition)
+
+      await sleep(1000)
     }
   }
 
