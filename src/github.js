@@ -82,17 +82,12 @@ const getRepos = async () => {
   }
 
   const getFileContent = async (url) => {
-    try {
-      const { data } = await octokit.request('GET {url}', {
-        url: url
-      })
-      const base64content = Buffer.from(data.content, 'base64')
-      const fileContent = base64content.toString('utf8')
-      return fileContent
-    } catch (ex) {
-      core.info(`   Error in ${url}: ${ex.message}`)
-      return ''
-    }
+    const { data } = await octokit.request('GET {url}', {
+      url: url
+    })
+    const base64content = Buffer.from(data.content, 'base64')
+    const fileContent = base64content.toString('utf8')
+    return fileContent
   }
 
   const getStringBetween = (str, start, end) => {
@@ -108,9 +103,12 @@ const getRepos = async () => {
   const getDotNetVersions = async (fileTree) => {
     const csprojBlobUrls = fileTree.tree.filter((n) => n.path.endsWith('.csproj')).map((n) => n.url)
 
-    const csprojContentsPromises = csprojBlobUrls.map((u) => getFileContent(u))
-
-    const csprojContents = await Promise.all(csprojContentsPromises)
+    const csprojContents = []
+    for (const index in csprojBlobUrls) {
+      const csprojBlobUrl = csprojBlobUrls[index]
+      const content = await getFileContent(csprojBlobUrl)
+      csprojContents.push(content)
+    }
 
     const targetFrameworks = csprojContents.map((c) => getStringBetween(c, '<TargetFramework>', '</TargetFramework>'))
     const targetFrameworkVersions = csprojContents.map((c) => getStringBetween(c, '<TargetFrameworkVersion>', '</TargetFrameworkVersion>'))
@@ -246,6 +244,7 @@ const getRepos = async () => {
   // Now flatten it
   repoData = repoData.flat(2)
 
+  await sleep(5000)
   for (const index in repoData) {
     const serviceDefinition = repoData[index]
     if (serviceDefinition.metadata !== undefined) {
