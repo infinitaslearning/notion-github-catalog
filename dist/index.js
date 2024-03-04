@@ -22214,6 +22214,7 @@ const getRepos = async () => {
       if (serviceDefinition._repo.topics.includes('analyse-dotnet-versions')) {
         try {
           await getRatelimitInfo(`start ${serviceDefinition.metadata.name}`)
+          serviceDefinition.metadata.tags.push('retrieving-dotnet-info')
 
           const fileTree = await getTree(serviceDefinition._repo)
 
