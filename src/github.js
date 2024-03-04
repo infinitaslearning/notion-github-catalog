@@ -136,12 +136,17 @@ const getRepos = async () => {
 
     if (retrieveDotNetVersions) {
       if (serviceDefinition._repo.topics.includes('analyse-dotnet-versions')) {
-        await getRatelimitInfo(`start ${serviceDefinition.metadata.name}`)
+        try {
+          await getRatelimitInfo(`start ${serviceDefinition.metadata.name}`)
 
-        const fileTree = await getTree(serviceDefinition._repo)
+          const fileTree = await getTree(serviceDefinition._repo)
 
-        const versions = await getDotNetVersions(fileTree)
-        serviceDefinition.metadata.tags.push(...versions)
+          const versions = await getDotNetVersions(fileTree)
+          serviceDefinition.metadata.tags.push(...versions)
+        } catch (ex) {
+          core.info(`   Error in ${serviceDefinition.name}: ${ex.message}`)
+          serviceDefinition.metadata.tags.push('failed-retrieve-dotnet')
+        }
 
         await getRatelimitInfo(`end ${serviceDefinition.metadata.name}`)
       }
@@ -163,8 +168,6 @@ const getRepos = async () => {
           serviceDefinition._catalog_file = data.html_url
           serviceDefinition._repo = repo
           serviceDefinition.status = 'OK'
-
-          await enrichTags(serviceDefinition)
 
           repoData.push(serviceDefinition)
         }
@@ -240,6 +243,10 @@ const getRepos = async () => {
 
   // Now flatten it
   repoData = repoData.flat(2)
+
+  for (const index in repoData) {
+    await enrichTags(repoData[index])
+  }
 
   // Now we want to sort the repositories based on their name, and the number of dependencies
   repoData.sort((a, b) => {
